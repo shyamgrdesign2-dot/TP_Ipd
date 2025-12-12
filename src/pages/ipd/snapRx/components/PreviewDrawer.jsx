@@ -12,21 +12,21 @@ import { Button, message, Drawer } from "antd";
 import { CloudUploadOutlined, LoadingOutlined } from "@ant-design/icons";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
-import CashManagerContext from "../../../context/CashManagerContext";
-import { useSnapRxSession } from "../context/SnapRxSessionContext";
+import { uploadSnapRxFiles } from "../services/snapRxService";
+import CashManagerContext from "../../../../context/CashManagerContext";
+import { useIPDSnapRxSession } from "../context/SnapRxSessionContext";
 import "./PreviewDrawer.scss";
-import CommonModal from "../../../common/CommonModal";
-import alertIcon from "../../../assets/images/alertIcon.svg";
+import CommonModal from "../../../../common/CommonModal";
+import alertIcon from "../../../../assets/images/alertIcon.svg";
 import { useDispatch, useSelector } from "react-redux";
-import { trackEvent } from "../../../utils/utils";
-import { EVENTS } from "../../../utils/events";
+import { trackEvent } from "../../../../utils/utils";
+import { EVENTS } from "../../../../utils/events";
 import PlusIcon from "./PlusIcon";
 import MinusIcon from "./MinusIcon";
 import {
   resetFileUploadToken,
   setUploadedFilesFromStore,
-} from "../../../redux/snapRxDigitizationSlice";
-import { uploadFiles as uploadIpdFiles } from "../../../redux/ipd/ipdSnapRxDigitizationSlice";
+} from "../../../../redux/ipd/ipdSnapRxDigitizationSlice";
 import RotateLeftIcon from "./RotateLeftIcon";
 
 const PreviewDrawer = forwardRef(
@@ -50,6 +50,7 @@ const PreviewDrawer = forwardRef(
       handleGoBackToMainFiles,
       onZoomIn,
       onZoomOut,
+      style
     },
     ref
   ) => {
@@ -65,7 +66,7 @@ const PreviewDrawer = forwardRef(
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const { fileUploadToken } = useSelector((state) => state.snapRx);
+    const { fileUploadToken } = useSelector((state) => state.ipdSnapRx);
     const imageRefs = useRef(new Map());
     const canvasRefs = useRef(new Map());
     const timerRef = useRef(null);
@@ -186,6 +187,16 @@ const PreviewDrawer = forwardRef(
       const naturalWidth = image.naturalWidth || image.width;
       const naturalHeight = image.naturalHeight || image.height;
 
+      // Guard against unloaded images producing zero dimensions
+      if (!naturalWidth || !naturalHeight) {
+        console.warn("INTEL ==> getCroppedImg skipping due to zero natural size", {
+          fileId,
+          naturalWidth,
+          naturalHeight,
+        });
+        return null;
+      }
+
       let imgWidth = image.width;
       let imgHeight = image.height;
       if (naturalHeight === image.height && totalFile?.manualHeight) {
@@ -217,8 +228,20 @@ const PreviewDrawer = forwardRef(
       const finalCanvas = canvas;
       const finalCtx = finalCanvas.getContext("2d");
 
-      finalCanvas.width = crop.width * scaleX;
-      finalCanvas.height = crop.height * scaleY;
+      const nextWidth = crop.width * scaleX;
+      const nextHeight = crop.height * scaleY;
+      if (!nextWidth || !nextHeight) {
+        console.warn("INTEL ==> getCroppedImg skipping due to zero crop", {
+          fileId,
+          crop,
+          scaleX,
+          scaleY,
+        });
+        return null;
+      }
+
+      finalCanvas.width = nextWidth;
+      finalCanvas.height = nextHeight;
       const cropX = crop.x * scaleX;
       const cropY = crop.y * scaleY;
       const cropWidth = crop.width * scaleX;
@@ -260,7 +283,7 @@ const PreviewDrawer = forwardRef(
     };
 
     const { patient_data } = useContext(CashManagerContext);
-    const { sessionId, setHasUploadedFiles } = useSnapRxSession();
+    const { sessionId, setHasUploadedFiles } = useIPDSnapRxSession();
 
     const canvasRef = useRef(null);
 
@@ -412,37 +435,48 @@ const PreviewDrawer = forwardRef(
           );
 
           const apiStartTime = Date.now();
-          const filesToUpload = updatedCroppedFiles.map((file) => {
+          updatedCroppedFiles = updatedCroppedFiles.map((file) => {
             const newFileName = file?.file?.name.toLowerCase();
-            return new File([file.file], newFileName, { type: file.file.type });
-          });
-          await dispatch(
-            uploadIpdFiles({
-              files: filesToUpload,
-              fileUploadToken,
-            })
-          ).unwrap();
-          setTimeout(() => {
+            file.file = new File([file.file], newFileName, { type: file.file.type });
+            return file.file;
+          })
+          const response = await uploadSnapRxFiles(
+            updatedCroppedFiles,
+            fileUploadToken
+          );
+          if (response) {
+            if (response?.uploaded_files?.length > 0) {
+              setTimeout(() => {
+                setIsSubmitting(false);
+                onCloseDrawer();
+                handleGoBackToMainFiles();
+                setHasUploadedFiles(true);
+              }, 500);
+              trackEvent(EVENTS.SNAP_RX.uploadSuccess, {
+                file_type: "img",
+                file_size: updatedCroppedFiles?.reduce(
+                  (acc, file) => acc + file.size,
+                  0
+                ),
+                upload_time: (Date.now() - apiStartTime) / 1000,
+                upload_source: "EMR",
+              });
+            } else {
+              trackEvent(EVENTS.SNAP_RX.uploadFailed);
+              message.warning("Failed to upload file(s) 1");
+              setIsSubmitting(false);
+            }
+          } else {
+            message.warning("Failed to upload file(s) 2");
             setIsSubmitting(false);
-            onCloseDrawer();
-            handleGoBackToMainFiles();
-            setHasUploadedFiles(true);
-          }, 500);
-          trackEvent(EVENTS.SNAP_RX.uploadSuccess, {
-            file_type: "img",
-            file_size: filesToUpload?.reduce(
-              (acc, file) => acc + file.size,
-              0
-            ),
-            upload_time: (Date.now() - apiStartTime) / 1000,
-            upload_source: "EMR",
-          });
+          }
         } catch (error) {
           if (error?.response?.status === 401) { // TODO: INTEL - handle better
             dispatch(resetFileUploadToken());
             handleGoBackToMainFiles();
           } else {
-            message.warning("Failed to upload file(s)");
+            console.log('INTEL ==> error', error)
+            message.warning("Failed to upload file(s) 3");
           }
           setIsSubmitting(false);
         }
@@ -547,21 +581,22 @@ const PreviewDrawer = forwardRef(
     };
 
     const handleRemoveFile = () => {
+      const fileToRemove = uploadedFiles?.[selectedFileIndex];
+      if (!fileToRemove) return;
       if (uploadedFiles?.length === 1 && uploadedFilesFromStore?.length > 0) {
         message.warning(
           "You cannot delete the only file. Please reupload the file."
         );
         return;
       }
-      if (selectedFileIndex > 0) {
-        setSelectedFileIndex(selectedFileIndex - 1);
-        setSelectedFileId(uploadedFiles?.[selectedFileIndex - 1]?.id);
-        onRemove(selectedFileId);
-      } else {
-        setSelectedFileIndex(1);
-        setSelectedFileId(uploadedFiles?.[1]?.id);
-        onRemove(selectedFileId);
-      }
+
+      const nextIndex =
+        selectedFileIndex > 0 ? selectedFileIndex - 1 : selectedFileIndex;
+      const nextFileId = uploadedFiles?.[nextIndex]?.id ?? null;
+
+      onRemove(fileToRemove);
+      setSelectedFileIndex(nextIndex);
+      setSelectedFileId(nextFileId);
     };
 
     const handleAddMoreFiles = () => {
@@ -629,22 +664,22 @@ const PreviewDrawer = forwardRef(
               <div className="alert-warning rounded-10px p-2 patient-details">
                 <div className="d-flex align-items-center">
                   <img className="me-3" src={alertIcon} alt="Warning" />
-                  <span>Are you sure you want to delete this template?</span>
+                  <span>Are you sure you want to delete this page?</span>
                 </div>
               </div>
               <div className="mt-4">
                 <div className="d-flex align-items-center mt-2 justify-content-end">
                   <div
                     onClick={() => {
-                      onRemove(selectedFileIndex);
-                      showHideModal();
+                      handleRemoveFile();
+                      showHideDeleteModal();
                     }}
                     className="me-4 text-decoration-underline btn p-0 text-main"
                   >
                     Yes Delete
                   </div>
                   <Button
-                    onClick={showHideModal}
+                    onClick={showHideDeleteModal}
                     className="lh-lg btn btn-primary3 btn-41 px-4"
                   >
                     <span>No</span>
@@ -668,49 +703,23 @@ const PreviewDrawer = forwardRef(
     }
 
     return (
-      <Drawer
-        width="45.625rem"
-        maxWidth="45.625rem"
-        placement="right"
-        onClose={handleDrawerClose}
-        open={isOpen}
-        styles={{
-          header: {
-            display: "none",
-          },
-          body: {
-            overflow: 'hidden'
-          }
-        }}
-        maskClosable={false}
-      >
-        <div className="modalCard-header h-60 align-items-center justify-content-between d-flex position-sticky top-0 z-2">
-          <div className="align-items-center d-flex h-100">
-            <div className="border-end h-100 text-center me-3">
-              <div
-                onClick={showHideBackModal}
-                className="btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer"
-              >
-                <i className="icon-right"></i>
-              </div>
-            </div>
-            <div className="snaprx-drawer-title">
-              {isEditMode ? "Edit Rx" : "Rx Preview"}
-            </div>
-          </div>
-          <div className="d-flex align-items-center gap-2">
-            <Button
-              type="primary"
-              onClick={handleSave}
-              icon={isSubmitting ? <LoadingOutlined /> : null}
-              loading={isSubmitting}
-              disabled={isSubmitting || uploadedFiles?.length === 0}
-              className="btn align-items-center d-flex btn-41 btn-primary3 me-20 save-btn"
-            >
-              Save
-            </Button>
-          </div>
-        </div>
+      // <Drawer
+      //   width="45.625rem"
+      //   maxWidth="45.625rem"
+      //   placement="right"
+      //   onClose={handleDrawerClose}
+      //   open={isOpen}
+      //   styles={{
+      //     header: {
+      //       display: "none",
+      //     },
+      //     body: {
+      //       overflow: 'hidden'
+      //     }
+      //   }}
+      //   maskClosable={false}
+      // >
+        <div style={style}>
         <div className="preview-drawer-content">
           {/* Main Preview Area */}
           <div className="snaprx-preview-container">
@@ -895,9 +904,22 @@ const PreviewDrawer = forwardRef(
 
         {/* Hidden canvas for cropping */}
         <canvas ref={canvasRef} style={{ display: "none" }} />
+        <div className="preview-drawer-footer">
+          <Button
+            type="primary"
+            className="preview-continue-btn"
+            onClick={handleSave}
+            icon={isSubmitting ? <LoadingOutlined /> : null}
+            loading={isSubmitting}
+            disabled={isSubmitting || uploadedFiles?.length === 0}
+          >
+            Continue
+          </Button>
+        </div>
         {DELETE_MODAL}
         {BACK_MODAL}
-      </Drawer>
+        </div>
+      // </Drawer>
     );
   }
 );

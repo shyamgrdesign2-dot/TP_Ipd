@@ -4,10 +4,19 @@ import config from "../../config";
 const baseUrl = { customBaseUrl: config.snap_rx_api_url };
 
 const SnapRxDigitization = {};
+const IPDSnapRx = {};
 
 SnapRxDigitization.generateFileUploadToken = function (data) {
   return api.post(
     `/api/v1/digitization/snap-rx/generate-file-upload-token`,
+    { ...data },
+    baseUrl
+  );
+};
+
+IPDSnapRx.generateFileUploadToken = function (data) {
+  return api.post(
+    `/api/v1/smart-rx/snap-rx/generate-file-upload-token`,
     { ...data },
     baseUrl
   );
@@ -64,3 +73,5 @@ SnapRxDigitization.getFilesOnMobile = function ({
 };
 
 export default SnapRxDigitization;
+
+export { IPDSnapRx };

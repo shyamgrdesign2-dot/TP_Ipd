@@ -42,6 +42,7 @@ import FullPageLoader from "../../vaccination/components/Loader";
 import FilledByCards from "../otNotes/components/FilledByCards";
 import GlobalVoiceAI from "../components/GlobalVoiceAI";
 import AgentAlexVoicePanel from "../components/AgentAlexVoicePanel";
+import AgentAlexSnapRxPanel from "../components/AgentAlexSnapRxPanel";
 import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 import { listSectionwithTag } from "../../../redux/medicalhistorySlice";
 
@@ -86,7 +87,7 @@ const AssessmentsForm = (props) => {
   const [filledDate, setFilledDate] = useState(new Date());
   const [filledAtTime, setFilledAtTime] = useState(new Date());
   const [selectedTimePeriod, setSelectedTimePeriod] = useState("Morning");
-  const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
+  const [activeAssistantPanel, setActiveAssistantPanel] = useState(null);
 
   const customModuleFormType = IPD.CUSTOM_MODULE_FORM_TYPES.assessments;
 
@@ -506,15 +507,23 @@ const AssessmentsForm = (props) => {
 
   const renderBottomSection = () => (
     <>
-      {isVoiceAssistantOpen && <div className="agent-alex-voice-overlay" />}
+      {activeAssistantPanel && <div className="agent-alex-voice-overlay" />}
       <div className="global-voice-ai-wrapper">
-        {isVoiceAssistantOpen ? (
+        {activeAssistantPanel === "voice" ? (
           <AgentAlexVoicePanel
             onSubmit={handleAIRecordingComplete}
-            onClose={() => setIsVoiceAssistantOpen(false)}
+            onClose={() => setActiveAssistantPanel(null)}
+          />
+        ) : activeAssistantPanel === "snaprx" ? (
+          <AgentAlexSnapRxPanel
+            onClose={() => setActiveAssistantPanel(null)}
+            previousOutput={reqData}
           />
         ) : (
-          <GlobalVoiceAI onClick={() => setIsVoiceAssistantOpen(true)} />
+          <GlobalVoiceAI
+            onVoiceClick={() => setActiveAssistantPanel("voice")}
+            onSnapRxClick={() => setActiveAssistantPanel("snaprx")}
+          />
         )}
       </div>
       {renderCustomModulesFooter()}

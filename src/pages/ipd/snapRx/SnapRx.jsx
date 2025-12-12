@@ -1,47 +1,54 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
-import CashManagerContext from "../../context/CashManagerContext";
+import CashManagerContext from "../../../context/CashManagerContext";
 import { useLocation, useNavigate } from "react-router-dom";
+import visitEnd from "../../../assets/images/end-visit.svg";
+import imgCloseVisit from "../../../assets/images/close-visit.svg";
 import Header from "./components/Header";
-import FullPageLoader from "../vaccination/components/Loader";
+import FullPageLoader from "../../vaccination/components/Loader";
 import ErrorBoundary from "./components/ErrorBoundary";
 import UploadedFilesPreview from "./components/UploadedFilesPreview";
 import { Drawer } from "antd";
-import KnowMore from "../../components/KnowMore";
-import { SNAP_RX_KNOW_MORE_DATA } from "../../utils/constants";
-import FileUploadErrorModal from "../../components/common/FileUploadErrorModal";
+import KnowMore from "../../../components/KnowMore";
+import { MESSAGE_KEY, SNAP_RX_KNOW_MORE_DATA } from "../../../utils/constants";
+import FileUploadErrorModal from "../../../components/common/FileUploadErrorModal";
 import {
-  SnapRxSessionProvider,
-  useSnapRxSession,
+  IPDSnapRxSessionProvider,
+  useIPDSnapRxSession,
 } from "./context/SnapRxSessionContext";
 import UploadMoreDrawer from "./components/UploadMoreDrawer";
 import UploadWrittenRx from "./components/UploadWrittenRx";
-import { message } from "antd";
-import {
-  createSnapRx,
-  editSnapRx,
-} from "./services/snapRxService";
+import { message, Button } from "antd";
+import { createSnapRx, editSnapRx } from "./services/snapRxService";
 import "./SnapRx.scss";
 import { useSelector } from "react-redux";
 import {
   generateFileUploadToken,
   getFiles,
   setFileUploadToken,
+  setFileUploadSessionId,
   setUploadedFilesFromStore,
-} from "../../redux/snapRxDigitizationSlice";
-import { uploadFiles as uploadIpdFiles } from "../../redux/ipd/ipdSnapRxDigitizationSlice";
+  digitizeAssessments,
+  resetFileUploadToken,
+} from "../../../redux/ipd/ipdSnapRxDigitizationSlice";
 import { useDispatch } from "react-redux";
 import PreviewDrawer from "./components/PreviewDrawer";
-import { clearExpiredTokensFromStorage } from "../../utils/utils";
+import { clearExpiredTokensFromStorage } from "../../../utils/utils";
+import { SNAP_RX_TOKENS_STORAGE_KEY } from "../../../utils/constants";
+import { useAssessmentDataStore } from "../../../hooks/useAssessmentDataStore";
 const UPLOADED_FILES_DOMAIN = "iscribe.blob.core.windows.net";
 
-function SnapRxContent() {
+function SnapRxContent({ previousOutput, handleClose }) {
+  const { addDataToStore } = useAssessmentDataStore();
   const { state } = useLocation();
+  const { patientDetails } = state || {};
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { uploadedFiles: uploadedFilesFromStore, fileUploadToken } =
-    useSelector((state) => state.snapRx);
+  const {
+    uploadedFiles: uploadedFilesFromStore,
+    fileUploadToken,
+    fileUploadSessionId: sessionId,
+  } = useSelector((state) => state.ipdSnapRx);
   const { userId } = useSelector((state) => state.doctors);
-  const { sessionId, refreshSessionId } = useSnapRxSession();
   const uploadWrittenRxRef = useRef(null);
   const timerForLoadingRef = useRef(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -50,6 +57,7 @@ function SnapRxContent() {
   const [showKnowMore, setShowKnowMore] = useState(false);
   const [isUploadMoreDrawerOpen, setIsUploadMoreDrawerOpen] = useState(false);
   const [isAddMoreClicked, setIsAddMoreClicked] = useState(false);
+  const [isDigitizing, setIsDigitizing] = useState(false);
   const previewDrawerRef = useRef(null);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isWaitingForFiles, setIsWaitingForFiles] = useState(false);
@@ -72,15 +80,66 @@ function SnapRxContent() {
     clearExpiredTokensFromStorage();
   }, []);
 
+  useEffect(() => {
+    const patientId = patientDetails?.details?.id;
+    const admissionId = patientDetails?.admissionId;
+    if (!patientId || !admissionId) return;
+
+    const tokenKey = `fileUploadToken_${patientId}_${admissionId}`;
+    const tokenDataString = localStorage.getItem(SNAP_RX_TOKENS_STORAGE_KEY);
+    if (tokenDataString) {
+      try {
+        const parsed = JSON.parse(tokenDataString);
+        const storedToken = parsed[tokenKey];
+        const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+        const isExpired =
+          !storedToken?.timestamp ||
+          Date.now() - storedToken.timestamp > ONE_DAY_MS ||
+          Date.now() > storedToken.expiresIn;
+        if (storedToken && !isExpired) {
+          dispatch(setFileUploadToken(storedToken.value));
+          if (storedToken.sessionId) {
+            dispatch(setFileUploadSessionId(storedToken.sessionId));
+          }
+          return;
+        }
+        if (isExpired && parsed[tokenKey]) {
+          delete parsed[tokenKey];
+          localStorage.setItem(
+            SNAP_RX_TOKENS_STORAGE_KEY,
+            JSON.stringify(parsed)
+          );
+        }
+      } catch (error) {
+        console.error("Error parsing stored token:", error);
+      }
+    }
+
+    if (!fileUploadToken) {
+      dispatch(
+        generateFileUploadToken({
+          patientId,
+          admissionId,
+        })
+      );
+    }
+  }, [dispatch, fileUploadToken, patientDetails]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(setFileUploadToken(null));
+    };
+  }, []);
+
   const fetchUploadedFiles = async (
-    fetchByTcmId = false,
     createEditSnapRx = false,
     showErrorOnRefreshClick = false
   ) => {
-    if (!patient_data?.patient_unique_id || (fetchByTcmId && !tcmId)) {
-      if (showErrorOnRefreshClick) {
-        message.error("Please try again after uploading the files.");
-      }
+    const patientId = patientDetails?.details?.id;
+    const admissionId = patientDetails?.admissionId;
+    const tokenForFiles = fileUploadToken;
+    if (!patientId || !admissionId) {
+      message.error("Patient information is missing. Please try again.");
       return;
     }
     if (showErrorOnRefreshClick) {
@@ -88,28 +147,20 @@ function SnapRxContent() {
     }
     try {
       const reqData = {
-        patient_unique_id: patient_data?.patient_unique_id,
-        session_id: sessionId,
+        patientId,
+        admissionId,
+        sessionId,
+        fileUploadToken: tokenForFiles,
       };
-      if (fetchByTcmId) {
-        reqData.tcm_id = tcmId;
-      }
       dispatch(
         getFiles({
           ...reqData,
         })
-      ).then(() => {
+      ).then((action) => {
         if (createEditSnapRx) {
           setIsWaitingForFiles(true);
           handleCreateSnapRx();
         }
-        dispatch(
-          generateFileUploadToken({
-            doctor_id: userId,
-            patient_unique_id: patient_data?.patient_unique_id,
-            session_id: sessionId,
-          })
-        );
       });
     } catch (error) {
       console.error("Error fetching uploaded files:", error);
@@ -121,8 +172,10 @@ function SnapRxContent() {
   };
 
   useEffect(() => {
-    fetchUploadedFiles(!!tcmId);
-  }, [patient_data, tcmId]);
+    if (fileUploadToken) {
+      fetchUploadedFiles();
+    }
+  }, [fileUploadToken, patientDetails]);
 
   useEffect(() => {
     return () => {
@@ -142,6 +195,13 @@ function SnapRxContent() {
   };
 
   const fetchImages = async (toDeleteFile = null) => {
+    const patientId = patientDetails?.details?.id;
+    const admissionId = patientDetails?.admissionId;
+    if (!patientId || !admissionId) {
+      setIsLoading(false);
+      message.error("Patient information is missing. Please try again.");
+      return;
+    }
     if (uploadedFilesFromStore?.length === 0) {
       setUploadedFiles([]);
       setIsLoading(false);
@@ -150,19 +210,47 @@ function SnapRxContent() {
     if (
       !uploadedFilesFromStore?.[0]?.fileUrl?.includes(UPLOADED_FILES_DOMAIN)
     ) {
-      setUploadedFiles(uploadedFilesFromStore);
+      const dedupedFiles = Array.from(
+        new Map(
+          uploadedFilesFromStore.map((file) => [
+            file.filename || file.name,
+            file,
+          ])
+        ).values()
+      );
+      setUploadedFiles(dedupedFiles);
+      dispatch(setUploadedFilesFromStore(dedupedFiles));
       setIsLoading(false);
       return;
     }
 
     try {
+      const dedupedFiles = Array.from(
+        new Map(
+          uploadedFilesFromStore.map((file) => [
+            file.filename || file.name,
+            file,
+          ])
+        ).values()
+      );
+      // Apply deletion before normalizing to avoid re-uploading/duplicating files
+      const filteredStoreFiles = toDeleteFile
+        ? dedupedFiles.filter(
+            (file) =>
+              file?.filename !== toDeleteFile &&
+              file?.name !== toDeleteFile &&
+              file !== toDeleteFile
+          )
+        : dedupedFiles;
+
       const normalizedFiles = await Promise.all(
-        uploadedFilesFromStore.map(async (file, index) => {
+        filteredStoreFiles.map(async (file, index) => {
           const fileBlob = await fetchImageAsFile(file.fileUrl);
           const objectUrl = URL.createObjectURL(fileBlob);
           return {
             id: Date.now() + index,
-            name: file.filename,
+            name: file.filename || file.name,
+            filename: file.filename || file.name,
             file: fileBlob,
             fileUrl: objectUrl,
             url: objectUrl,
@@ -180,30 +268,10 @@ function SnapRxContent() {
         })
       );
       setUploadedFiles(normalizedFiles);
+      dispatch(setUploadedFilesFromStore(filteredStoreFiles));
       if (toDeleteFile) {
         try {
-          const newUploadedFiles = normalizedFiles?.filter(
-            (file) => file.name !== toDeleteFile
-          );
-          const convertedFiles = normalizedFiles
-            .map((file) => {
-              return new File([file.file], file.name, {
-                type: file.file.type || "image/jpeg",
-              });
-            })
-            .filter((file) => file.name !== toDeleteFile);
-          if (convertedFiles?.length) {
-            setUploadedFiles(newUploadedFiles);
-            const response = await dispatch(
-              uploadIpdFiles({
-                files: convertedFiles,
-                fileUploadToken,
-              })
-            ).unwrap();
-            if (response) {
-              fetchUploadedFiles();
-            }
-          } else {
+          if (!filteredStoreFiles.length) {
             message.warning(
               "You cannot delete the only file. Please reupload the file."
             );
@@ -222,7 +290,11 @@ function SnapRxContent() {
   };
 
   useEffect(() => {
-    if (!isLoading && !uploadedFilesFromStore?.length && !uploadedFiles?.length) {
+    if (
+      !isLoading &&
+      !uploadedFilesFromStore?.length &&
+      !uploadedFiles?.length
+    ) {
       navigate(-1, { replace: true });
     }
   }, []);
@@ -266,7 +338,7 @@ function SnapRxContent() {
 
       if (response && response.status) {
         dispatch(setFileUploadToken(null));
-        navigate("/snap-rx/preview", {
+        navigate("/ipd/snap-rx/preview", {
           state: {
             ...state,
             ...response?.data,
@@ -292,7 +364,7 @@ function SnapRxContent() {
 
   const handleCreateSnapRx = useCallback(async () => {
     if (!uploadedFilesFromStore?.length) {
-      fetchUploadedFiles(false, true);
+      fetchUploadedFiles(true);
       return;
     }
     if (!uploadedFilesFromStore?.length) {
@@ -318,8 +390,7 @@ function SnapRxContent() {
       );
       if (response && response.status) {
         dispatch(setFileUploadToken(null));
-        refreshSessionId();
-        navigate("/snap-rx/preview", {
+        navigate("/ipd/snap-rx/preview", {
           replace: true,
           state: { ...state, ...response?.data, files: uploadedFilesFromStore },
         });
@@ -377,8 +448,20 @@ function SnapRxContent() {
     uploadWrittenRxRef?.current?.handleZoomOut(fileId);
   };
 
-  const handleRemoveFile = (fileId) => {
-    uploadWrittenRxRef?.current?.handleRemoveFile(fileId);
+  const handleRemoveFile = (file) => {
+    const fileId = file?.id;
+    const filename = file?.filename || file?.name || file;
+
+    // If files are already on the server, delete via refresh flow
+    if (uploadedFilesFromStore?.length) {
+      handlePreviewDelete(filename);
+      return;
+    }
+
+    // Fallback: just remove from local uploads
+    if (fileId || filename) {
+      uploadWrittenRxRef?.current?.handleRemoveFile(fileId || filename, true, !fileId);
+    }
   };
 
   const handleRotateClick = (fileId) => {
@@ -389,16 +472,17 @@ function SnapRxContent() {
     clearTimeout(timerForLoadingRef.current);
     setIsLoading(true);
     dispatch(setUploadedFilesFromStore([]));
-    fetchUploadedFiles(!!tcmId);
+    fetchUploadedFiles();
   };
 
   const handlePreviewClose = () => {
     setIsPreviewOpen(false);
     setIsAddMoreClicked(false);
+    setIsUploadMoreDrawerOpen(false);
   };
 
   const handleRefreshForMobileUploadedFiles = () => {
-    fetchUploadedFiles(false, false, true);
+    fetchUploadedFiles(false, true);
   };
 
   const handleFileEdit = (file) => {
@@ -406,9 +490,78 @@ function SnapRxContent() {
     previewDrawerRef?.current?.handleFileEdit(file);
   };
 
-  const handlePreviewDelete = (filename) => {
+  const handlePreviewDelete = (file) => {
+    const filename =
+      (file && (file.filename || file.name)) || file || "";
+    if (!filename) {
+      message.error("Unable to delete the selected file. Please try again.");
+      return;
+    }
     setIsLoading(true);
     fetchImages(filename);
+  };
+  const removeFileUploadTokenFromLS = () => {
+    const patientId = patientDetails?.details?.id;
+    const admissionId = patientDetails?.admissionId;
+    if (patientId && admissionId) {
+      const tokenKey = `fileUploadToken_${patientId}_${admissionId}`;
+      const tokenDataString = localStorage.getItem(SNAP_RX_TOKENS_STORAGE_KEY);
+      if (tokenDataString) {
+        try {
+          const tokenData = JSON.parse(tokenDataString);
+          delete tokenData[tokenKey];
+          localStorage.setItem(
+            SNAP_RX_TOKENS_STORAGE_KEY,
+            JSON.stringify(tokenData)
+          );
+        } catch (e) {
+          // fallback to removing the whole key
+          localStorage.removeItem(SNAP_RX_TOKENS_STORAGE_KEY);
+        }
+      }
+    }
+  };
+
+  const handleExtract = async () => {
+    try {
+      setIsDigitizing(true);
+      const res = await dispatch(
+        digitizeAssessments({
+          previousOutput,
+        })
+      ).unwrap();
+      addDataToStore(res?.data?.rxDigitizationHistory?.[0]?.response || {});
+      dispatch(resetFileUploadToken());
+      removeFileUploadTokenFromLS();
+      handleClose();
+      message.open({
+        key: MESSAGE_KEY,
+        type: "",
+        className: "message-appointment",
+        content: (
+          <div className="d-flex align-items-center">
+            <img src={visitEnd} className="me-3" alt="Visit End" />
+            <div>
+              <div className="title-common text-start fontroboto">
+                Your Input Autofilled Successfully
+              </div>
+            </div>
+            <img
+              src={imgCloseVisit}
+              className="ms-3"
+              onClick={() => message.destroy()}
+              alt="Close Visit"
+            />
+          </div>
+        ),
+        duration: 3,
+      });
+    } catch (error) {
+      console.error("Error digitizing assessment:", error);
+      message.error("Failed to extract details. Please try again.");
+    } finally {
+      setIsDigitizing(false);
+    }
   };
 
   if (isLoading) {
@@ -417,27 +570,63 @@ function SnapRxContent() {
 
   return (
     <CashManagerContext.Provider value={contextApi}>
-      <div className="snap-rx-container">
-        <Header
+      <PreviewDrawer
+        isOpen={isPreviewOpen}
+        onClose={handlePreviewClose}
+        tcmId={tcmId}
+        ref={previewDrawerRef}
+        sessionId={sessionId}
+        uploadedFilesFromStore={uploadedFilesFromStore}
+        onCloseDrawer={handleUploadMoreDrawerClose}
+        uploadedFiles={uploadedFiles}
+        onReupload={handleReupload}
+        onZoomIn={handleZoomIn}
+        onZoomOut={handleZoomOut}
+        handleUpdatedFiles={setUploadedFiles}
+        onRemove={handleRemoveFile}
+        onRotate={handleRotateClick}
+        handleGoBackToMainFiles={handleGoBackToMainFiles}
+        onAddMore={handleAddMore}
+        isUploadMoreDrawer={false}
+        style={{
+          display: isPreviewOpen ? "block" : "none",
+        }}
+      />
+
+      <div
+        className={`snap-rx-container ${
+          uploadedFilesFromStore?.length ? "with-overflow-hidden" : ""
+        }`}
+        style={{
+          display: isPreviewOpen ? "none" : "block",
+        }}
+      >
+        {/* <Header
           loader={isUploading}
           onClear={handleClearFiles}
           onSubmit={handleCreateSnapRx}
           onUploadMore={handleUploadMore}
           showUploadMoreButton={uploadedFilesFromStore?.length}
           handleTutorial={handleKnowMore}
-        />
-        <div className="snap-rx-content">
-          <ErrorBoundary>
-            {uploadedFilesFromStore?.length ? (
-              <UploadedFilesPreview
-                uploadedFiles={uploadedFilesFromStore}
-                onEdit={handleFileEdit}
-                loading={false}
-                onDelete={handlePreviewDelete}
-              />
+        /> */}
+        <ErrorBoundary>
+          <div
+            className={`snap-rx-content ${
+              uploadedFilesFromStore?.length ? "with-overflow-auto" : ""
+            }`}
+          >
+            {uploadedFilesFromStore?.length && !isUploadMoreDrawerOpen ? (
+              <>
+                <UploadedFilesPreview
+                  uploadedFiles={uploadedFilesFromStore}
+                  onEdit={handleFileEdit}
+                  loading={false}
+                  onDelete={handlePreviewDelete}
+                />
+              </>
             ) : null}
             <UploadWrittenRx
-              isOpen={!uploadedFilesFromStore?.length}
+              isOpen={!uploadedFilesFromStore?.length || isUploadMoreDrawerOpen}
               ref={uploadWrittenRxRef}
               showBackButton={false}
               onBack={() => {}}
@@ -448,30 +637,32 @@ function SnapRxContent() {
               setIsAddMoreClicked={setIsAddMoreClicked}
             />
             {/* Preview Drawer */}
-            <PreviewDrawer
-              isOpen={isPreviewOpen}
-              onClose={handlePreviewClose}
-              tcmId={tcmId}
-              ref={previewDrawerRef}
-              sessionId={sessionId}
-              uploadedFilesFromStore={uploadedFilesFromStore}
-              onCloseDrawer={handleUploadMoreDrawerClose}
-              uploadedFiles={uploadedFiles}
-              onReupload={handleReupload}
-              onZoomIn={handleZoomIn}
-              onZoomOut={handleZoomOut}
-              handleUpdatedFiles={setUploadedFiles}
-              onRemove={handleRemoveFile}
-              onRotate={handleRotateClick}
-              handleGoBackToMainFiles={handleGoBackToMainFiles}
-              onAddMore={handleAddMore}
-              isUploadMoreDrawer={false}
-            />
-          </ErrorBoundary>
-        </div>
+          </div>
+          {uploadedFilesFromStore?.length && !isUploadMoreDrawerOpen ? (
+            <>
+              <div className="snap-rx-floating-actions">
+                <Button
+                  className="upload-more-btn"
+                  onClick={handleUploadMore}
+                  disabled={isDigitizing}
+                >
+                  Upload More
+                </Button>
+                <Button
+                  type="primary"
+                  className="extract-btn"
+                  onClick={handleExtract}
+                  loading={isDigitizing}
+                >
+                  Extract & Autofill Details
+                </Button>
+              </div>
+            </>
+          ) : null}
+        </ErrorBoundary>
       </div>
 
-      <UploadMoreDrawer
+      {/* <UploadMoreDrawer
         isOpen={isUploadMoreDrawerOpen}
         uploadedFiles={uploadedFiles}
         setUploadedFiles={setUploadedFiles}
@@ -482,7 +673,7 @@ function SnapRxContent() {
         tcmId={tcmId}
         sessionId={sessionId}
         onFileUpload={() => {}}
-      />
+      /> */}
 
       <FileUploadErrorModal
         isFileSizeError={false}
@@ -514,10 +705,13 @@ function SnapRxContent() {
 }
 
 // Main component with session provider
-export default function SnapRx() {
+export default function IPDSnapRx({ previousOutput, handleClose }) {
   return (
-    <SnapRxSessionProvider>
-      <SnapRxContent />
-    </SnapRxSessionProvider>
+    <IPDSnapRxSessionProvider>
+      <SnapRxContent
+        previousOutput={previousOutput}
+        handleClose={handleClose}
+      />
+    </IPDSnapRxSessionProvider>
   );
 }

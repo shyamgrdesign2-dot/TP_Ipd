@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-import SnapRxDigitization from "../api/services/SnapRxDigitization";
+import SnapRxDigitization, { IPDSnapRx } from "../api/services/SnapRxDigitization";
 import { SNAP_RX_TOKENS_STORAGE_KEY } from "../utils/constants";
 
 const TOKEN_EXPIRY_DURATION = 60 * 60 * 1000;
@@ -35,7 +35,7 @@ export const generateFileUploadToken = createAsyncThunk(
   async (data) => {
     try {
       let result = {};
-      result = await SnapRxDigitization.generateFileUploadToken(data);
+      result = await IPDSnapRx.generateFileUploadToken(data);
       if (result?.token) {
         return result?.token;
       } else {
