@@ -30,14 +30,18 @@ const WardBedDrawer = ({
   // Get rooms for selected ward
   const rooms = useMemo(() => {
     if (!selectedWard) return [];
-    return selectedWard.rooms || [];
+    return selectedWard.rooms?.filter((room) => !room.isDeleted) || [];
   }, [selectedWard]);
 
   // Calculate available and occupied beds
   const bedStats = useMemo(() => {
-    const available = rooms.filter((room) => room.available && !room.isBlocked && !room.isDeleted).length;
-    const occupied = rooms.filter((room) => !room.available && !room.isBlocked && !room.isDeleted).length;
-    const blocked = rooms.filter((room) => room.isBlocked && !room.isDeleted).length;
+    const available = rooms.filter(
+      (room) => room.available && !room.isBlocked
+    ).length;
+    const occupied = rooms.filter(
+      (room) => !room.available && !room.isBlocked
+    ).length;
+    const blocked = rooms.filter((room) => room.isBlocked).length;
     return { available, occupied, blocked };
   }, [rooms]);
 
@@ -71,7 +75,7 @@ const WardBedDrawer = ({
       <div className="ward-bed-drawer-content">
         <div className="drawer-header">
           <div className="header-left">
-          <i className="icon-right" onClick={onClose} />
+            <i className="icon-right" onClick={onClose} />
             <span className="header-title">Select Ward & Bed</span>
           </div>
           <Button
@@ -101,8 +105,9 @@ const WardBedDrawer = ({
                   <div className="empty-state">No wards found</div>
                 ) : (
                   filteredWards.map((ward) => {
-                    const availableBeds = (ward.rooms || []).filter(
-                      (r) => r.available !== false
+                    const availableBeds = ward.rooms?.filter(
+                      (room) =>
+                        !room.isDeleted && room.available && !room.isBlocked
                     ).length;
                     const isAvailable = availableBeds > 0;
                     const isSelected = tempSelectedWardId === ward._id;
@@ -134,7 +139,11 @@ const WardBedDrawer = ({
                       >
                         <div className="ward-name">{ward.name}</div>
                         <div className="ward-beds-info">
-                          <span className={isAvailable ? "available" : "unavailable"}>
+                          <span
+                            className={
+                              isAvailable ? "available" : "unavailable"
+                            }
+                          >
                             {`(${availableBeds} beds Available)`}
                           </span>
                         </div>
@@ -179,23 +188,34 @@ const WardBedDrawer = ({
 
               <div className="bed-grid">
                 {rooms.map((room) => {
-                  const isAvailable = room.available !== false;
+                  const isAvailable = room.available && !room.isBlocked;
+                  const isBlocked = room.isBlocked;
+                  const isOccupied = !room.available && !room.isBlocked;
                   const isSelected = tempSelectedRoomId === room._id;
 
                   return (
                     <div
                       key={room._id}
-                      className={`bed-item ${!isAvailable ? "occupied" : ""} ${isSelected ? "selected" : ""}`}
+                      className={`bed-item ${!isAvailable ? "occupied" : ""} ${
+                        isSelected ? "selected" : ""
+                      }`}
                       onClick={() => isAvailable && handleBedSelect(room._id)}
                     >
                       <Radio
                         checked={isSelected}
                         disabled={!isAvailable}
-                        onChange={() => isAvailable && handleBedSelect(room._id)}
+                        onChange={() =>
+                          isAvailable && handleBedSelect(room._id)
+                        }
                       />
                       <span className="bed-name">
                         {room.name}
-                        {!isAvailable && <span className="occupied-label"> (Occupied)</span>}
+                        {(isBlocked || isOccupied) && (
+                          <span className="occupied-label">
+                            {" "}
+                            ({isOccupied ? "Occupied" : "Blocked"})
+                          </span>
+                        )}
                       </span>
                     </div>
                   );
@@ -210,4 +230,3 @@ const WardBedDrawer = ({
 };
 
 export default WardBedDrawer;
-
