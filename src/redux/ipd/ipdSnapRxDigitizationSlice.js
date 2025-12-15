@@ -69,6 +69,7 @@ export const getFiles = createAsyncThunk(
     try {
       const { fileUploadToken: tokenFromState } = getState().ipdSnapRx || {};
       const fileUploadToken = data?.fileUploadToken || tokenFromState;
+      const formKey = data?.type || data?.schemaKey || null;
 
       const result = await IPDSnapRxDigitization.getFiles({
         ...data,
@@ -83,6 +84,7 @@ export const getFiles = createAsyncThunk(
         files,
         patientId: data?.patientId ?? null,
         admissionId: data?.admissionId ?? null,
+        schemaKey: formKey,
       };
     } catch (error) {
       // still return scope on reject so we can clear stale state safely
@@ -90,6 +92,7 @@ export const getFiles = createAsyncThunk(
         message: error?.message || "Failed to fetch files",
         patientId: data?.patientId ?? null,
         admissionId: data?.admissionId ?? null,
+        schemaKey: formKey,
       });
     }
   }
@@ -108,11 +111,13 @@ export const getFilesOnMobile = createAsyncThunk(
       const files = Array.isArray(result?.uploaded_files)
         ? result.uploaded_files
         : [];
+      const formKey = data?.type || data?.schemaKey || null;
 
       return {
         files,
         patientId: data?.patientId ?? null,
         admissionId: data?.admissionId ?? null,
+        schemaKey: formKey,
       };
     } catch (error) {
       const statusCode = error?.response?.status;
@@ -125,6 +130,7 @@ export const getFilesOnMobile = createAsyncThunk(
         message: message || "Failed to fetch mobile files",
         patientId: data?.patientId ?? null,
         admissionId: data?.admissionId ?? null,
+        schemaKey: data?.type || data?.schemaKey || null,
       });
     }
   }
@@ -222,7 +228,13 @@ const ipdSnapRxDigitizationSlice = createSlice({
         const { files, patientId, admissionId } = action.payload || {};
         state.uploadedFiles = Array.isArray(files) ? files : [];
         state.uploadedFilesScope =
-          patientId && admissionId ? { patientId, admissionId } : null;
+          patientId && admissionId
+            ? {
+                patientId,
+                admissionId,
+                schemaKey: action.payload?.schemaKey || action.meta?.arg?.type || action.meta?.arg?.schemaKey || null,
+              }
+            : null;
       })
       .addCase(getFiles.rejected, (state, action) => {
         state.loading = false;
@@ -234,10 +246,11 @@ const ipdSnapRxDigitizationSlice = createSlice({
         // But only clear if the request had scope (otherwise we don't know what failed)
         const patientId = payload?.patientId ?? action.meta?.arg?.patientId;
         const admissionId = payload?.admissionId ?? action.meta?.arg?.admissionId;
+        const schemaKey = payload?.schemaKey ?? action.meta?.arg?.type ?? action.meta?.arg?.schemaKey ?? null;
 
         if (patientId && admissionId) {
           state.uploadedFiles = [];
-          state.uploadedFilesScope = { patientId, admissionId };
+          state.uploadedFilesScope = { patientId, admissionId, schemaKey };
         } else {
           // safest fallback: clear anyway to avoid wrong patient showing
           state.uploadedFiles = [];
@@ -255,9 +268,11 @@ const ipdSnapRxDigitizationSlice = createSlice({
         state.fileUploadToken = action.payload?.token;
         state.fileUploadSessionId = action.payload?.sessionId || null;
 
-        const { patientId, admissionId } = action.meta.arg || {};
+        const { patientId, admissionId, schemaKey } = action.meta.arg || {};
         if (patientId && admissionId) {
-          const tokenKey = `fileUploadToken_${patientId}_${admissionId}`;
+          const normalizedSchemaKey = schemaKey || "ASSESSMENTS";
+          const tokenKey = `fileUploadToken_${patientId}_${admissionId}_${normalizedSchemaKey}`;
+          const legacyTokenKey = `fileUploadToken_${patientId}_${admissionId}`;
           const tokenData = {
             value: action.payload?.token,
             sessionId: action.payload?.sessionId,
@@ -271,6 +286,12 @@ const ipdSnapRxDigitizationSlice = createSlice({
             if (existingTokens) tokensObject = JSON.parse(existingTokens);
           } catch (error) {
             tokensObject = {};
+          }
+
+          // clean up legacy key if present
+          if (tokensObject[legacyTokenKey] && !tokensObject[tokenKey]) {
+            tokensObject[tokenKey] = tokensObject[legacyTokenKey];
+            delete tokensObject[legacyTokenKey];
           }
 
           tokensObject[tokenKey] = tokenData;
@@ -309,7 +330,13 @@ const ipdSnapRxDigitizationSlice = createSlice({
         const { files, patientId, admissionId } = action.payload || {};
         state.uploadedFiles = Array.isArray(files) ? files : [];
         state.uploadedFilesScope =
-          patientId && admissionId ? { patientId, admissionId } : null;
+          patientId && admissionId
+            ? {
+                patientId,
+                admissionId,
+                schemaKey: action.payload?.schemaKey || action.meta?.arg?.type || action.meta?.arg?.schemaKey || null,
+              }
+            : null;
       })
       .addCase(getFilesOnMobile.rejected, (state, action) => {
         state.loading = false;
@@ -320,10 +347,11 @@ const ipdSnapRxDigitizationSlice = createSlice({
         // Clear to avoid stale render
         const patientId = payload?.patientId ?? action.meta?.arg?.patientId;
         const admissionId = payload?.admissionId ?? action.meta?.arg?.admissionId;
+        const schemaKey = payload?.schemaKey ?? action.meta?.arg?.type ?? action.meta?.arg?.schemaKey ?? null;
 
         if (patientId && admissionId) {
           state.uploadedFiles = [];
-          state.uploadedFilesScope = { patientId, admissionId };
+          state.uploadedFilesScope = { patientId, admissionId, schemaKey };
         } else {
           state.uploadedFiles = [];
           state.uploadedFilesScope = null;

@@ -32,6 +32,10 @@ import { clearExpiredTokensFromStorage } from "../../utils/utils";
 import { useAssessmentDataStore } from "../../hooks/useAssessmentDataStore";
 
 const UPLOADED_FILES_DOMAIN = "iscribe.blob.core.windows.net";
+const getTokenKey = (patientId, admissionId, schemaKey) =>
+  `fileUploadToken_${patientId}_${admissionId}_${schemaKey || "ASSESSMENTS"}`;
+const getLegacyTokenKey = (patientId, admissionId) =>
+  `fileUploadToken_${patientId}_${admissionId}`;
 
 const stableIdFromName = (name = "") =>
   `srv_${String(name).trim().toLowerCase().replace(/\s+/g, "_")}`;
@@ -45,9 +49,19 @@ function SnapRxContent({ previousOutput, handleClose, schemaKey = "ASSESSMENTS" 
 
   const {
     uploadedFiles: uploadedFilesFromStore,
+    uploadedFilesScope,
     fileUploadToken,
     fileUploadSessionId: sessionId,
   } = useSelector((s) => s.ipdSnapRx);
+  const patientId = patientDetails?.details?.id;
+  const admissionId = patientDetails?.admissionId;
+
+  const scopedUploadedFilesFromStore =
+    uploadedFilesScope?.patientId === patientId &&
+    uploadedFilesScope?.admissionId === admissionId &&
+    uploadedFilesScope?.schemaKey === schemaKey
+      ? uploadedFilesFromStore
+      : [];
 
   const uploadWrittenRxRef = useRef(null);
   const previewDrawerRef = useRef(null);
@@ -82,17 +96,16 @@ function SnapRxContent({ previousOutput, handleClose, schemaKey = "ASSESSMENTS" 
 
   // token bootstrap
   useEffect(() => {
-    const patientId = patientDetails?.details?.id;
-    const admissionId = patientDetails?.admissionId;
     if (!patientId || !admissionId) return;
 
-    const tokenKey = `fileUploadToken_${patientId}_${admissionId}`;
+    const tokenKey = getTokenKey(patientId, admissionId, schemaKey);
+    const legacyTokenKey = getLegacyTokenKey(patientId, admissionId);
     const tokenDataString = localStorage.getItem(SNAP_RX_TOKENS_STORAGE_KEY);
 
     if (tokenDataString) {
       try {
         const parsed = JSON.parse(tokenDataString);
-        const storedToken = parsed[tokenKey];
+        const storedToken = parsed[tokenKey] || parsed[legacyTokenKey];
         const ONE_DAY_MS = 24 * 60 * 60 * 1000;
         const isExpired =
           !storedToken?.timestamp ||
@@ -102,11 +115,19 @@ function SnapRxContent({ previousOutput, handleClose, schemaKey = "ASSESSMENTS" 
         if (storedToken && !isExpired) {
           dispatch(setFileUploadToken(storedToken.value));
           if (storedToken.sessionId) dispatch(setFileUploadSessionId(storedToken.sessionId));
+
+          // migrate legacy key
+          if (parsed[legacyTokenKey] && !parsed[tokenKey]) {
+            delete parsed[legacyTokenKey];
+            parsed[tokenKey] = storedToken;
+            localStorage.setItem(SNAP_RX_TOKENS_STORAGE_KEY, JSON.stringify(parsed));
+          }
           return;
         }
 
-        if (isExpired && parsed[tokenKey]) {
-          delete parsed[tokenKey];
+        if (isExpired) {
+          if (parsed[tokenKey]) delete parsed[tokenKey];
+          if (parsed[legacyTokenKey]) delete parsed[legacyTokenKey];
           localStorage.setItem(SNAP_RX_TOKENS_STORAGE_KEY, JSON.stringify(parsed));
         }
       } catch (error) {
@@ -114,9 +135,9 @@ function SnapRxContent({ previousOutput, handleClose, schemaKey = "ASSESSMENTS" 
       }
     }
 
-    if (!fileUploadToken) {
-      dispatch(generateFileUploadToken({ patientId, admissionId, schemaKey }));
-    }
+    dispatch(setFileUploadToken(null));
+    dispatch(setFileUploadSessionId(null));
+    dispatch(generateFileUploadToken({ patientId, admissionId, schemaKey }));
   }, [dispatch, fileUploadToken, patientDetails, schemaKey]);
 
   useEffect(() => {
@@ -221,15 +242,15 @@ function SnapRxContent({ previousOutput, handleClose, schemaKey = "ASSESSMENTS" 
 
   // whenever redux store list changes, re-sync working list (fast)
   useEffect(() => {
-    syncLocalWorkingFilesFromStore(uploadedFilesFromStore);
-  }, [uploadedFilesFromStore, syncLocalWorkingFilesFromStore]);
+    syncLocalWorkingFilesFromStore(scopedUploadedFilesFromStore);
+  }, [scopedUploadedFilesFromStore, syncLocalWorkingFilesFromStore]);
 
   // if everything empty, go back
   useEffect(() => {
-    if (!isLoading && !uploadedFilesFromStore?.length && !uploadedFiles?.length) {
+    if (!isLoading && !scopedUploadedFilesFromStore?.length && !uploadedFiles?.length) {
       navigate(-1, { replace: true });
     }
-  }, [isLoading, uploadedFilesFromStore?.length, uploadedFiles?.length]);
+  }, [isLoading, scopedUploadedFilesFromStore?.length, uploadedFiles?.length]);
 
   useEffect(() => {
     return () => {
@@ -238,14 +259,14 @@ function SnapRxContent({ previousOutput, handleClose, schemaKey = "ASSESSMENTS" 
   }, []);
 
   useEffect(() => {
-    if (isWaitingForFiles && uploadedFilesFromStore?.length > 0) {
+    if (isWaitingForFiles && scopedUploadedFilesFromStore?.length > 0) {
       handleCreateSnapRx();
       setIsWaitingForFiles(false);
     }
-  }, [isWaitingForFiles, uploadedFilesFromStore]);
+  }, [isWaitingForFiles, scopedUploadedFilesFromStore]);
 
   const handleEditSnapRx = useCallback(async () => {
-    if (!uploadedFilesFromStore?.length && !uploadedFiles?.length) {
+    if (!scopedUploadedFilesFromStore?.length && !uploadedFiles?.length) {
       message.warning("Please upload prescription images before submitting");
       return;
     }
@@ -258,8 +279,8 @@ function SnapRxContent({ previousOutput, handleClose, schemaKey = "ASSESSMENTS" 
 
     try {
       const fileNames =
-        uploadedFilesFromStore?.length > 0
-          ? uploadedFilesFromStore.map((f) => f.filename || f.name)
+        scopedUploadedFilesFromStore?.length > 0
+          ? scopedUploadedFilesFromStore.map((f) => f.filename || f.name)
           : uploadedFiles.map((f) => f.filename || f.name);
 
       const response = await editSnapRx(
@@ -272,7 +293,13 @@ function SnapRxContent({ previousOutput, handleClose, schemaKey = "ASSESSMENTS" 
       if (response?.status) {
         dispatch(setFileUploadToken(null));
         navigate("/ipd/snap-rx/preview", {
-          state: { ...state, ...response?.data, files: uploadedFilesFromStore?.length ? uploadedFilesFromStore : uploadedFiles },
+          state: {
+            ...state,
+            ...response?.data,
+            files: scopedUploadedFilesFromStore?.length
+              ? scopedUploadedFilesFromStore
+              : uploadedFiles,
+          },
           replace: true,
         });
       } else {
@@ -284,10 +311,10 @@ function SnapRxContent({ previousOutput, handleClose, schemaKey = "ASSESSMENTS" 
     } finally {
       setIsUploading(false);
     }
-  }, [uploadedFiles, patient_data, navigate, state, uploadedFilesFromStore, tcmId, sessionId, dispatch]);
+  }, [uploadedFiles, patient_data, navigate, state, scopedUploadedFilesFromStore, tcmId, sessionId, dispatch]);
 
   const handleCreateSnapRx = useCallback(async () => {
-    if (!uploadedFilesFromStore?.length) {
+    if (!scopedUploadedFilesFromStore?.length) {
       fetchUploadedFiles(true);
       return;
     }
@@ -299,7 +326,7 @@ function SnapRxContent({ previousOutput, handleClose, schemaKey = "ASSESSMENTS" 
     setIsUploading(true);
 
     try {
-      const fileNames = uploadedFilesFromStore.map((f) => f.filename);
+      const fileNames = scopedUploadedFilesFromStore.map((f) => f.filename);
 
       const response = await createSnapRx(
         patient_data.patient_unique_id,
@@ -312,7 +339,7 @@ function SnapRxContent({ previousOutput, handleClose, schemaKey = "ASSESSMENTS" 
         dispatch(setFileUploadToken(null));
         navigate("/ipd/snap-rx/preview", {
           replace: true,
-          state: { ...state, ...response?.data, files: uploadedFilesFromStore },
+          state: { ...state, ...response?.data, files: scopedUploadedFilesFromStore },
         });
       } else {
         throw new Error(response.message || "Failed to create prescription");
@@ -323,7 +350,7 @@ function SnapRxContent({ previousOutput, handleClose, schemaKey = "ASSESSMENTS" 
     } finally {
       setIsUploading(false);
     }
-  }, [uploadedFilesFromStore, patient_data, navigate, tcmId, sessionId, dispatch]);
+  }, [scopedUploadedFilesFromStore, patient_data, navigate, tcmId, sessionId, dispatch]);
 
   const handleUploadMore = useCallback(() => {
     setIsUploadMoreDrawerOpen(true);
@@ -359,7 +386,7 @@ function SnapRxContent({ previousOutput, handleClose, schemaKey = "ASSESSMENTS" 
         return;
       }
 
-      const nextStore = (uploadedFilesFromStore || []).filter(
+      const nextStore = (scopedUploadedFilesFromStore || []).filter(
         (f) => (f.filename || f.name) !== filename
       );
 
@@ -372,7 +399,7 @@ function SnapRxContent({ previousOutput, handleClose, schemaKey = "ASSESSMENTS" 
       dispatch(setUploadedFilesFromStore(nextStore));
       // local working list will auto-sync via useEffect above
     },
-    [dispatch, uploadedFilesFromStore]
+    [dispatch, scopedUploadedFilesFromStore]
   );
 
   const handleRemoveFile = (file) => {
@@ -380,7 +407,7 @@ function SnapRxContent({ previousOutput, handleClose, schemaKey = "ASSESSMENTS" 
     const filename = file?.filename || file?.name || file;
 
     // If already on server, delete from redux list (instant)
-    if (uploadedFilesFromStore?.length) {
+    if (scopedUploadedFilesFromStore?.length) {
       handlePreviewDelete(filename);
       return;
     }
@@ -418,13 +445,15 @@ function SnapRxContent({ previousOutput, handleClose, schemaKey = "ASSESSMENTS" 
     const admissionId = patientDetails?.admissionId;
     if (!patientId || !admissionId) return;
 
-    const tokenKey = `fileUploadToken_${patientId}_${admissionId}`;
+    const tokenKey = getTokenKey(patientId, admissionId, schemaKey);
+    const legacyTokenKey = getLegacyTokenKey(patientId, admissionId);
     const tokenDataString = localStorage.getItem(SNAP_RX_TOKENS_STORAGE_KEY);
     if (!tokenDataString) return;
 
     try {
       const tokenData = JSON.parse(tokenDataString);
-      delete tokenData[tokenKey];
+      if (tokenData[tokenKey]) delete tokenData[tokenKey];
+      if (tokenData[legacyTokenKey]) delete tokenData[legacyTokenKey];
       localStorage.setItem(SNAP_RX_TOKENS_STORAGE_KEY, JSON.stringify(tokenData));
     } catch (e) {
       localStorage.removeItem(SNAP_RX_TOKENS_STORAGE_KEY);
@@ -482,7 +511,7 @@ function SnapRxContent({ previousOutput, handleClose, schemaKey = "ASSESSMENTS" 
         tcmId={tcmId}
         ref={previewDrawerRef}
         sessionId={sessionId}
-        uploadedFilesFromStore={uploadedFilesFromStore}
+        uploadedFilesFromStore={scopedUploadedFilesFromStore}
         onCloseDrawer={handleUploadMoreDrawerClose}
         uploadedFiles={uploadedFiles}
         onReupload={handleReupload}
@@ -500,19 +529,19 @@ function SnapRxContent({ previousOutput, handleClose, schemaKey = "ASSESSMENTS" 
 
       <div
         className={`snap-rx-container ${
-          uploadedFilesFromStore?.length ? "with-overflow-hidden" : ""
+          scopedUploadedFilesFromStore?.length ? "with-overflow-hidden" : ""
         }`}
         style={{ display: isPreviewOpen ? "none" : "block" }}
       >
         <ErrorBoundary>
           <div
             className={`snap-rx-content ${
-              uploadedFilesFromStore?.length ? "with-overflow-auto" : ""
+              scopedUploadedFilesFromStore?.length ? "with-overflow-auto" : ""
             }`}
           >
-            {uploadedFilesFromStore?.length && !isUploadMoreDrawerOpen ? (
+            {scopedUploadedFilesFromStore?.length && !isUploadMoreDrawerOpen ? (
               <UploadedFilesPreview
-                uploadedFiles={uploadedFilesFromStore}
+                uploadedFiles={scopedUploadedFilesFromStore}
                 onEdit={handleFileEdit}
                 loading={false}
                 onDelete={handlePreviewDelete}
@@ -520,7 +549,7 @@ function SnapRxContent({ previousOutput, handleClose, schemaKey = "ASSESSMENTS" 
             ) : null}
 
             <UploadWrittenRx
-              isOpen={!uploadedFilesFromStore?.length || isUploadMoreDrawerOpen}
+              isOpen={!scopedUploadedFilesFromStore?.length || isUploadMoreDrawerOpen}
               ref={uploadWrittenRxRef}
               showBackButton={false}
               onBack={() => {}}
@@ -532,7 +561,7 @@ function SnapRxContent({ previousOutput, handleClose, schemaKey = "ASSESSMENTS" 
             />
           </div>
 
-          {uploadedFilesFromStore?.length && !isUploadMoreDrawerOpen ? (
+          {scopedUploadedFilesFromStore?.length && !isUploadMoreDrawerOpen ? (
             <div className="snap-rx-floating-actions">
               <Button className="upload-more-btn" onClick={handleUploadMore} disabled={isDigitizing}>
                 Upload More

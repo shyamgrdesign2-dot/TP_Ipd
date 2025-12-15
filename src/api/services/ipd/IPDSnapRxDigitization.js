@@ -1,9 +1,19 @@
 import api from "../axiosService";
 import config from "../../../config";
+import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../utils/constants";
 
 const baseUrl = { customBaseUrl: config.ipd_api_url };
 
 const IPDSnapRxDigitization = {};
+
+const getAuthToken = () => {
+  try {
+    const token = localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
+    return token ? JSON.parse(token) : null;
+  } catch (e) {
+    return null;
+  }
+};
 
 IPDSnapRxDigitization.generateFileUploadToken = function ({
   patientId,
@@ -12,10 +22,14 @@ IPDSnapRxDigitization.generateFileUploadToken = function ({
 }) {
   const query = [`patientId=${patientId}`, `admissionId=${admissionId}`];
   if (schemaKey) query.push(`form=${schemaKey}`);
+  const authToken = getAuthToken();
 
   return api.get(
     `/ai/smart-rx/snap-rx/generate-file-upload-token?${query.join("&")}`,
-    baseUrl
+    {
+      ...baseUrl,
+      headers: authToken ? { Authorization: `Bearer ${authToken}` } : {},
+    }
   );
 };
 

@@ -37,6 +37,12 @@ import { SNAP_RX_TOKENS_STORAGE_KEY } from "../../../utils/constants";
 import { useAssessmentDataStore } from "../../../hooks/useAssessmentDataStore";
 const UPLOADED_FILES_DOMAIN = "iscribe.blob.core.windows.net";
 
+const getTokenKey = (patientId, admissionId, schemaKey) =>
+  `fileUploadToken_${patientId}_${admissionId}_${schemaKey || "ASSESSMENTS"}`;
+
+const getLegacyTokenKey = (patientId, admissionId) =>
+  `fileUploadToken_${patientId}_${admissionId}`;
+
 function SnapRxContent({ previousOutput, handleClose, schemaKey = "ASSESSMENTS", onSuccess }) {
   const { addDataToStore } = useAssessmentDataStore();
   const { state } = useLocation();
@@ -55,7 +61,8 @@ function SnapRxContent({ previousOutput, handleClose, schemaKey = "ASSESSMENTS",
   
   const uploadedFilesFromStore =
     uploadedFilesScope?.patientId === patientId &&
-    uploadedFilesScope?.admissionId === admissionId
+    uploadedFilesScope?.admissionId === admissionId &&
+    uploadedFilesScope?.schemaKey === schemaKey
       ? (uploadedFilesFromStoreRaw || [])
       : [];
   const { userId } = useSelector((state) => state.doctors);
@@ -95,12 +102,13 @@ function SnapRxContent({ previousOutput, handleClose, schemaKey = "ASSESSMENTS",
     const admissionId = patientDetails?.admissionId;
     if (!patientId || !admissionId) return;
 
-    const tokenKey = `fileUploadToken_${patientId}_${admissionId}`;
+    const tokenKey = getTokenKey(patientId, admissionId, schemaKey);
+    const legacyTokenKey = getLegacyTokenKey(patientId, admissionId);
     const tokenDataString = localStorage.getItem(SNAP_RX_TOKENS_STORAGE_KEY);
     if (tokenDataString) {
       try {
         const parsed = JSON.parse(tokenDataString);
-        const storedToken = parsed[tokenKey];
+        const storedToken = parsed[tokenKey] || parsed[legacyTokenKey];
         const ONE_DAY_MS = 24 * 60 * 60 * 1000;
         const isExpired =
           !storedToken?.timestamp ||
@@ -111,10 +119,20 @@ function SnapRxContent({ previousOutput, handleClose, schemaKey = "ASSESSMENTS",
           if (storedToken.sessionId) {
             dispatch(setFileUploadSessionId(storedToken.sessionId));
           }
+          // migrate legacy key forward
+          if (parsed[legacyTokenKey] && !parsed[tokenKey]) {
+            delete parsed[legacyTokenKey];
+            parsed[tokenKey] = storedToken;
+            localStorage.setItem(
+              SNAP_RX_TOKENS_STORAGE_KEY,
+              JSON.stringify(parsed)
+            );
+          }
           return;
         }
-        if (isExpired && parsed[tokenKey]) {
-          delete parsed[tokenKey];
+        if (isExpired) {
+          if (parsed[tokenKey]) delete parsed[tokenKey];
+          if (parsed[legacyTokenKey]) delete parsed[legacyTokenKey];
           localStorage.setItem(
             SNAP_RX_TOKENS_STORAGE_KEY,
             JSON.stringify(parsed)
@@ -125,15 +143,15 @@ function SnapRxContent({ previousOutput, handleClose, schemaKey = "ASSESSMENTS",
       }
     }
 
-    if (!fileUploadToken) {
-      dispatch(
-        generateFileUploadToken({
-          patientId,
-          admissionId,
-          schemaKey,
-        })
-      );
-    }
+    dispatch(setFileUploadToken(null));
+    dispatch(setFileUploadSessionId(null));
+    dispatch(
+      generateFileUploadToken({
+        patientId,
+        admissionId,
+        schemaKey,
+      })
+    );
   }, [dispatch, fileUploadToken, patientDetails, schemaKey]);
 
   useEffect(() => {
@@ -516,12 +534,14 @@ function SnapRxContent({ previousOutput, handleClose, schemaKey = "ASSESSMENTS",
     const patientId = patientDetails?.details?.id;
     const admissionId = patientDetails?.admissionId;
     if (patientId && admissionId) {
-      const tokenKey = `fileUploadToken_${patientId}_${admissionId}`;
+      const tokenKey = getTokenKey(patientId, admissionId, schemaKey);
+      const legacyTokenKey = getLegacyTokenKey(patientId, admissionId);
       const tokenDataString = localStorage.getItem(SNAP_RX_TOKENS_STORAGE_KEY);
       if (tokenDataString) {
         try {
           const tokenData = JSON.parse(tokenDataString);
-          delete tokenData[tokenKey];
+          if (tokenData[tokenKey]) delete tokenData[tokenKey];
+          if (tokenData[legacyTokenKey]) delete tokenData[legacyTokenKey];
           localStorage.setItem(
             SNAP_RX_TOKENS_STORAGE_KEY,
             JSON.stringify(tokenData)

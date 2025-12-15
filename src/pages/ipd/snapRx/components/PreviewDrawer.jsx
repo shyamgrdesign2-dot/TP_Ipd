@@ -149,7 +149,7 @@ const PreviewDrawer = forwardRef(
 
     const getCroppedImg = async (image, crop, fileId, rotation = 0, totalFile) => {
       const canvas = canvasRefs.current.get(fileId)?.current;
-      if (!canvas || !crop) return null;
+      if (!canvas || !crop || !image) return null;
 
       const naturalWidth = image.naturalWidth || image.width;
       const naturalHeight = image.naturalHeight || image.height;
@@ -198,6 +198,19 @@ const PreviewDrawer = forwardRef(
         canvas.toBlob((blob) => resolve(blob), "image/jpeg", 0.9);
       });
     };
+
+    const loadImageForFile = useCallback((file) => {
+      return new Promise((resolve, reject) => {
+        const src = file?.fileUrl || file?.url || file?.preview;
+        if (!src) return resolve(null);
+
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = src;
+      });
+    }, []);
 
     const showHideBackModal = () => setIsBackModalOpen((v) => !v);
     const showHideDeleteModal = () => setIsDeleteModalOpen((v) => !v);
@@ -425,11 +438,13 @@ const PreviewDrawer = forwardRef(
           allUpdatedFiles.map(async (f) => {
             let crop = f.crop;
 
-            // If % crop convert to px based on rendered img size
-            if (crop?.unit === "%") {
-              const imgEl = imageRefs.current?.get(f.id)?.current;
-              const cw = imgEl?.width || 0;
-              const ch = imgEl?.height || 0;
+            const imageEl =
+              imageRefs.current?.get(f.id)?.current || (await loadImageForFile(f));
+
+            // If % crop convert to px based on rendered or natural image size
+            if (crop?.unit === "%" && imageEl) {
+              const cw = imageEl.width || imageEl.naturalWidth || 0;
+              const ch = imageEl.height || imageEl.naturalHeight || 0;
               crop = {
                 unit: "px",
                 x: (crop.x * cw) / 100,
@@ -440,7 +455,7 @@ const PreviewDrawer = forwardRef(
             }
 
             const blob = await getCroppedImg(
-              imageRefs.current?.get(f.id)?.current,
+              imageEl,
               crop,
               f.id,
               f.rotation || 0,
@@ -454,8 +469,12 @@ const PreviewDrawer = forwardRef(
               return croppedFile;
             }
 
-            // fallback: if we somehow don't have cropped blob, skip safely
-            throw new Error("Failed to crop image");
+            const fallbackFile = f.file || f;
+            if (fallbackFile instanceof File) return fallbackFile;
+
+            return new File([fallbackFile], finalName.toLowerCase(), {
+              type: fallbackFile?.type || "image/jpeg",
+            });
           })
         );
 
