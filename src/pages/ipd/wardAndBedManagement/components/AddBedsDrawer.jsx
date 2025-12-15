@@ -519,7 +519,6 @@ const AddBedsDrawer = ({
       onClose={onClose}
       placement="right"
       width={isReadOnly ? "700px" : "1000px"}
-      className="add-beds-drawer"
       closeIcon={false}
       destroyOnClose
     >

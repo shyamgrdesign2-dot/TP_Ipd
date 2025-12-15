@@ -34,6 +34,7 @@ const BedsListTable = ({
   const [selectedBed, setSelectedBed] = useState(null);
   const [editingBedId, setEditingBedId] = useState(null);
   const [editingBedName, setEditingBedName] = useState("");
+  const [hasStatusFilter, setHasStatusFilter] = useState(false);
   const [modalState, setModalState] = useState({
     isDeleteOpen: false,
     isBlockOpen: false,
@@ -351,12 +352,14 @@ const BedsListTable = ({
           // Handle status filter change - trigger API call
           if (filters && filters.status && filters.status.length > 0) {
             // Multiple filters selected - pass array to parent
+            setHasStatusFilter(true);
             onStatusFilterChange?.(filters.status);
           } else if (
             filters &&
             (!filters.status || filters.status.length === 0)
           ) {
             // Filter was cleared
+            setHasStatusFilter(false);
             onStatusFilterChange?.(null);
           }
         }}
@@ -364,7 +367,11 @@ const BedsListTable = ({
           emptyText: (
             <div className="beds-empty-state">
               <img src={emptyFileIcon} alt="No beds" className="empty-icon" />
-              <p className="empty-message">You haven't added any beds yet!</p>
+              <p className="empty-message">
+                {hasStatusFilter
+                  ? "No beds found"
+                  : "You haven't added any beds yet!"}
+              </p>
             </div>
           ),
         }}
