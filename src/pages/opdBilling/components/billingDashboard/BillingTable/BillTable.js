@@ -20,6 +20,7 @@ import {
 import {
   formatDateWithOrdinal,
   calculateTotalPaidAmount,
+  isEditBillDisabled
 } from "../../../utils/helper";
 import InfoTooltip from "./InfoToolTip/InfoTooltip";
 import { browserName, isMobile } from "react-device-detect";
@@ -34,6 +35,8 @@ import { sendMessageToParent } from "../../../../../utils/utils";
 import { EditBillDeployedDate } from "../../../utils/constants";
 
 const BillTable = ({
+  createBillDrawer,
+  setCreateBillDrawer,
   data,
   isPatientScreen,
   handleMessageForm3c,
@@ -47,6 +50,8 @@ const BillTable = ({
   totalAdvanceBalance,
   showHideSubModal,
   billType,
+  billData,
+  setBillData,
 }) => {
   const { profile, servicesList } = useSelector((state) => state.doctors);
   const { planDetails } = useSelector((state) => state.subscription);
@@ -60,11 +65,9 @@ const BillTable = ({
   const [getBillToken, setBillToken] = useLocalStorage(
     PERSISTANT_STORAGE_KEY_BILL_TOKEN
   );
-  const [editBillDrawer, setEditBillDrawer] = useState(false);
   const [refundBillDrawer, setRefundBillDrawer] = useState(false);
   const [clearDueDrawer, setClearDueDrawer] = useState(false);
   const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
-  const [billData, setBillData] = useState(null);
   const [patientWalletBalance, setPatientWalletBalance] = useState(0);
   const urlParams = new URLSearchParams(window.location.search);
   const isReceptionist = urlParams.has("receptionist");
@@ -352,16 +355,7 @@ const BillTable = ({
       width: "9%",
       render: (text, record) => {
         // Check if edit button should be disabled
-        const hasPaidDues =
-          record?.paidDues &&
-          Array.isArray(record.paidDues) &&
-          record.paidDues.length > 0;
-        const hasRefundedAmount =
-          record?.refundedAmount && parseFloat(record.refundedAmount) > 0;
-        const isEditDisabled =
-          hasPaidDues ||
-          hasRefundedAmount ||
-          moment(record?.date).isBefore(EditBillDeployedDate);
+        const { isEditDisabled, hasPaidDues, hasRefundedAmount } = isEditBillDisabled(record);
 
         return (
           <div
@@ -538,8 +532,8 @@ const BillTable = ({
   }, 500);
 
   const handleEditBillDrawer = useCallback(() => {
-    setEditBillDrawer(!editBillDrawer);
-  }, [editBillDrawer]);
+    setCreateBillDrawer(!createBillDrawer);
+  }, [createBillDrawer]);
 
   return (
     <>
@@ -614,24 +608,6 @@ const BillTable = ({
             getPatientBills={getPatientBills}
             onClearDueSuccess={handleClearDueComplete}
             patientAdvanceData={patientAdvanceData}
-            admissionId={billData?.admissionId}
-          />
-        </Drawer>
-      )}
-
-      {editBillDrawer && (
-        <Drawer
-          closeIcon={false}
-          placement="right"
-          bodyStyle={{ backgroundColor: "white" }}
-          open={editBillDrawer}
-          onClose={handleEditBillDrawer}
-          width="100%"
-          push={false}
-        >
-          <CreateBill
-            handleCreateBillDrawer={handleEditBillDrawer}
-            editBillData={billData}
             admissionId={billData?.admissionId}
           />
         </Drawer>

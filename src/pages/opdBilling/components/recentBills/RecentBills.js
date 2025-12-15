@@ -13,7 +13,9 @@ const RecentBills = ({
   const [sortConfig, setSortConfig] = useState({ field: null, order: null });
   const urlParams = new URLSearchParams(window.location.search);
   const isReceptionist = urlParams.has("receptionist");
-
+  const [createBillDrawer, setCreateBillDrawer] = useState(false);
+  const [billData, setBillData] = useState(null);
+  
   const handleSortChange = useCallback(
     (field, order) => {
       setSortConfig({ field, order });
@@ -62,6 +64,10 @@ const RecentBills = ({
       </div>
       <div className="m-4 rounded-20px bg-white">
         <BillTable
+          createBillDrawer={createBillDrawer}
+          setCreateBillDrawer={setCreateBillDrawer}
+          billData={billData}
+          setBillData={setBillData}
           data={patientBills}
           isPatientScreen={true}
           getPatientBills={getPatientBills}

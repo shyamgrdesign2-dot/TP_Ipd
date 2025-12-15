@@ -17,7 +17,7 @@ import {
 import { setBillPrintSettings, setIpdBillPrintSettings } from "../../redux/billingSlice";
 import { useDispatch } from "react-redux";
 import { Container, Navbar } from "react-bootstrap";
-import { handleDownload, printContent } from "./utils/helper";
+import { handleDownload, isEditBillDisabled, printContent } from "./utils/helper";
 import { setLoadingStatus } from "../../redux/uploadDocSlice";
 import { db } from "../../firebase";
 import { deleteDoc, doc, getDoc, onSnapshot } from "firebase/firestore";
@@ -68,6 +68,7 @@ const PreviewBill = ({
   const { userId } = useSelector((state) => state.doctors);
   const { profile } = useSelector((state) => state.doctors);
   const divRef = useRef(null);
+  const { isEditDisabled } = isEditBillDisabled(billDetails);
 
   // Helper function to determine if doctorId should be passed
   const getDoctorIdParam = () => {
@@ -417,7 +418,7 @@ const PreviewBill = ({
                       <i className="icon-right iconrotate180 ms-auto"></i>
                     </Button>
                   )}
-                <Button
+                {!isEditDisabled && <Button
                   type="text"
                   className={`btn btnicon20 align-items-center d-flex btn-41 w-100 mb-3 ${
                     isReceptionist ? "receptionist-white-btn" : "btn-input"
@@ -427,7 +428,7 @@ const PreviewBill = ({
                 >
                   <span className="fw-semibold">Edit Bill</span>
                   <i className="icon-right iconrotate180 ms-auto"></i>
-                </Button>
+                </Button>}
 
                 <div className="bg-body d-flex flex-column p-3 rounded-10px border">
                   <div className="d-flex">
