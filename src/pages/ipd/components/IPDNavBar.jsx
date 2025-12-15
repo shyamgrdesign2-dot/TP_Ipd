@@ -136,7 +136,7 @@ function IPDNavbar() {
         )}
       </NavLink>
 
-      <NavLink to="/ipd/billing" replace={true} end>
+      <NavLink to="/ipd/billing-history" replace={true} end>
         {({ isActive }) => (
           <>
             <img
