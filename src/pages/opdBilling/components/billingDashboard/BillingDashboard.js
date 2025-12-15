@@ -155,28 +155,24 @@ function BillingDashboard({ patientData, fromPath, isIpd = false }) {
     }
   };
 
-  const handleCreateBillDrawer = useCallback(
-    async (record) => {
-      const isPurchased = await checkBillingPurchased();
-      if (isPurchased) {
-        const clinic = getClinic();
-        trackEvent("TP_Billing_CreateBill", {
-          doctorSpeciality: profile?.dp_name,
-          doctorId: profile?.doctor_unique_id,
-          doctorContact: profile?.um_contact,
-          source: fromPath || "billing_page",
-          city: clinic?.hm_city,
-          pincode: clinic?.hm_pincode,
-          subscriptionStatus: planDetails?.currentPlanStatus,
-          receptionistId: receptionistId,
-          receptionistName: receptionistName,
-        });
-        setCreateBillDrawer(!createBillDrawer);
-        setEditBillData(record ?? {});
-      }
-    },
-    [createBillDrawer]
-  );
+  const handleCreateBillDrawer = useCallback(async (record) => {
+    const isPurchased = await checkBillingPurchased()
+    if (isPurchased) {
+      const clinic = getClinic();
+      trackEvent("TP_Billing_CreateBill", {
+        doctorSpeciality: profile?.dp_name,
+        doctorId: profile?.doctor_unique_id,
+        doctorContact: profile?.um_contact,
+        source: fromPath || "billing_page",
+        city: clinic?.hm_city,
+        pincode: clinic?.hm_pincode,
+        subscriptionStatus: planDetails?.currentPlanStatus,
+        receptionistId: receptionistId,
+        receptionistName: receptionistName,
+      });
+      setCreateBillDrawer(!createBillDrawer);
+    }
+  }, [createBillDrawer]);
 
   const showHideBackModal = () => {
     setIsBackModalOpen(!isBackModalOpen);
