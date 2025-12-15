@@ -1,11 +1,16 @@
-import React, { Suspense, useEffect, useMemo, useState, useRef } from "react";
+import React, {
+  Suspense,
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+} from "react";
 import { LoadingOutlined } from "@ant-design/icons";
 import { IPD } from "../../../utils/locale";
 import {
   formatDateToShortMonthYear,
   getPatientInformation,
   getTokenData,
-  normalizeToDefault,
   transformAdmissionToPatient,
 } from "../../../utils/utils";
 import { AnimatePresence } from "framer-motion";
@@ -79,6 +84,8 @@ import PatientDetails from "../../PatientDetails";
 import { downloadModule, printModule } from "../utils/printDownload";
 import usePrintPreviewSetup from "../../../hooks/usePrintPreviewSetup";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
+import AdmissionBilling from "../admissionBilling/AdmissionBilling";
+import BillingHeaderActions from "../admissionBilling/BillingHeaderActions";
 
 const PatientDetailsLayout = createRemoteComponent("PatientDetailsLayout");
 
@@ -105,9 +112,8 @@ const IPDPatientDetails = () => {
     filteredOtNotesData,
     currentFilterRange: otNotesFilterRange,
   } = useSelector((state) => state.otNotes);
-  const { progressNotes, filteredProgressNotes, currentFilterRange } = useSelector(
-    (state) => state.progressNotes
-  );
+  const { progressNotes, filteredProgressNotes, currentFilterRange } =
+    useSelector((state) => state.progressNotes);
   const { medicalRecords } = useSelector((state) => state.medicalRecords);
   const { crossReferralData } = useSelector((state) => state.crossReferral);
   const { dischargeSummaryData, actualDischargeSummaryData } = useSelector(
@@ -119,6 +125,7 @@ const IPDPatientDetails = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [activeMenuItem, setActiveMenuItem] = useState("assessment");
   const [patientData, setPatientData] = useState(null);
+  const [shouldOpenCreateBill, setShouldOpenCreateBill] = useState(false);
   const isOnlyViewMode = useOnlyViewMode();
 
   // Medical records states
@@ -130,6 +137,10 @@ const IPDPatientDetails = () => {
   const [shouldShowUploadDocPopup, setShowUploadDocPopup] = useState(false);
   const dischargeSummaryReadonlyRef = useRef(null);
   const [user_id, setUserId] = useState(null);
+  const [totalAdvanceBalance, setTotalAdvanceBalance] = useState(null);
+  const [shouldOpenAddAdvance, setShouldOpenAddAdvance] = useState(false);
+  const [pastBillingHistoryDrawer, setPastBillingHistoryDrawer] =
+    useState(false);
 
   const dispatch = useDispatch();
 
@@ -203,6 +214,11 @@ const IPDPatientDetails = () => {
         fromTab,
       },
     });
+  };
+
+  const handleBillingClick = () => {
+    setActiveMenuItem("billing");
+    setShouldOpenCreateBill(true);
   };
 
   usePrintPreviewSetup();
@@ -427,6 +443,7 @@ const IPDPatientDetails = () => {
     records: handleMedicalRecordsClick,
     crossReferral: handleAddCrossReferralClick,
     dischargeSummary: handleDischargeSummaryClick,
+    billing: handleBillingClick,
   };
 
   const patientDetailsMenu = () => {
@@ -466,6 +483,8 @@ const IPDPatientDetails = () => {
     } else if (activeMenuItem === "labResults") {
       return true;
     } else if (activeMenuItem === "opd") {
+      return true;
+    } else if (activeMenuItem === "billing") {
       return true;
     }
     return false;
@@ -676,9 +695,7 @@ const IPDPatientDetails = () => {
 
   const getOtNotesDataForOutput = () => {
     if (hasActiveOtNotesFilter) {
-      return Array.isArray(filteredOtNotesData)
-        ? filteredOtNotesData
-        : [];
+      return Array.isArray(filteredOtNotesData) ? filteredOtNotesData : [];
     }
     return otNotesData;
   };
@@ -1089,6 +1106,22 @@ const IPDPatientDetails = () => {
           <PatientDetails isIPD={true} />
           // <div>hello</div>
         );
+      case "billing":
+        return (
+          <AdmissionBilling
+            patientDetails={patientDetails}
+            patient_data={patient_data}
+            fromTab={fromTab}
+            shouldOpenCreateBill={shouldOpenCreateBill}
+            onDrawerOpened={() => setShouldOpenCreateBill(false)}
+            totalAdvanceBalance={totalAdvanceBalance}
+            onTotalAdvanceBalanceChange={setTotalAdvanceBalance}
+            shouldOpenAddAdvance={shouldOpenAddAdvance}
+            onAddAdvanceDrawerOpened={() => setShouldOpenAddAdvance(false)}
+            pastBillingHistoryDrawer={pastBillingHistoryDrawer}
+            setPastBillingHistoryDrawer={setPastBillingHistoryDrawer}
+          />
+        );
       default:
         return null;
     }
@@ -1109,6 +1142,24 @@ const IPDPatientDetails = () => {
         ?.showAddCTA && isDataPresent
     );
   }, [activeMenuItem, isDataPresent]);
+
+  const contentHeaderActions = () => {
+    if (activeMenuItem === "billing") {
+      const patientDataForHeader = patientDetails || patient_data;
+
+      return (
+        <BillingHeaderActions
+          patientData={patientDataForHeader}
+          totalAdvanceBalance={totalAdvanceBalance}
+          onTotalAdvanceBalanceChange={setTotalAdvanceBalance}
+          onAddAdvanceClick={() => setShouldOpenAddAdvance(true)}
+          onPastBillingHistoryClick={() => setPastBillingHistoryDrawer(true)}
+          currentAdmissionId={patientDetails?.admissionId}
+        />
+      );
+    }
+    return null;
+  };
 
   return (
     <div>
@@ -1137,6 +1188,7 @@ const IPDPatientDetails = () => {
               }
               // renderContent={renderLoader}
               showAddCTA={canShowAddCTA}
+              contentHeaderActions={contentHeaderActions}
             />
           )}
           {uploadDocDrawer && (

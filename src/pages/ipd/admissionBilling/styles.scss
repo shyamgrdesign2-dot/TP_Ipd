@@ -1,0 +1,225 @@
+.admission-billing-container {
+  width: 100%;
+  height: 100%;
+
+  .billing-preview-wrapper {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    width: 100%;
+
+    .pdf-preview-container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      background: #F9F7FD !important;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      min-height: calc(100vh - 200px);
+      max-width: 100%;
+      margin: 0 auto;
+      width: 100%;
+
+      .pdf-preview-inner {
+        position: relative;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        overflow-y: auto;
+        padding-bottom: 120px; // Space for toolbar at bottom
+        width: 100%;
+
+        .react-pdf__Page {
+          margin-bottom: 20px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+          border-radius: 8px;
+          overflow: hidden;
+          width: 100% !important;
+          max-width: 100%;
+        }
+      }
+    }
+  }
+}
+
+.toolbar-wrapper {
+  position: fixed;
+  bottom: 7px;
+  left: calc(50dvw - 95px);
+  &:not(.no-edit) {
+    left: calc(50dvw - 209px);
+  }
+  right: 0;
+  z-index: 100;
+  width: fit-content;
+}
+
+.ipd-patient-billing-history-drawer .ant-drawer-body {
+  background: white !important;
+}
+
+.billing-content-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 89%;
+  position: relative;
+  padding-left: 10px;
+
+  .billing-header-left {
+    flex: 0 0 auto;
+
+    .billing-title {
+      font-family: "Poppins", sans-serif;
+      font-weight: 600;
+      font-size: 24px;
+      line-height: 32px;
+      color: #ffffff;
+      margin: 0;
+    }
+  }
+
+  .billing-header-center {
+    position: absolute;
+    flex: 0 0 auto;
+
+    .advance-balance-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #f6effb;
+      border: 1px solid #ba7de9;
+      border-radius: 100px;
+      padding: 6px 12px 6px 12px;
+      padding-right: 54px; // Reserve space for the button (42px width + 12px padding)
+      height: 41px;
+      position: relative;
+      min-width: 243px;
+      max-width: fit-content;
+      width: fit-content;
+
+      .advance-balance-label {
+        font-family: "Poppins", sans-serif;
+        font-weight: 500;
+        font-size: 14px;
+        line-height: 23.342px;
+        color: #ba7de9 !important;
+        letter-spacing: 0.0898px;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+
+      .advance-balance-value {
+        font-family: "Roboto" !important;
+        font-weight: 700;
+        font-size: 15px;
+        line-height: 28.729px;
+        color: #ba7de9 !important;
+        white-space: nowrap;
+        overflow: visible;
+        flex-shrink: 0;
+        max-width: none;
+      }
+
+      .add-advance-btn {
+        position: absolute;
+        right: 0;
+        top: -0.5px;
+        width: 42px;
+        height: 40px;
+        background: rgba(237, 223, 247, 0.6);
+        border: none;
+        border-radius: 0 100px 100px 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        padding: 0;
+        flex-shrink: 0;
+        z-index: 1;
+
+        img {
+          width: 20px;
+          height: 20px;
+        }
+
+        &:hover {
+          background: rgba(237, 223, 247, 0.8);
+        }
+      }
+    }
+
+    .advance-deposite-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 5px;
+      flex-shrink: 0;
+      border-radius: 100px;
+      border: 1px solid var(--S-Icon-80, #BA7DE9);
+      background: #F6EFFB;
+
+      span{
+          color: #BA7DE9 !important;
+          padding-left: 5px;
+      }
+
+      .add-advance-icon {
+          // background: rgba(237, 223, 247, 0.6) !important;
+          width: 20%;
+          position: relative;
+          right: -6px;
+          margin: 0;
+          padding: 8px 13px;
+          border: 1px solid F6EFFB !important;
+          border-bottom-right-radius: 18px !important;
+          border-top-right-radius: 18px !important;
+          background: rgba(237, 223, 247, 0.60) !important;
+      }
+
+  }
+  }
+
+  .billing-header-right {
+    flex: 0 0 auto;
+    margin-left: auto;
+
+    .past-billing-history-btn {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid #4b4ad5;
+      border-radius: 10px;
+      padding: 9px 15px;
+      height: 42px;
+      cursor: pointer;
+      font-family: "Poppins", sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      line-height: 22px;
+      color: #4b4ad5 !important;
+
+      span {
+        white-space: nowrap;
+        color: #4b4ad5 !important;
+      }
+
+      i {
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      &:hover {
+        background: rgba(255, 255, 255, 1);
+      }
+    }
+  }
+}
+

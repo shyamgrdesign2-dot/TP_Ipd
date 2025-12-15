@@ -43,6 +43,7 @@ const BillTable = ({
   patientAdvanceData,
   totalAdvanceBalance,
   showHideSubModal,
+  billType
 }) => {
   const { profile, servicesList } = useSelector((state) => state.doctors);
   const { planDetails } = useSelector((state) => state.subscription);
@@ -588,6 +589,7 @@ const BillTable = ({
             getPatientBills={getPatientBills}
             onRefundSuccess={handleRefundComplete}
             patientAdvanceData={patientAdvanceData}
+            billType={billType}
           />
         </Drawer>
       )}

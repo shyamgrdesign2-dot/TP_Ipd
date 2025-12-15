@@ -92,6 +92,7 @@ const CreateBill = ({
   isPreviewFromTable,
   editBillData,
   admissionId,
+  onBillCreated,
 }) => {
   const isIpdBill = !!admissionId;
   const { state } = useLocation();
@@ -111,9 +112,8 @@ const CreateBill = ({
   const deviceUid = localStorage.getItem("app_device_unique_id");
   const { profile, userId } = useSelector((state) => state.doctors);
   const { patients, error } = useSelector((state) => state.records);
-  const { billPrintSettings, advancedSettings, ipdBillPrintSettings } = useSelector(
-    (state) => state.billing
-  );
+  const { billPrintSettings, advancedSettings, ipdBillPrintSettings } =
+    useSelector((state) => state.billing);
   const [billNotesDrawer, setBillNotesDrawer] = useState(false);
   const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
   const [patientBillNotes, setPatientBillNotes] = useState(
@@ -121,9 +121,7 @@ const CreateBill = ({
   );
   const [searchItemSelected, setSearchItemSelected] = useState(null);
   const [shouldShowRefIdPopup, setShowRefIdPopup] = useState(-1);
-  const [dataSource, setDataSource] = useState(
-    editBillData?.billItems || []
-  );
+  const [dataSource, setDataSource] = useState(editBillData?.billItems || []);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchOptions, setSearchOptions] = useState([]);
   const [patientSearchOptions, setPatientSearchOptions] = useState([]);
@@ -177,6 +175,8 @@ const CreateBill = ({
     )
     .toFixed(2);
 
+  console.log({ dataSource });
+
   const lineItemDiscount = dataSource
     .reduce((sum, service) => {
       const baseAmount =
@@ -229,10 +229,7 @@ const CreateBill = ({
       ? (totalBillAmount * (Number(extraDiscount) || 0)) / 100 // Percentage based
       : Number(extraDiscount) || 0; // Flat/Rupee based
 
-  const payableAmount = (
-    totalBillAmount -
-    extraDiscountAmount
-  ).toFixed(2);
+  const payableAmount = (totalBillAmount - extraDiscountAmount).toFixed(2);
 
   const paidAmount = paymentModes
     .reduce((sum, payment) => sum + (Number(payment.amount) || 0), 0)
@@ -256,7 +253,10 @@ const CreateBill = ({
     if (billPrintSettings && Object.keys(billPrintSettings).length === 0) {
       getBillPrintSettings();
     }
-    if (ipdBillPrintSettings && Object.keys(ipdBillPrintSettings).length === 0) {
+    if (
+      ipdBillPrintSettings &&
+      Object.keys(ipdBillPrintSettings).length === 0
+    ) {
       getIpdBillPrintSettings();
     }
   }, []);
@@ -278,8 +278,7 @@ const CreateBill = ({
       dataSource.reduce(
         (sum, service) => sum + (Number(service.totalAmount) || 0),
         0
-      ) -
-      (Number(extraDiscountAmount) || 0)
+      ) - (Number(extraDiscountAmount) || 0)
     ).toFixed(2);
 
     if (
@@ -382,10 +381,16 @@ const CreateBill = ({
   useEffect(() => {
     if (advancedSettings && Object.keys(advancedSettings)?.length) {
       setIncludeInRx(advancedSettings.defaultRxFlag);
-      setAddBillTo3C( isIpdBill ? advancedSettings?.ipdSetting?.defaultForm3cFlag : advancedSettings?.defaultForm3cFlag);
+      setAddBillTo3C(
+        isIpdBill
+          ? advancedSettings?.ipdSetting?.defaultForm3cFlag
+          : advancedSettings?.defaultForm3cFlag
+      );
       setPaymentModes([
         {
-          paymentMode: isIpdBill ? advancedSettings?.ipdSetting?.defaultPaymentMode : advancedSettings?.defaultPaymentMode,
+          paymentMode: isIpdBill
+            ? advancedSettings?.ipdSetting?.defaultPaymentMode
+            : advancedSettings?.defaultPaymentMode,
           amount: undefined,
           refId: "",
         },
@@ -595,7 +600,11 @@ const CreateBill = ({
               format: "DD MMM YYYY",
               type: "mask",
             }}
-            value={record.itemDate ? dayjs(record.itemDate) : ""}
+            value={
+              record.itemDate && dayjs(record.itemDate, "DD-MM-YYYY").isValid()
+                ? dayjs(record.itemDate, "DD-MM-YYYY")
+                : null
+            }
             style={{
               border: "none",
             }}
@@ -773,7 +782,7 @@ const CreateBill = ({
         </Button>
       ),
     },
-  ]?.filter(item => !!item);
+  ]?.filter((item) => !!item);
 
   const handleModeChange = (value, index, type) => {
     const updatedModes = [...paymentModes];
@@ -864,10 +873,19 @@ const CreateBill = ({
         receptionistName: receptionistName,
       });
     }
-    const updatedDataSource = dataSource.filter((item) => {
-      const { masterId, name, quantity, amount, totalAmount } = item;
-      return masterId && name && quantity && amount && totalAmount;
-    });
+    const updatedDataSource = dataSource
+      .filter((item) => {
+        const { masterId, name, quantity, amount, totalAmount } = item;
+        return masterId && name && quantity && amount && totalAmount;
+      })
+      ?.map((item) => {
+        return {
+          ...item,
+          itemDate: item.itemDate
+            ? dayjs(item.itemDate, "DD-MM-YYYY").format("YYYY-MM-DD")
+            : null,
+        };
+      });
     // const updatedPaymentModes = paymentModes?.filter(
     //   (item) => item.paymentMode && item.amount > 0
     // );
@@ -904,7 +922,11 @@ const CreateBill = ({
       admissionId: admissionId,
       id: editBillData?.id,
     };
-    const createRes = await createBill(payload, isIpdBill ? "ipdBill" : "", editBillData?.id);
+    const createRes = await createBill(
+      payload,
+      isIpdBill ? "ipdBill" : "",
+      editBillData?.id
+    );
     if (createRes?.id) {
       message.open({
         key: MESSAGE_KEY,
@@ -943,6 +965,10 @@ const CreateBill = ({
       }
       setBillData(createRes);
       if (type === "exit") {
+        // For IPD billing, call onBillCreated callback if provided
+        if (onBillCreated && isIpdBill) {
+          onBillCreated(createRes);
+        }
         handleCreateBillDrawer();
       } else if (type === "preview") {
         handleDrawerPreviewBill();
@@ -970,7 +996,11 @@ const CreateBill = ({
             profile={profile}
             billData={createRes}
             gstIn={advancedSettings?.GSTIN}
-            showCreatedBy={isIpdBill ? advancedSettings?.ipdSetting?.enableCreatedByInRx : advancedSettings?.enableCreatedByInRx}
+            showCreatedBy={
+              isIpdBill
+                ? advancedSettings?.ipdSetting?.enableCreatedByInRx
+                : advancedSettings?.enableCreatedByInRx
+            }
           />
         ).toBlob();
         printContent(blob, createRes.patientId, setStartLoader);
@@ -1033,7 +1063,7 @@ const CreateBill = ({
   );
 
   useEffect(() => {
-      handleAddRow(dataSource);
+    handleAddRow(dataSource);
   }, []);
 
   useEffect(() => {

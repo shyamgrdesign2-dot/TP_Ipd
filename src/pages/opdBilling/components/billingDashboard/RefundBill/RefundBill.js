@@ -47,6 +47,7 @@ function RefundBill({
   getPatientBills,
   onRefundSuccess,
   patientAdvanceData,
+  billType
 }) {
   const scrollContainerRef = useRef(null);
   const inputRef = useRef([]);
@@ -106,7 +107,7 @@ function RefundBill({
         billId: billData.id,
         paymentModes: [...paymentModes],
       };
-      const response = await processBillRefund(payload);
+      const response = await processBillRefund(payload, billType);
       if (response.status === 204) {
         const isAdvanceDeposit = !!paymentModes?.find(
           (item) => item.paymentMode === "Advance Deposit"

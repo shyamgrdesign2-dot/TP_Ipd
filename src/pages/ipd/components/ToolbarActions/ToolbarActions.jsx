@@ -1,4 +1,5 @@
 import React from "react";
+import { Dropdown } from "antd";
 import "./styles.scss";
 import { defaultIcons } from "../../../../assets/images/icons";
 
@@ -16,6 +17,10 @@ export default function ToolbarActions({
   onDownload = () => {},
   editBtnText = null,
   showOnlyEditForm = false,
+  onSendToWhatsapp = () => {},
+  showPreview = true,
+  showMoreActions = false,
+  moreActionsMenuItems = [],
 }) {
   const BTN = {
     BIG: "big",
@@ -77,12 +82,46 @@ export default function ToolbarActions({
       icon: defaultIcons.downloadIcon,
       show: !showAddToDischarge,
     },
+    {
+      id: "whatsapp",
+      label: "",
+      alt: "whatsapp",
+      type: BTN.SQUARE,
+      onClick: onSendToWhatsapp,
+      icon: defaultIcons.whatsappPrimaryIcon,
+      show: !showAddToDischarge,
+    },
   ];
 
   const renderAction = (a) => {
     if (!a.show) return null;
 
     const isBig = a.type === BTN.BIG;
+
+    // Special handling for more actions dropdown
+    if (a.id === "more-actions" && moreActionsMenuItems.length > 0) {
+      return (
+        <Dropdown
+          key={a.id}
+          menu={{
+            items: moreActionsMenuItems,
+          }}
+          trigger={["click"]}
+          placement="topCenter"
+        >
+          <button
+            type="button"
+            className={`action-btn ${isBig ? "is-big" : "is-square"}`}
+          >
+            <span className="action-btn__icon">
+              <img src={a.icon} alt={a.alt} />
+            </span>
+            {isBig && <span className="action-btn__label">{a.label}</span>}
+          </button>
+        </Dropdown>
+      );
+    }
+
     return (
       <button
         key={a.id}
@@ -130,7 +169,7 @@ export default function ToolbarActions({
             )}
 
             {/* Print Preview Button */}
-            {renderAction(actions[2])}
+            {showPreview && renderAction(actions[2])}
 
             {/* Action Cluster */}
             {!showAddToDischarge && (
@@ -146,6 +185,24 @@ export default function ToolbarActions({
 
             {/* Download Button */}
             {renderAction(actions[5])}
+
+            {/* WhatsApp Button */}
+            {renderAction(actions[6])}
+
+            {showMoreActions && moreActionsMenuItems.length > 0 && (
+              <>
+                <span className="toolbar__divider" aria-hidden="true" />
+                {renderAction({
+                  id: "more-actions",
+                  label: "",
+                  alt: "more actions",
+                  type: BTN.SQUARE,
+                  onClick: () => {},
+                  icon: defaultIcons.morePrimaryIcon,
+                  show: true,
+                })}
+              </>
+            )}
           </>
         )}
       </div>

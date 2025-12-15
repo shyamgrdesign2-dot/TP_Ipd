@@ -27,6 +27,7 @@ function ClearDue({
   getPatientBills,
   onClearDueSuccess,
   patientAdvanceData,
+  admissionId,
 }) {
   const [shouldShowRefIdPopup, setShowRefIdPopup] = useState(-1);
   const [totalClearDueAmount, setTotalClearDueAmount] = useState(0);
@@ -122,6 +123,7 @@ function ClearDue({
 
     try {
       const payload = {
+        admissionId: admissionId,
         patientId: billData?.patientId,
         billNumber: billData?.billNumber,
         paidDue: {
@@ -140,9 +142,12 @@ function ClearDue({
         payload.paidDue.remarks = remarks.trim();
       }
 
-      const response = await processClearDue(payload);
+      const response = await processClearDue(
+        payload,
+        admissionId ? "ipd" : "opd"
+      );
 
-      if (response.id) {
+      if (response.id || response.status === 200) {
         const isAdvanceDeposit = !!paymentModes?.find(
           (item) => item.paymentMode === "Advance Deposit"
         );

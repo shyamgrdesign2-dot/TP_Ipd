@@ -2758,6 +2758,18 @@ export const IPD = {
       ),
     },
     {
+      id: "billing",
+      name: "IPD Billing",
+      icon: "billingsIcon",
+      ctaText: "Create New IPD Bill",
+      emptyStateText: (
+        <>
+          <br />
+          <span>IPD bill has not been created for this admission.</span>
+        </>
+      ),
+    },
+    {
       id: "dischargeSummary",
       name: "Discharge Summary",
       icon: "notepadIcon",

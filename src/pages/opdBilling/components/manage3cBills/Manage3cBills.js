@@ -82,7 +82,7 @@ const SELECT_AFTER = [
 const GENDER = ["Male", "Female", "Other"];
 
 const Manage3cBills = forwardRef(
-  ({ handleForm3cBill, handleAddForm3cDrawer, form3cData, handleEditBillDrawer }, ref) => {
+  ({ handleForm3cBill, handleAddForm3cDrawer, form3cData, handleEditBillDrawer, isIpd = false }, ref) => {
     const [getBillToken, setBillToken] = useLocalStorage(
       PERSISTANT_STORAGE_KEY_BILL_TOKEN
     );
@@ -556,7 +556,7 @@ const Manage3cBills = forwardRef(
         search: searchQuery || "",
       };
       try {
-        const response = await fetchBillingDashboard(params);
+        const response = await fetchBillingDashboard(params, isIpd ? "ipd" : "opd");
         setPage(resetData ? 2 : page + 1);
         setHasMore(response.bills.length >= 25);
         setData((prev) =>

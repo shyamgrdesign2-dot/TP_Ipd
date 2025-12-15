@@ -82,6 +82,8 @@ import voiceAiIcon from './voice-ai.gif';
 import crossIconBlackBg from "../close-black-bg.svg";
 import bedPrimaryIcon from "./bedPrimary.svg";
 import bedSecondaryIcon from "./bedSecondary.svg";
+import morePrimaryIcon from "./more-primary.svg";
+import whatsappPrimaryIcon from "./whatsapp-primary.svg";
 
 // Icon exports
 export const defaultIcons = {
@@ -166,4 +168,6 @@ export const defaultIcons = {
   crossIconBlackBg,
   bedPrimaryIcon,
   bedSecondaryIcon,
+  morePrimaryIcon,
+  whatsappPrimaryIcon,
 };

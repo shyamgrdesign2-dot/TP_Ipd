@@ -36,7 +36,10 @@ import { deleteDoc, doc, getDoc, onSnapshot } from "firebase/firestore";
 import { useDispatch } from "react-redux";
 import { deleteDocsUploadedFromAndroid } from "../../../medicalRecords/service";
 import { setLoadingStatus } from "../../../../redux/uploadDocSlice";
-import { GB_NEW_IPD, GB_NEW_IPD_HOS_BUSINESS_ID } from "../../../../utils/constants";
+import {
+  GB_NEW_IPD,
+  GB_NEW_IPD_HOS_BUSINESS_ID,
+} from "../../../../utils/constants";
 
 const dateFormat = "YYYY-MM-DD";
 const TableBillingDashboard = forwardRef(
@@ -49,7 +52,8 @@ const TableBillingDashboard = forwardRef(
       createBillDrawer,
       addAdvanceDrawer,
       showHideSubModal,
-      fromPath="opdDashboard",
+      fromPath = "opdDashboard",
+      isIpdPatientBillingHistory = false,
     },
     ref
   ) => {
@@ -58,7 +62,9 @@ const TableBillingDashboard = forwardRef(
     const { doctorList } = useSelector((state) => state.bulkMessages);
     const { userId } = useSelector((state) => state.doctors);
     const [searchQuery, setSearchQuery] = useState("");
-    const [selectedTab, setSelectedTab] = useState(1);
+    const [selectedTab, setSelectedTab] = useState(
+      isIpdPatientBillingHistory || fromPath === "ipdDashboard" ? 2 : 1
+    );
     const [isAdvanceDepositTab, setIsAdvanceDepositTab] = useState(false);
     const [isBillingTab, setIsBillingTab] = useState(false);
     const [pageNo, setPageNo] = useState(0);
@@ -141,8 +147,11 @@ const TableBillingDashboard = forwardRef(
         sortOrder: "desc",
         startDate: dateRange.startDate,
         endDate: dateRange.endDate,
-        doctorIds: isReceptionist ? urlParams.get("um_id")?.split(",") :
-          selectedDoctors.length > 0 ? [...selectedDoctors] : [...doctorIds],
+        doctorIds: isReceptionist
+          ? urlParams.get("um_id")?.split(",")
+          : selectedDoctors.length > 0
+          ? [...selectedDoctors]
+          : [...doctorIds],
         patientId: patientData?.patient_unique_id
           ? patientData?.patient_unique_id
           : "",
@@ -154,11 +163,13 @@ const TableBillingDashboard = forwardRef(
         sortOrder: "desc",
         startDate: dateRange.startDate,
         endDate: dateRange.endDate,
-        doctorIds: isReceptionist ? urlParams.get("um_id")?.split(",") : doctorList.map((doctor) => doctor.um_id),
+        doctorIds: isReceptionist
+          ? urlParams.get("um_id")?.split(",")
+          : doctorList.map((doctor) => doctor.um_id),
         patientId: patientData?.patient_unique_id
           ? patientData?.patient_unique_id
           : "",
-      };   
+      };
       const billResponse = patientData
         ? await fetchBillsByPatient(billParams)
         : await fetchBillingDashboard(billParams);
@@ -177,19 +188,26 @@ const TableBillingDashboard = forwardRef(
     // Move items into the component body and make them depend on selectedTab
     const items = useMemo(() => {
       const baseItems = [
-        {
-          key: 1,
-          label: (
-            <div className="d-flex align-items-center">
-              <i className="icon-billings"></i>
-              {`OPD Billing (${billingCount})`}
-            </div>
-          ),
-        },
+        ...(fromPath === "opdDashboard"
+          ? [
+              {
+                key: 1,
+                label: (
+                  <div className="d-flex align-items-center">
+                    <i className="icon-billings"></i>
+                    {`OPD Billing (${billingCount})`}
+                  </div>
+                ),
+              },
+            ]
+          : []),
       ];
 
       // Only show IPD Billing tab if either feature flag is true
-      if ((isNewIPDAccessableFromGB || isNewIPDHosBusinessIdAccessableFromGB) && ! (fromPath === "opdDashboard")) {
+      if (
+        (isNewIPDAccessableFromGB || isNewIPDHosBusinessIdAccessableFromGB) &&
+        !(fromPath === "opdDashboard")
+      ) {
         baseItems.push({
           key: 2,
           label: (
@@ -271,13 +289,21 @@ const TableBillingDashboard = forwardRef(
 
     return (
       <>
-        <div className="border rounded-4 appointment-wrap dateborder">
-          <Tabs
-            defaultActiveKey={1}
-            items={items}
-            onChange={onChange}
-            activeKey={selectedTab}
-          />
+        <div
+          className={`${
+            isIpdPatientBillingHistory
+              ? ""
+              : "border rounded-4 appointment-wrap dateborder"
+          }`}
+        >
+          {!isIpdPatientBillingHistory && (
+            <Tabs
+              defaultActiveKey={1}
+              items={items}
+              onChange={onChange}
+              activeKey={selectedTab}
+            />
+          )}
           <div className="appointment-data">
             {selectedTab === 1 ? (
               <BillingTable

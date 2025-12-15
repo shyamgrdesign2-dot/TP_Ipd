@@ -63,7 +63,7 @@ const SELECT_AFTER = [
 
 const GENDER = ["Male", "Female", "Other"];
 
-function AddForm3cBills({ handleAddForm3cDrawer, setForm3cData, onSuccess }) {
+function AddForm3cBills({ handleAddForm3cDrawer, setForm3cData, onSuccess, isIpd = false }) {
   const {
     loading,
     userCreditObj,
@@ -372,7 +372,7 @@ function AddForm3cBills({ handleAddForm3cDrawer, setForm3cData, onSuccess }) {
       search: searchQuery || "",
     };
     try {
-      const response = await fetchBillingDashboard(params);
+      const response = await fetchBillingDashboard(params, isIpd ? "ipd" : "opd");
       const bills = response?.bills?.filter(
         (item) => item.paymentStatus !== "Refunded" && item.isForm3C !== true
       );
