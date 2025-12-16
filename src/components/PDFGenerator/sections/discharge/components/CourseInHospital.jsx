@@ -3,13 +3,14 @@
  */
 
 import React from "react";
-import { View, Text } from "@react-pdf/renderer";
+import { View } from "@react-pdf/renderer";
 import { StyleSheet } from "@react-pdf/renderer";
 import { formatDate } from "../../../utils/pdfUtils";
 import SectionTitle from "../../SectionTitle";
 import { getAllVisibleSections } from "../../../utils/pdfUtils";
 import RichTextPrintRenderer from "./richTextPrintRenderer";
 import { CHRONOLOGY_LAST_PARAGRAPH } from "../../../../../utils/locale";
+import { Text } from "../../../components/MultilingualText";
 
 const styles = StyleSheet.create({
   // Main container

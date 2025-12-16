@@ -1,6 +1,7 @@
 import React from "react";
-import { View, Text, StyleSheet } from "@react-pdf/renderer";
+import { View, StyleSheet } from "@react-pdf/renderer";
 import SlateToPdf from "../../../components/SlateToPdf";
+import { Text } from "../../../components/MultilingualText";
 
 const styles = StyleSheet.create({
   // Main container

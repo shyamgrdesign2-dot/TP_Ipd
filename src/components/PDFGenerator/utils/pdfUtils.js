@@ -3,9 +3,10 @@
  * Helper functions for PDF generation - Zydus Design Match
  */
 
-import { View, Text, StyleSheet } from "@react-pdf/renderer";
+import { View, StyleSheet } from "@react-pdf/renderer";
 import { PX_TO_PT, CM_TO_PT, INCH_TO_PT } from "../constants";
 import SlateToPdf from "../components/SlateToPdf";
+import { Text } from "../components/MultilingualText";
 
 /**
  * Convert pixels to points

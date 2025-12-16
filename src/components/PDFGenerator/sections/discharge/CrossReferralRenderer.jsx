@@ -3,7 +3,7 @@
  */
 
 import React from "react";
-import { View, StyleSheet, Text } from "@react-pdf/renderer";
+import { View, StyleSheet } from "@react-pdf/renderer";
 import { getAllVisibleSections } from "../../utils/pdfUtils";
 import FilledByCard from "../../components/FilledByCard";
 import ReferralInformation from "./components/ReferralInformation";
@@ -11,6 +11,7 @@ import SectionTitle from "../SectionTitle";
 import RichTextPrintRendererSection from "./components/RichTextPrintRendererSection";
 import { isValidMongoId } from "../../../../utils/utils";
 import CustomModuleRenderer from "../../components/CustomModuleRenderer";
+import { Text } from "../../components/MultilingualText";
 
 const styles = StyleSheet.create({
   sectionContainer: {

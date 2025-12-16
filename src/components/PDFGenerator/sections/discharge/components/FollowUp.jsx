@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text } from "@react-pdf/renderer";
+import { View } from "@react-pdf/renderer";
 import { StyleSheet } from "@react-pdf/renderer";
 import {
   getAllVisibleSections,
@@ -7,6 +7,7 @@ import {
 } from "../../../utils/pdfUtils";
 import SectionTitle from "../../SectionTitle";
 import RichTextPrintRenderer from "./richTextPrintRenderer";
+import { Text } from "../../../components/MultilingualText";
 
 const styles = StyleSheet.create({
   mainContainer: {

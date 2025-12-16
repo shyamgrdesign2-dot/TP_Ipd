@@ -3,9 +3,10 @@
  */
 
 import React from "react";
-import { View, Text, Image } from "@react-pdf/renderer";
+import { View, Image } from "@react-pdf/renderer";
 import { StyleSheet } from "@react-pdf/renderer";
 import { LETTERHEAD_FORMATS } from "../constants";
+import { Text } from "./MultilingualText";
 
 const styles = StyleSheet.create({
   footer: {
