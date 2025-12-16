@@ -57,13 +57,15 @@ const TableBillingDashboard = forwardRef(
     },
     ref
   ) => {
+    const isIpdBillingHistory = isIpdPatientBillingHistory || fromPath === "ipdDashboard";
+    const billType = isIpdBillingHistory ? "ipd" : "opd";
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const { doctorList } = useSelector((state) => state.bulkMessages);
     const { userId } = useSelector((state) => state.doctors);
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedTab, setSelectedTab] = useState(
-      isIpdPatientBillingHistory || fromPath === "ipdDashboard" ? 2 : 1
+      isIpdBillingHistory ? 2 : 1
     );
     const [isAdvanceDepositTab, setIsAdvanceDepositTab] = useState(false);
     const [isBillingTab, setIsBillingTab] = useState(false);
@@ -171,8 +173,8 @@ const TableBillingDashboard = forwardRef(
           : "",
       };
       const billResponse = patientData
-        ? await fetchBillsByPatient(billParams)
-        : await fetchBillingDashboard(billParams);
+        ? await fetchBillsByPatient(billParams, billType)
+        : await fetchBillingDashboard(billParams, billType);
       const advanceResponse = patientData
         ? await listAdvancedDepositByPatient(advanceParams)
         : await fetchAdvancedDepositDashboard(advanceParams);

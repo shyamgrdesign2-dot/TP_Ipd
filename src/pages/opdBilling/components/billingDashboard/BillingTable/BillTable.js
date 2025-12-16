@@ -17,7 +17,10 @@ import {
   S_TATVA_PRACTICE,
   PERSISTANT_STORAGE_KEY_BILL_TOKEN,
 } from "../../../../../utils/constants";
-import { formatDateWithOrdinal } from "../../../utils/helper";
+import {
+  formatDateWithOrdinal,
+  calculateTotalPaidAmount,
+} from "../../../utils/helper";
 import InfoTooltip from "./InfoToolTip/InfoTooltip";
 import { browserName, isMobile } from "react-device-detect";
 import { throttle } from "lodash";
@@ -43,7 +46,7 @@ const BillTable = ({
   patientAdvanceData,
   totalAdvanceBalance,
   showHideSubModal,
-  billType
+  billType,
 }) => {
   const { profile, servicesList } = useSelector((state) => state.doctors);
   const { planDetails } = useSelector((state) => state.subscription);
@@ -224,8 +227,8 @@ const BillTable = ({
       : undefined,
     {
       title: "Billed",
-      dataIndex: "totalAmount",
-      key: "totalAmount",
+      dataIndex: "payableAmount",
+      key: "payableAmount",
       ellipsis: true,
       width: "10%",
       sorter: true,
@@ -244,13 +247,7 @@ const BillTable = ({
       ellipsis: true,
       sorter: true,
       render: (text, record) => {
-        // Calculate total paid amount: record.paidAmount + sum of all paidAmount from paidDues array
-        const paidDuesSum =
-          record?.paidDues?.reduce((sum, item) => {
-            return sum + (parseFloat(item.paidAmount) || 0);
-          }, 0) || 0;
-        const totalPaidAmount =
-          (parseFloat(record.paidAmount) || 0) + paidDuesSum;
+        const totalPaidAmount = calculateTotalPaidAmount(record);
         return (
           <div className="dashboard-table-font-style">
             {" "}
@@ -272,8 +269,8 @@ const BillTable = ({
     },
     {
       title: "Refund",
-      dataIndex: "refundAmount",
-      key: "refundAmount",
+      dataIndex: "refundedAmount",
+      key: "refundedAmount",
       width: "10%",
       ellipsis: true,
       sorter: true,
@@ -355,9 +352,16 @@ const BillTable = ({
       width: "9%",
       render: (text, record) => {
         // Check if edit button should be disabled
-        const hasPaidDues = record?.paidDues && Array.isArray(record.paidDues) && record.paidDues.length > 0;
-        const hasRefundedAmount = record?.refundedAmount && parseFloat(record.refundedAmount) > 0;
-        const isEditDisabled = hasPaidDues || hasRefundedAmount || moment(record?.date).isBefore(EditBillDeployedDate);
+        const hasPaidDues =
+          record?.paidDues &&
+          Array.isArray(record.paidDues) &&
+          record.paidDues.length > 0;
+        const hasRefundedAmount =
+          record?.refundedAmount && parseFloat(record.refundedAmount) > 0;
+        const isEditDisabled =
+          hasPaidDues ||
+          hasRefundedAmount ||
+          moment(record?.date).isBefore(EditBillDeployedDate);
 
         return (
           <div

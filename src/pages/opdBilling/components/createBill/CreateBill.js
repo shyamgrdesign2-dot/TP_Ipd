@@ -601,9 +601,9 @@ const CreateBill = ({
               type: "mask",
             }}
             value={
-              record.itemDate && dayjs(record.itemDate, "DD-MM-YYYY").isValid()
-                ? dayjs(record.itemDate, "DD-MM-YYYY")
-                : null
+              record.itemDate && dayjs(record.itemDate).isValid()
+                ? dayjs(record.itemDate)
+                : ""
             }
             style={{
               border: "none",
@@ -882,7 +882,7 @@ const CreateBill = ({
         return {
           ...item,
           itemDate: item.itemDate
-            ? dayjs(item.itemDate, "DD-MM-YYYY").format("YYYY-MM-DD")
+            ? dayjs(item.itemDate).format("YYYY-MM-DD")
             : null,
         };
       });

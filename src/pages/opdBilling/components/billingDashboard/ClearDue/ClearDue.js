@@ -9,7 +9,10 @@ import imgCloseVisit from "../../../../../assets/images/close-visit.svg";
 import visitEnd from "../../../../../assets/images/end-visit.svg";
 import { MESSAGE_KEY } from "../../../../../utils/constants";
 import { PaymentOptions } from "../../../utils/constants";
-import { formatDateWithOrdinal } from "../../../utils/helper";
+import {
+  formatDateWithOrdinal,
+  calculateTotalPaidAmount,
+} from "../../../utils/helper";
 import RefIdPopup from "../../refIdPopup/RefIdPopup";
 import {
   getClinic,
@@ -268,13 +271,7 @@ function ClearDue({
       key: "paid",
       ellipsis: true,
       render: (text, record) => {
-        // Calculate total paid amount: record.paidAmount + sum of all paidAmount from paidDues array
-        const paidDuesSum =
-          record?.paidDues?.reduce((sum, item) => {
-            return sum + (parseFloat(item.paidAmount) || 0);
-          }, 0) || 0;
-        const totalPaidAmount =
-          (parseFloat(record.paidAmount) || 0) + paidDuesSum;
+        const totalPaidAmount = calculateTotalPaidAmount(record);
         return <div>₹{totalPaidAmount.toFixed(2)}</div>;
       },
     },

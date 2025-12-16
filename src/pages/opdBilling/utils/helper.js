@@ -176,3 +176,18 @@ export const formatDateWithOrdinal = (date) => {
 
   return `${day}${suffix} ${monthYear}`;
 };
+
+/**
+ * Calculate total paid amount for a bill record
+ * Includes the base paidAmount plus all paid amounts from paidDues array
+ * @param {Object} record - Bill record object
+ * @returns {number} Total paid amount
+ */
+export const calculateTotalPaidAmount = (record) => {
+  const paidDuesSum =
+    record?.paidDues?.reduce((sum, item) => {
+      return sum + (parseFloat(item.paidAmount) || 0);
+    }, 0) || 0;
+  const totalPaidAmount = (parseFloat(record?.paidAmount) || 0) + paidDuesSum;
+  return totalPaidAmount;
+};

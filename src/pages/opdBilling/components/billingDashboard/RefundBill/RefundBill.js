@@ -28,7 +28,10 @@ import imgCloseVisit from "../../../../../assets/images/close-visit.svg";
 import visitEnd from "../../../../../assets/images/end-visit.svg";
 import { MESSAGE_KEY } from "../../../../../utils/constants";
 import { PaymentOptions } from "../../../utils/constants";
-import { formatDateWithOrdinal } from "../../../utils/helper";
+import {
+  formatDateWithOrdinal,
+  calculateTotalPaidAmount,
+} from "../../../utils/helper";
 import RefIdPopup from "../../refIdPopup/RefIdPopup";
 import {
   getClinic,
@@ -47,8 +50,9 @@ function RefundBill({
   getPatientBills,
   onRefundSuccess,
   patientAdvanceData,
-  billType
+  billType,
 }) {
+  const totalPaidAmount = calculateTotalPaidAmount(billData);
   const scrollContainerRef = useRef(null);
   const inputRef = useRef([]);
   const dispatch = useDispatch();
@@ -56,7 +60,7 @@ function RefundBill({
   const [shouldShowRefIdPopup, setShowRefIdPopup] = useState(-1);
   const [totalRefundAmount, setTotalRefundAmount] = useState(0);
   const [paymentModes, setPaymentModes] = useState([
-    { paymentMode: "Cash", amount: billData?.paidAmount, refId: "" },
+    { paymentMode: "Cash", amount: totalPaidAmount, refId: "" },
   ]);
   const [isPaymentModeItemMissing, setPaymentModeItemMissing] = useState(false);
   const usedPaymentModes = paymentModes.map((p) => p.paymentMode);
@@ -227,7 +231,9 @@ function RefundBill({
       dataIndex: "paid_Amount",
       key: "paid_Amount",
       ellipsis: true,
-      render: (text, record) => <div> {record?.paidAmount} </div>,
+      render: (text, record) => {
+        return <div>{totalPaidAmount.toFixed(2)}</div>;
+      },
     },
     {
       title: "STATUS",
@@ -341,14 +347,14 @@ function RefundBill({
                             className="d-flex w-100"
                             style={{
                               border:
-                                totalRefundAmount !== billData?.paidAmount ||
+                                totalRefundAmount !== totalPaidAmount ||
                                 (isPaymentModeItemMissing &&
                                   (payment?.amount === 0 ||
                                     payment?.amount === ""))
                                   ? "solid 1px red"
                                   : "",
                               borderRadius:
-                                totalRefundAmount !== billData?.paidAmount ||
+                                totalRefundAmount !== totalPaidAmount ||
                                 (isPaymentModeItemMissing &&
                                   (payment?.amount === 0 ||
                                     payment?.amount === ""))
@@ -436,12 +442,12 @@ function RefundBill({
                     </div>
                   </div>
                 ))}
-                {totalRefundAmount !== billData?.paidAmount && (
+                {totalRefundAmount !== totalPaidAmount && (
                   <div className="d-flex align-items-start gap-2">
                     <span className="icon-info fs-18 mt-1 bdg-danger" />
                     <span className="bdg-danger">
                       Refund amount should be{" "}
-                      <b style={{ fontWeight: 600 }}>₹{billData?.paidAmount}</b>
+                      <b style={{ fontWeight: 600 }}>₹{totalPaidAmount}</b>
                       {` (Amount less or greater than the bill amount are not
                       allowed)`}
                     </span>
@@ -488,7 +494,7 @@ function RefundBill({
             isReceptionist ? "receptionist-btn" : ""
           }`}
           onClick={handleRefundBill}
-          disabled={totalRefundAmount !== billData?.paidAmount}
+          disabled={totalRefundAmount !== totalPaidAmount}
         >
           Refund the Bill
         </button>

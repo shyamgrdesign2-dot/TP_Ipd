@@ -41,7 +41,10 @@ import moment from "moment";
 import dayjs from "dayjs";
 // import MenuDivider from "antd/es/menu/MenuDivider";
 import Form3cPrint from "./Form3cPrint.js";
-import { MESSAGE_KEY, PERSISTANT_STORAGE_KEY_BILL_TOKEN } from "../../../../utils/constants.js";
+import {
+  MESSAGE_KEY,
+  PERSISTANT_STORAGE_KEY_BILL_TOKEN,
+} from "../../../../utils/constants.js";
 import visitEnd from "../../../../assets/images/end-visit.svg";
 import imgCloseVisit from "../../../../assets/images/close-visit.svg";
 import {
@@ -53,6 +56,7 @@ import {
   formatDateWithOrdinal,
   handleDownload,
   printContent,
+  calculateTotalPaidAmount,
 } from "../../utils/helper.js";
 import InfoTooltip from "../billingDashboard/BillingTable/InfoToolTip/InfoTooltip.js";
 import PreviewBill from "../../PreviewBill.js";
@@ -82,7 +86,16 @@ const SELECT_AFTER = [
 const GENDER = ["Male", "Female", "Other"];
 
 const Manage3cBills = forwardRef(
-  ({ handleForm3cBill, handleAddForm3cDrawer, form3cData, handleEditBillDrawer, isIpd = false }, ref) => {
+  (
+    {
+      handleForm3cBill,
+      handleAddForm3cDrawer,
+      form3cData,
+      handleEditBillDrawer,
+      isIpd = false,
+    },
+    ref
+  ) => {
     const [getBillToken, setBillToken] = useLocalStorage(
       PERSISTANT_STORAGE_KEY_BILL_TOKEN
     );
@@ -422,8 +435,8 @@ const Manage3cBills = forwardRef(
       },
       {
         title: "TOTAL AMOUNT",
-        dataIndex: "totalAmount",
-        key: "totalAmount",
+        dataIndex: "payableAmount",
+        key: "payableAmount",
         ellipsis: true,
         sorter: true,
         render: (text, record) => <div> ₹{record.payableAmount} </div>,
@@ -434,7 +447,10 @@ const Manage3cBills = forwardRef(
         key: "paidAmount",
         ellipsis: true,
         sorter: true,
-        render: (text, record) => <div> ₹{record.paidAmount} </div>,
+        render: (text, record) => {
+          const totalPaidAmount = calculateTotalPaidAmount(record);
+          return <div>₹{totalPaidAmount.toFixed(2)} </div>;
+        },
       },
       {
         title: "STATUS",
@@ -516,7 +532,11 @@ const Manage3cBills = forwardRef(
                   record?.billNumber ? `&billNumber=${record?.billNumber}` : ""
                 }${record?.patientId ? `&patientId=${record?.patientId}` : ""}${
                   record?.doctorId ? `&doctorId=${record?.doctorId}` : ""
-                }${record?.admissionId ? `&admissionId=${record?.admissionId}` : ""}&patientViewBill=true`;
+                }${
+                  record?.admissionId
+                    ? `&admissionId=${record?.admissionId}`
+                    : ""
+                }&patientViewBill=true`;
                 if (
                   browserName == "Chrome WebView" ||
                   browserName == "WebKit"
@@ -556,7 +576,10 @@ const Manage3cBills = forwardRef(
         search: searchQuery || "",
       };
       try {
-        const response = await fetchBillingDashboard(params, isIpd ? "ipd" : "opd");
+        const response = await fetchBillingDashboard(
+          params,
+          isIpd ? "ipd" : "opd"
+        );
         setPage(resetData ? 2 : page + 1);
         setHasMore(response.bills.length >= 25);
         setData((prev) =>

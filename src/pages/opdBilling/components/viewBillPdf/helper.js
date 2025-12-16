@@ -78,7 +78,7 @@ export const patientIpdDataShow = (id, patient_data, billData, profile) => {
   } else if (id == 2) {
     value = `${patient_data?.pm_pid ? patient_data?.pm_pid : "-"}`;
   } else if (id == 3) {
-    value = `${genderAge(patient_data, profile)}, ${patient_data?.pm_gender}`;
+    value = `${genderAge(patient_data, profile)}, ${patient_data?.pm_gender || ''}`;
   } else if (id == 4) {
     value = `${
       patient_data?.pm_contact_no ? patient_data?.pm_contact_no : "-"
@@ -96,27 +96,27 @@ export const patientIpdDataShow = (id, patient_data, billData, profile) => {
         : "-"
     }`;
   } else if (id == 7) {
-    value = billData?.admissionNo ?? "-"; //need to check
+    value = billData?.admissionId ?? "-"; //need to check
   } else if (id == 8) {
-    value = billData?.admissionId ?? "-";
-  } else if (id == 9) {
     value = billData?.admission?.admittedOn
       ? moment(billData?.admission?.admittedOn).format("DD/MM/YYYY")
       : "-";
+  } else if (id == 9) {
+    value = billData?.admission?.doctor?.name ?? "-"; //need to check
   } else if (id == 10) {
-    value = billData?.admission?.doctor?.name ?? "-"; //need to check
-  } else if (id == 11) {
     value = billData?.admission?.dischargedAt
-      ? moment(billData?.admission?.dischargedAt).format("DD/MM/YYYY")
-      : "-"; //need to check
-  } else if (id == 12) {
+    ? moment(billData?.admission?.dischargedAt).format("DD/MM/YYYY")
+    : "-"; //need to check
+  } else if (id == 11) {
     value = billData?.dischargeNo ?? "-"; //need to check
-  } else if (id == 13) {
-    value = billData?.admission?.doctor?.name ?? "-"; //need to check
-  } else if (id == 14) {
-    value = billData?.admission?.doctor?.phone ?? "-"; //need to check
-  } else if (id == 15) {
+  } else if (id == 12) {
     value = patient_data?.address ?? "-";
+  } else if (id == 13) {
+    value = billData?.admission?.insuranceno ?? "-"; //need to check
+  } else if (id == 14) {
+    value = billData?.admission?.policyno ?? "-"; //need to check
+  } else if (id == 15) {
+    value = billData?.admission?.tpano ?? "-"; //need to check
   }
   return value;
 };
@@ -163,21 +163,21 @@ export const getBillInfoTitleToShow = (id, title, isDepositReceipt) => {
 export const genderAge = (patient_data, profile) => {
   var value = ``;
   if (profile?.dp_id === 9 || profile?.dp_id === NEO_NATOLOGISTS_DP_ID) {
-    if (patient_data?.ageYears != 0) {
+    if (patient_data?.ageYears) {
       value += `${patient_data?.ageYears}y`;
     }
-    if (patient_data?.ageMonths != 0) {
+    if (patient_data?.ageMonths) {
       value += ` ${patient_data?.ageMonths}m`;
     }
-    if (patient_data?.ageDays != 0) {
+    if (patient_data?.ageDays) {
       value += ` ${patient_data?.ageDays}d`;
     }
   } else {
-    if (patient_data?.ageYears != 0) {
+    if (patient_data?.ageYears) {
       value += `${patient_data?.ageYears}y`;
-    } else if (patient_data?.ageMonths != 0) {
+    } else if (patient_data?.ageMonths) {
       value += ` ${patient_data?.ageMonths}m`;
-    } else if (patient_data?.ageDays != 0) {
+    } else if (patient_data?.ageDays) {
       value += ` ${patient_data?.ageDays}d`;
     }
   }

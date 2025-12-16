@@ -235,10 +235,13 @@
 
 .doctor-select-container {
   display: flex;
-  align-items: center;
   gap: 8px;
   flex-wrap: wrap;
   min-width: 300px !important;
+
+  .ant-select-single {
+    height: 38px !important;
+  }
 
   .doctor-select {
     .ant-select-selector {
