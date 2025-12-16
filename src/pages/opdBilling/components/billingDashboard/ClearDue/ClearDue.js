@@ -142,9 +142,9 @@ function ClearDue({
 
       // Add remarks if provided
       if (remarks.trim()) {
-        payload.paidDue.remarks = remarks.trim();
+        payload.paidDue.notes = remarks.trim();
       }
-
+debugger
       const response = await processClearDue(
         payload,
         admissionId ? "ipd" : "opd"

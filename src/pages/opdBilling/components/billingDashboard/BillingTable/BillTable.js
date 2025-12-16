@@ -613,6 +613,7 @@ const BillTable = ({
             getPatientBills={getPatientBills}
             onClearDueSuccess={handleClearDueComplete}
             patientAdvanceData={patientAdvanceData}
+            admissionId={billData?.admissionId}
           />
         </Drawer>
       )}

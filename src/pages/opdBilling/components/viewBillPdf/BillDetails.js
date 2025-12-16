@@ -538,6 +538,29 @@ const BillDetails = ({
         )}
       </View>
 
+      {paidDues?.filter((due) => !!due?.notes)?.map((due) => (
+        <Text
+          style={[
+            {
+              fontFamily: pageFormat?.fontFamily,
+              fontSize: (pageFormat?.fontSize || 12) * PX_TO_PT,
+              fontWeight: 500,
+              color: "#454551",
+            },
+          ]}
+        >
+          {"\n"}Due Remarks:&nbsp;
+          <Text
+            style={{
+              fontFamily: pageFormat?.fontFamily,
+              fontWeight: 400,
+            }}
+          >
+            {due?.notes}
+          </Text>
+        </Text>
+      ))}
+
       {refundNotes && (
         <Text
           style={[

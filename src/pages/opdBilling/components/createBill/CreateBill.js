@@ -175,8 +175,6 @@ const CreateBill = ({
     )
     .toFixed(2);
 
-  console.log({ dataSource });
-
   const lineItemDiscount = dataSource
     .reduce((sum, service) => {
       const baseAmount =
