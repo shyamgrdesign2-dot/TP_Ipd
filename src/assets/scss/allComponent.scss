@@ -3220,7 +3220,7 @@ body.sticky-search-open {
   overflow: hidden;
 }
 .ipd-wrapper-class-medbox-readonly {
-  width: 100%;
+  width: calc(100dvw - 152px);
   padding: 10px !important;
 }
 
@@ -3381,4 +3381,10 @@ body {
 .ipd-medicalhistory-scroll-fix {
   max-height: calc(100dvh - 64px);
   overflow: hidden;
+}
+
+.ipdcnp-medication-box-container-readonly, .ipdaf-medication-box-container-readonly {
+  .ipd-wrapper-class-medbox-readonly {
+    width: 100%;
+  }
 }
