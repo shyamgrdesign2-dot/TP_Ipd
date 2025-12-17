@@ -15,4 +15,8 @@ IpdService.getFilters = function (params = {}) {
   return api.get(`/patients/filters?field=${params.field}`, baseUrl);
 };
 
+IpdService.getActivityLogs = function (admissionId) {
+  return api.get(`/activity-logs?admissionId=${admissionId}`, baseUrl);
+};
+
 export default IpdService;
