@@ -198,6 +198,42 @@ export const magicPen = createAsyncThunk("ipd/magicPen", async (data) => {
   }
 });
 
+export const transferWardBed = createAsyncThunk(
+  "ipd/transferWardBed",
+  async ({ wardId, roomId, admissionId }) => {
+    try {
+      let result = {};
+      result = await ApiIpdService.transferWardBed({
+        wardId,
+        roomId,
+        admissionId,
+      });
+      return result;
+    } catch (error) {
+      console.log("error: ", error);
+      throw Error(error);
+    }
+  }
+);
+
+export const transferDepartmentDoctor = createAsyncThunk(
+  "ipd/transferDepartmentDoctor",
+  async ({ dpId, umId, admissionId }) => {
+    try {
+      let result = {};
+      result = await ApiIpdService.transferDepartmentDoctor({
+        dpId,
+        umId,
+        admissionId,
+      });
+      return result;
+    } catch (error) {
+      console.log("error: ", error);
+      throw Error(error);
+    }
+  }
+);
+
 const ipdSlice = createSlice({
   name: "ipd",
   initialState,
@@ -305,6 +341,24 @@ const ipdSlice = createSlice({
         state.loading = false;
       })
       .addCase(magicPen.rejected, (state) => {
+        state.loading = false;
+      })
+      .addCase(transferWardBed.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(transferWardBed.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(transferWardBed.rejected, (state) => {
+        state.loading = false;
+      })
+      .addCase(transferDepartmentDoctor.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(transferDepartmentDoctor.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(transferDepartmentDoctor.rejected, (state) => {
         state.loading = false;
       });
   },

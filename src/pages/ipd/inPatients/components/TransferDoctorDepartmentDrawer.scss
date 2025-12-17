@@ -1,0 +1,120 @@
+.transfer-doctor-department-drawer {
+  .ant-drawer-body {
+    padding: 0;
+  }
+
+  .drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-bottom: 1px solid #ededed;
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      .back-icon {
+        transform: rotate(180deg);
+        cursor: pointer;
+        font-size: 16px;
+        color: #454551;
+      }
+
+      .header-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #232347;
+      }
+    }
+
+    .ant-btn-primary {
+      min-width: 96px;
+      height: 40px;
+      border-radius: 10px;
+      background: #635bff;
+      border-color: #635bff;
+
+      &:disabled {
+        background: #e6e6f2;
+        border-color: #e6e6f2;
+        color: #9e9eae;
+      }
+    }
+  }
+
+  .drawer-body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .current-info {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+
+    .info-block {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+
+      .label {
+        margin: 0;
+        color: #5d5d6f;
+        font-size: 13px;
+      }
+
+      .value-box {
+        border: 1px solid #e6e6f2;
+        background: #f7f7fb;
+        border-radius: 10px;
+        padding: 10px 12px;
+        font-size: 16px;
+        font-weight: 500;
+        color: #454551;
+      }
+    }
+  }
+
+  .transfer-separator {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 4px 0 6px;
+    color: #9e9eae;
+    font-size: 13px;
+    font-weight: 500;
+
+    &::before,
+    &::after {
+      content: "";
+      height: 1px;
+      flex: 1;
+      background: #e6e6f2;
+    }
+  }
+
+  .field-block {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .label {
+      margin: 0;
+      color: #454551;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .wide-select {
+      .ant-select-selector {
+        border-radius: 10px;
+        padding: 8px 12px;
+        height: 44px;
+      }
+    }
+  }
+}

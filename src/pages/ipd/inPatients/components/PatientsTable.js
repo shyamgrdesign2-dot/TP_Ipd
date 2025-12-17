@@ -20,10 +20,21 @@ import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { GB_ZYDUS_USER } from "../../../../utils/constants";
 import { env } from "../../../../EnvironmentConfig";
 import AdmissionDetailsDrawer from "./AdmissionDetailsDrawer";
+import TransferWardBedDrawer from "./TransferWardBedDrawer";
+import TransferDoctorDepartmentDrawer from "./TransferDoctorDepartmentDrawer";
 
 const RichTextEditor = createRemoteComponent("RichTextEditor");
 
-const MoreActionsContent = ({ onCtaClick, record, title, onViewAdmissionDetails, isDischargedPatients, isDischarged }) => {
+const MoreActionsContent = ({
+  onCtaClick,
+  record,
+  title,
+  onViewAdmissionDetails,
+  onTransferWardBed,
+  onTransferDoctorDepartment,
+  isDischargedPatients,
+  isDischarged,
+}) => {
   const handleViewAdmissionDetails = (e) => {
     e.stopPropagation();
     onViewAdmissionDetails?.(record);
@@ -34,6 +45,16 @@ const MoreActionsContent = ({ onCtaClick, record, title, onViewAdmissionDetails,
     onCtaClick?.(record);
   };
 
+  const handleTransferWardBed = (e) => {
+    e.stopPropagation();
+    onTransferWardBed?.(record);
+  };
+
+  const handleTransferDoctorDepartment = (e) => {
+    e.stopPropagation();
+    onTransferDoctorDepartment?.(record);
+  };
+
   return (
     <div className="more-actions-menu">
       <div
@@ -42,6 +63,24 @@ const MoreActionsContent = ({ onCtaClick, record, title, onViewAdmissionDetails,
       >
         <span className="more-actions-menu-text">View Admission Details</span>
       </div>
+      {!isDischargedPatients && !isDischarged && (
+        <div
+          onClick={handleTransferWardBed}
+          className="more-actions-menu-item cursor-pointer"
+        >
+          <span className="more-actions-menu-text">Transfer Ward/Bed</span>
+        </div>
+      )}
+      {!isDischargedPatients && !isDischarged && (
+        <div
+          onClick={handleTransferDoctorDepartment}
+          className="more-actions-menu-item cursor-pointer"
+        >
+          <span className="more-actions-menu-text">
+            Transfer Doctor/Department
+          </span>
+        </div>
+      )}
       {!isDischargedPatients && !isDischarged && title && (
         <div
           onClick={handleDischargeClick}
@@ -75,6 +114,10 @@ const PatientsTable = ({
   const [warningModalOpen, setWarningModalOpen] = useState(null);
   const [confirmPopupOpen, setConfirmPopupOpen] = useState(null);
   const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
+  const [transferDrawerOpen, setTransferDrawerOpen] = useState(false);
+  const [patientForTransfer, setPatientForTransfer] = useState(null);
+  const [doctorDeptDrawerOpen, setDoctorDeptDrawerOpen] = useState(false);
+  const [patientForDoctorDept, setPatientForDoctorDept] = useState(null);
 
   const izZydusUser =
     (getTokenData()?.hospital_business_id == env.zydus_business_id &&
@@ -132,6 +175,18 @@ const PatientsTable = ({
   const handleSendForDischargeApproval = (record) => {
     setWarningModalOpen(record);
     setApiToCall("sendForDischargeApproval");
+  };
+
+  const handleTransferWardBed = (record) => {
+    setOpenMoreActionsPopover(null);
+    setPatientForTransfer(record);
+    setTransferDrawerOpen(true);
+  };
+
+  const handleTransferDoctorDepartment = (record) => {
+    setOpenMoreActionsPopover(null);
+    setPatientForDoctorDept(record);
+    setDoctorDeptDrawerOpen(true);
   };
 
   const sentForDischargeApproval = () => {
@@ -413,6 +468,8 @@ const PatientsTable = ({
                       setSelectedPatientForAdmissionDetails(patientData);
                       setAdmissionDetailsDrawerOpen(true);
                     }}
+                    onTransferWardBed={handleTransferWardBed}
+                    onTransferDoctorDepartment={handleTransferDoctorDepartment}
                     isDischargedPatients={isDischargedPatients}
                     isDischarged={record?.isDischarged}
                   />
@@ -533,6 +590,24 @@ const PatientsTable = ({
           setSelectedPatientForAdmissionDetails(null);
         }}
         patientData={selectedPatientForAdmissionDetails}
+      />
+      <TransferWardBedDrawer
+        open={transferDrawerOpen}
+        onClose={() => {
+          setTransferDrawerOpen(false);
+          setPatientForTransfer(null);
+        }}
+        patientData={patientForTransfer}
+        onSuccess={() => fetchData(fetchParams)}
+      />
+      <TransferDoctorDepartmentDrawer
+        open={doctorDeptDrawerOpen}
+        onClose={() => {
+          setDoctorDeptDrawerOpen(false);
+          setPatientForDoctorDept(null);
+        }}
+        patientData={patientForDoctorDept}
+        onSuccess={() => fetchData(fetchParams)}
       />
     </div>
   );

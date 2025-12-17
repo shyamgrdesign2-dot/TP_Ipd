@@ -158,4 +158,20 @@ ApiIpdService.voiceRx = function ({
   );
 };
 
+ApiIpdService.transferWardBed = function ({ wardId, roomId, admissionId }) {
+  return api.put(
+    `/patients/transfer-ward?wardId=${wardId}&roomId=${roomId}&admissionId=${admissionId}`,
+    {},
+    baseUrl
+  );
+};
+
+ApiIpdService.transferDepartmentDoctor = function ({ dpId, umId, admissionId }) {
+  return api.put(
+    `/patients/transfer-department?dpId=${dpId}&umId=${umId}&admissionId=${admissionId}`,
+    {},
+    baseUrl
+  );
+};
+
 export default ApiIpdService;
