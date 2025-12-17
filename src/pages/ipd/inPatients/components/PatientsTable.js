@@ -11,6 +11,7 @@ import {
   markPatientAsDischarged,
   sendForDischargeApproval,
 } from "../../../../redux/ipd/ipdSlice";
+import { updatePatientInList } from "../../../../redux/ipd/inPatientsSlice";
 import { usePatientsData } from "../hooks/usePatientsData";
 import { getTokenData, isEmptyRichText, isZydus } from "../../../../utils/utils";
 import DischargeConfirmationModal from "../../dischargeSummary/components/DischargeConfirmationModal";
@@ -34,6 +35,7 @@ const MoreActionsContent = ({
   onTransferDoctorDepartment,
   isDischargedPatients,
   isDischarged,
+  isInPatients,
 }) => {
   const handleViewAdmissionDetails = (e) => {
     e.stopPropagation();
@@ -63,7 +65,7 @@ const MoreActionsContent = ({
       >
         <span className="more-actions-menu-text">View Admission Details</span>
       </div>
-      {!isDischargedPatients && !isDischarged && (
+      {isInPatients && !isDischargedPatients && !isDischarged && (
         <div
           onClick={handleTransferWardBed}
           className="more-actions-menu-item cursor-pointer"
@@ -71,7 +73,7 @@ const MoreActionsContent = ({
           <span className="more-actions-menu-text">Transfer Ward/Bed</span>
         </div>
       )}
-      {!isDischargedPatients && !isDischarged && (
+      {isInPatients && !isDischargedPatients && !isDischarged && (
         <div
           onClick={handleTransferDoctorDepartment}
           className="more-actions-menu-item cursor-pointer"
@@ -187,6 +189,61 @@ const PatientsTable = ({
     setOpenMoreActionsPopover(null);
     setPatientForDoctorDept(record);
     setDoctorDeptDrawerOpen(true);
+  };
+
+  const applyWardTransferLocally = (payload) => {
+    if (!payload?.patientId) return;
+    const patientData = patientForTransfer || {};
+    const updatedPatientData = {
+      ...patientData,
+      ward: {
+        ...(patientData?.ward || {}),
+        id: payload.wardId,
+        title: payload.wardName,
+      },
+      room: {
+        ...(patientData?.room || {}),
+        id: payload.roomId,
+        title: payload.roomName,
+      },
+    };
+
+    dispatch(
+      updatePatientInList({
+        patientId: payload.patientId,
+        updates: {
+          ward: payload.wardName || updatedPatientData?.ward?.title,
+          room: payload.roomName || updatedPatientData?.room?.title,
+          bedNumber: payload.roomName || updatedPatientData?.room?.title,
+        },
+        patientDataUpdates: updatedPatientData,
+      })
+    );
+  };
+
+  const applyDoctorTransferLocally = (payload) => {
+    if (!payload?.patientId) return;
+    const patientData = patientForDoctorDept || {};
+    const updatedPatientData = {
+      ...patientData,
+      doctor: {
+        ...(patientData?.doctor || {}),
+        id: payload.doctorId,
+        name: payload.doctorName,
+        speciality: payload.departmentName,
+      },
+      departmentName: payload.departmentName,
+    };
+
+    dispatch(
+      updatePatientInList({
+        patientId: payload.patientId,
+        updates: {
+          doctorName: payload.doctorName,
+        },
+        patientDataUpdates: updatedPatientData,
+      })
+    );
   };
 
   const sentForDischargeApproval = () => {
@@ -472,6 +529,7 @@ const PatientsTable = ({
                     onTransferDoctorDepartment={handleTransferDoctorDepartment}
                     isDischargedPatients={isDischargedPatients}
                     isDischarged={record?.isDischarged}
+                    isInPatients={isInPatients}
                   />
                 }
                 trigger="click"
@@ -598,7 +656,7 @@ const PatientsTable = ({
           setPatientForTransfer(null);
         }}
         patientData={patientForTransfer}
-        onSuccess={() => fetchData(fetchParams)}
+        onSuccess={applyWardTransferLocally}
       />
       <TransferDoctorDepartmentDrawer
         open={doctorDeptDrawerOpen}
@@ -607,7 +665,7 @@ const PatientsTable = ({
           setPatientForDoctorDept(null);
         }}
         patientData={patientForDoctorDept}
-        onSuccess={() => fetchData(fetchParams)}
+        onSuccess={applyDoctorTransferLocally}
       />
     </div>
   );

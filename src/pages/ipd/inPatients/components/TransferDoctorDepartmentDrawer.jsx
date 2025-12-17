@@ -80,6 +80,7 @@ const TransferDoctorDepartmentDrawer = ({
     patientData?.admission_id ||
     patientData?.admission?.id ||
     patientData?._id;
+  const patientId = patientData?._id || patientData?.id;
 
   const handleSave = async () => {
     if (!selectedDepartmentId || !selectedDoctorId || !admissionId) return;
@@ -104,8 +105,21 @@ const TransferDoctorDepartmentDrawer = ({
             "Unable to transfer doctor/department"
         );
       } else {
-        message.success("Transfer doctor/dept successful");
-        onSuccess?.();
+        message.success("Patient’s Ward & Bed Transferred Successfully");
+        const selectedDepartment = departments.find(
+          (d) =>
+            d?.departmentId?.toString() === selectedDepartmentId?.toString()
+        );
+        const selectedDoctor = doctorsByDepartment.find(
+          (doc) => doc?.doctorId?.toString() === selectedDoctorId?.toString()
+        );
+        onSuccess?.({
+          patientId,
+          departmentId: selectedDepartmentId,
+          departmentName: selectedDepartment?.department,
+          doctorId: selectedDoctorId,
+          doctorName: selectedDoctor?.doctorName,
+        });
         onClose?.();
       }
     } finally {

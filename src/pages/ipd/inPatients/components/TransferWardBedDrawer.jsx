@@ -97,6 +97,7 @@ const TransferWardBedDrawer = ({ open, onClose, patientData, onSuccess }) => {
     patientData?.admission_id ||
     patientData?.admission?.id ||
     patientData?._id;
+  const patientId = patientData?._id || patientData?.id;
 
   const handleSave = async () => {
     if (!selectedWardId || !selectedBedId || !admissionId) return;
@@ -119,8 +120,22 @@ const TransferWardBedDrawer = ({ open, onClose, patientData, onSuccess }) => {
             "Unable to transfer bed"
         );
       } else {
-        message.success("Transfer bed successful");
-        onSuccess?.();
+        message.success("Patient’s Bed Transferred Successfully");
+        const selectedRoom = rooms.find(
+          (room) =>
+            room?._id === selectedBedId || room?.id === selectedBedId
+        );
+        onSuccess?.({
+          patientId,
+          wardId: selectedWardId,
+          roomId: selectedBedId,
+          wardName:
+            selectedWard?.name ||
+            selectedWard?.title ||
+            selectedWard?.wardName ||
+            "",
+          roomName: selectedRoom?.name || selectedRoom?.title || "",
+        });
         onClose?.();
       }
     } finally {

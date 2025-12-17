@@ -118,6 +118,23 @@ const inPatientsSlice = createSlice({
       state.patients.hasMore = true;
       state.filterParams.page = 1;
     },
+    updatePatientInList: (state, action) => {
+      const { patientId, updates = {}, patientDataUpdates = {} } =
+        action.payload || {};
+      const idx = state.patients.data.findIndex((p) => p.id === patientId);
+      if (idx !== -1) {
+        const existing = state.patients.data[idx] || {};
+        const updatedPatientData = {
+          ...(existing.patientData || {}),
+          ...patientDataUpdates,
+        };
+        state.patients.data[idx] = {
+          ...existing,
+          ...updates,
+          patientData: updatedPatientData,
+        };
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -177,5 +194,6 @@ const inPatientsSlice = createSlice({
 
 export const { setFilterParams, incrementPage, resetPatients } =
   inPatientsSlice.actions;
+export const { updatePatientInList } = inPatientsSlice.actions;
 
 export default inPatientsSlice.reducer;
