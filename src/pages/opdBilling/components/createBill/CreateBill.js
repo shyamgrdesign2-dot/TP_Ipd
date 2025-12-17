@@ -403,7 +403,7 @@ const CreateBill = ({
         setPaymentModes(editBillData?.paymentModes);
       }, 100);
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
     const timeOutId = setTimeout(() => {
@@ -469,25 +469,6 @@ const CreateBill = ({
           : row
       )
     );
-  };
-
-  // Helper function to parse itemDate in multiple formats
-  const parseItemDate = (dateValue) => {
-    if (!dateValue) return null;
-    if (dayjs.isDayjs(dateValue)) return dateValue;
-    if (typeof dateValue !== 'string') return null;
-    
-    // Try parsing different date formats
-    const formats = ["DD-MM-YYYY", "YYYY-MM-DD", "DD MMM YYYY"];
-    for (const format of formats) {
-      const parsed = dayjs(dateValue, format, true);
-      if (parsed.isValid()) {
-        return parsed;
-      }
-    }
-    // Fallback to default parsing
-    const fallback = dayjs(dateValue);
-    return fallback.isValid() ? fallback : null;
   };
 
   const handleAddRow = (updatedData) => {
@@ -619,14 +600,18 @@ const CreateBill = ({
         <div>
           <DatePicker
             placeholder="Select Date"
-            onChange={(date) => {
-              handleInputChange(date ? date.format("DD-MM-YYYY") : "", index, "itemDate");
+            onChange={(_, d) => {
+              handleInputChange(d ?? "", index, "itemDate");
             }}
             format={{
               format: "DD MMM YYYY",
               type: "mask",
             }}
-            value={parseItemDate(record.itemDate)}
+            value={
+              record.itemDate && dayjs(record.itemDate).isValid()
+                ? dayjs(record.itemDate)
+                : ""
+            }
             style={{
               border: "none",
             }}
@@ -1431,7 +1416,9 @@ const CreateBill = ({
                   >
                     <span>
                       <Checkbox
-                        className={`me-2 ${editBillData?.isForm3C ? "disabled pe-none" : ""}`}
+                        className={`me-2 ${
+                          editBillData?.isForm3C ? "disabled pe-none" : ""
+                        }`}
                         checked={shouldAddBillTo3C}
                         onChange={(e) => {
                           const clinic = getClinic();
