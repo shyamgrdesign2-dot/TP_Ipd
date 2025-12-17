@@ -42,6 +42,7 @@ import {
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD MMM, YY";
 const { TextArea } = Input;
+const MAX_REMARKS_LENGTH = 400;
 
 function RefundBill({
   handleRefundBillDrawer,
@@ -73,6 +74,7 @@ function RefundBill({
   );
   const urlParams = new URLSearchParams(window.location.search);
   const isReceptionist = urlParams.has("receptionist");
+  const [remarks, setRemarks] = useState("");
 
   const handleModeChange = (value, index, type) => {
     const updatedModes = [...paymentModes];
@@ -110,6 +112,7 @@ function RefundBill({
       const payload = {
         billId: billData.id,
         paymentModes: [...paymentModes],
+        notes: remarks?.trim() || "",
       };
       const response = await processBillRefund(payload, billType);
       if (response.status === 204) {
@@ -186,6 +189,13 @@ function RefundBill({
   const removePaymentMode = (index) => {
     const updatedModes = paymentModes.filter((_, i) => i !== index);
     setPaymentModes(updatedModes);
+  };
+
+  const handleRemarksChange = (e) => {
+    const value = e.target.value;
+    if (value.length <= MAX_REMARKS_LENGTH) {
+      setRemarks(value);
+    }
   };
 
   const columns = [
@@ -468,17 +478,29 @@ function RefundBill({
             </div>
           </div>
           <div className="d-flex gap-2 mx-4 my-2 p-2">
-            <TextArea
-              className="h-100 align-self-center"
-              placeholder="Add Notes(optional)"
-              // defaultValue={item.tmm_remarks}
-              // value={item.tmm_remarks}
-              autoSize={{
-                minRows: 1,
-                maxRows: 2,
-              }}
-              // onChange={(e) => onChangeNoteChild()}
-            />
+            <div className="w-100 position-relative">
+              <TextArea
+                className="h-100 align-self-center"
+                placeholder="Add Notes(optional)"
+                value={remarks}
+                autoSize={{
+                  minRows: 1,
+                  maxRows: 2,
+                }}
+                onChange={handleRemarksChange}
+              />
+              <div
+                className="position-absolute"
+                style={{
+                  bottom: 8,
+                  right: 12,
+                  fontSize: "12px",
+                  color: "#8E8E93",
+                }}
+              >
+                {remarks.length}/{MAX_REMARKS_LENGTH}
+              </div>
+            </div>
           </div>
         </div>
 

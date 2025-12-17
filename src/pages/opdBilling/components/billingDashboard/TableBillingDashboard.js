@@ -53,20 +53,18 @@ const TableBillingDashboard = forwardRef(
       addAdvanceDrawer,
       showHideSubModal,
       fromPath = "opdDashboard",
-      isIpdPatientBillingHistory = false,
+      ipdAdmissionId = null,
     },
     ref
   ) => {
-    const isIpdBillingHistory = isIpdPatientBillingHistory || fromPath === "ipdDashboard";
+    const isIpdBillingHistory = ipdAdmissionId || fromPath === "ipdDashboard";
     const billType = isIpdBillingHistory ? "ipd" : "opd";
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const { doctorList } = useSelector((state) => state.bulkMessages);
     const { userId } = useSelector((state) => state.doctors);
     const [searchQuery, setSearchQuery] = useState("");
-    const [selectedTab, setSelectedTab] = useState(
-      isIpdBillingHistory ? 2 : 1
-    );
+    const [selectedTab, setSelectedTab] = useState(isIpdBillingHistory ? 2 : 1);
     const [isAdvanceDepositTab, setIsAdvanceDepositTab] = useState(false);
     const [isBillingTab, setIsBillingTab] = useState(false);
     const [pageNo, setPageNo] = useState(0);
@@ -293,12 +291,12 @@ const TableBillingDashboard = forwardRef(
       <>
         <div
           className={`${
-            isIpdPatientBillingHistory
+            ipdAdmissionId
               ? ""
               : "border rounded-4 appointment-wrap dateborder"
           }`}
         >
-          {!isIpdPatientBillingHistory && (
+          {!ipdAdmissionId && (
             <Tabs
               defaultActiveKey={1}
               items={items}
@@ -321,7 +319,7 @@ const TableBillingDashboard = forwardRef(
                 createBillDrawer={createBillDrawer}
                 totalAdvanceBalance={totalAdvanceBalance}
                 showHideSubModal={showHideSubModal}
-                billType={"opd"}
+                ipdAdmissionId={ipdAdmissionId}
               />
             ) : selectedTab === 2 ? (
               <BillingTable
@@ -337,7 +335,7 @@ const TableBillingDashboard = forwardRef(
                 createBillDrawer={createBillDrawer}
                 totalAdvanceBalance={totalAdvanceBalance}
                 showHideSubModal={showHideSubModal}
-                billType={"ipd"}
+                ipdAdmissionId={ipdAdmissionId}
               />
             ) : (
               <AdvanceDepositTable

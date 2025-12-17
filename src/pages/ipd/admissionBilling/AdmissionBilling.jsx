@@ -10,7 +10,6 @@ import CreateBill from "../../opdBilling/components/createBill/CreateBill";
 import ToolbarActions from "../components/ToolbarActions/ToolbarActions";
 import ConfigureBillSettings from "../../opdBilling/components/configureBillSettings/ConfigureBillSettings";
 import RefundBill from "../../opdBilling/components/billingDashboard/RefundBill/RefundBill";
-import ClearDue from "../../opdBilling/components/billingDashboard/ClearDue/ClearDue";
 import AddForm3cBills from "../../opdBilling/components/manage3cBills/AddForm3cBills";
 import AddAdvance from "../../opdBilling/components/advanceDeposit/AddAdvance";
 import {
@@ -22,7 +21,11 @@ import {
   sendWhatsAppMessage,
 } from "../../opdBilling/service";
 import { setIpdBillPrintSettings } from "../../../redux/billingSlice";
-import { handleDownload, printContent } from "../../opdBilling/utils/helper";
+import {
+  calculateTotalPaidAmount,
+  handleDownload,
+  printContent,
+} from "../../opdBilling/utils/helper";
 import { setLoadingStatus } from "../../../redux/uploadDocSlice";
 import {
   transformAdmissionToPatient,
@@ -84,11 +87,11 @@ const AdmissionBilling = ({
   const [isWhatsappLoading, setIsWhatsappLoading] = useState(false);
   const [editBillDrawer, setEditBillDrawer] = useState(false);
   const [refundBillDrawer, setRefundBillDrawer] = useState(false);
-  const [clearDueDrawer, setClearDueDrawer] = useState(false);
   const [addForm3cDrawer, setAddForm3cDrawer] = useState(false);
   const [, setForm3cData] = useState(0);
   const [addAdvanceDrawer, setAddAdvanceDrawer] = useState(false);
   const billingTableRef = useRef(null);
+  const totalPaidAmount = calculateTotalPaidAmount(billData);
   const patientDataForPdf = {
     pm_pid: patientDetails?.details?.pm_pid,
     pm_fullname: patientDetails?.details?.name,
@@ -417,10 +420,6 @@ const AdmissionBilling = ({
     setRefundBillDrawer(!refundBillDrawer);
   };
 
-  const handleClearDueDrawer = () => {
-    setClearDueDrawer(!clearDueDrawer);
-  };
-
   const handleAddForm3cDrawer = () => {
     setAddForm3cDrawer(!addForm3cDrawer);
   };
@@ -481,21 +480,12 @@ const AdmissionBilling = ({
 
     const items = [];
 
-    // Refund Bill - only show if bill has paid amount
-    if (billData?.paidAmount && parseFloat(billData.paidAmount) > 0) {
+    // Refund Bill - only show if refunded amount is not equal to total paid amount
+    if (billData?.refundedAmount !== totalPaidAmount) {
       items.push({
         key: "refund",
         label: "Refund Bill",
         onClick: () => setRefundBillDrawer(true),
-      });
-    }
-
-    // Clear Dues - only show if bill has due amount
-    if (billData?.dueAmount && parseFloat(billData.dueAmount) > 0) {
-      items.push({
-        key: "clear-due",
-        label: "Clear Dues",
-        onClick: () => setClearDueDrawer(true),
       });
     }
 
@@ -753,50 +743,6 @@ const AdmissionBilling = ({
         </Drawer>
       )}
 
-      {/* Clear Due Drawer */}
-      {clearDueDrawer && (
-        <Drawer
-          closeIcon={false}
-          placement="right"
-          onClose={handleClearDueDrawer}
-          open={clearDueDrawer}
-          width="100%"
-          push={false}
-        >
-          <ClearDue
-            handleClearDueDrawer={handleClearDueDrawer}
-            billData={billData}
-            handleMessageForm3c={handleMessageForm3c}
-            getPatientBills={refetchBillData}
-            onClearDueSuccess={handleClearDueSuccess}
-            patientAdvanceData={async () => {
-              // Refetch advance balance
-              if (
-                transformedPatientData?.patient_unique_id &&
-                profile?.user_id
-              ) {
-                try {
-                  const advanceResponse = await listAdvancedDepositByPatient({
-                    patientId: transformedPatientData.patient_unique_id,
-                    doctorId: profile.user_id,
-                  });
-                  if (advanceResponse?.data) {
-                    const totalBalance = advanceResponse.data.reduce(
-                      (sum, item) => sum + (parseFloat(item.balance) || 0),
-                      0
-                    );
-                    setTotalAdvanceBalance(totalBalance);
-                  }
-                } catch (error) {
-                  console.error("Error fetching advance balance:", error);
-                }
-              }
-            }}
-            admissionId={admissionId}
-          />
-        </Drawer>
-      )}
-
       {/* Add Form 3C Drawer */}
       {addForm3cDrawer && (
         <Drawer
@@ -849,7 +795,7 @@ const AdmissionBilling = ({
           open={pastBillingHistoryDrawer}
           width="1000px"
           push={false}
-          title="Patient's IPD Billing History"
+          title="Past IPD Billing History"
           className="ipd-patient-billing-history-drawer"
         >
           <div
@@ -867,7 +813,7 @@ const AdmissionBilling = ({
               addAdvanceDrawer={() => {}}
               showHideSubModal={() => {}}
               fromPath="ipdDashboard"
-              isIpdPatientBillingHistory={true}
+              ipdAdmissionId={admissionId}
             />
           </div>
         </Drawer>

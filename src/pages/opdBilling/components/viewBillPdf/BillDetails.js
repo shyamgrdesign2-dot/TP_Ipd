@@ -86,6 +86,7 @@ const BillDetails = ({
     ...refundModes?.map((mode) => ({
       label: `Refunded Via ${mode.paymentMode}:`,
       value: `₹${mode.amount.toFixed(2)}`,
+      divider: true,
     })),
     // Add dues items - each due gets its payment modes and cleared total
     ...(paidDues && paidDues.length > 0
@@ -414,7 +415,6 @@ const BillDetails = ({
                   backgroundColor: "#F1F1F5",
                   borderRadius: 10,
                   padding: PX_TO_PT * 12,
-                  // marginTop: PX_TO_PT * 8,
                   marginBottom: PX_TO_PT * 8,
                   opacity: 0.8,
                 }}
@@ -538,73 +538,82 @@ const BillDetails = ({
         )}
       </View>
 
-      {paidDues?.filter((due) => !!due?.notes)?.map((due) => (
-        <Text
-          style={[
-            {
-              fontFamily: pageFormat?.fontFamily,
-              fontSize: (pageFormat?.fontSize || 12) * PX_TO_PT,
-              fontWeight: 500,
-              color: "#454551",
-            },
-          ]}
+      {/* Remarks Card - matching Figma design */}
+      {(paidDues?.some((due) => !!due?.notes) || refundNotes || notes) && (
+        <View
+          style={{
+            backgroundColor: "rgba(241, 241, 245, 0.5)",
+            borderRadius: 10,
+            padding: PX_TO_PT * 12,
+            marginTop: PX_TO_PT * 10,
+            width: "100%",
+            opacity: 0.8,
+            gap: PX_TO_PT * 6,
+          }}
         >
-          {"\n"}Due Remarks:&nbsp;
-          <Text
-            style={{
-              fontFamily: pageFormat?.fontFamily,
-              fontWeight: 400,
-            }}
-          >
-            {due?.notes}
-          </Text>
-        </Text>
-      ))}
+          {paidDues
+            ?.filter((due) => !!due?.notes)
+            ?.map((due, index, arr) => (
+              <React.Fragment key={`due-remarks-${index}`}>
+                <Text
+                  style={{
+                    fontFamily: pageFormat?.fontFamily,
+                    fontSize: (pageFormat?.fontSize || 12) * PX_TO_PT,
+                    color: "#454551",
+                  }}
+                >
+                  <Text style={{ fontWeight: 600 }}>Due Remarks:</Text>
+                  <Text style={{ fontWeight: 400 }}> {due?.notes}</Text>
+                </Text>
+                {(index < arr.length - 1 || refundNotes || notes) && (
+                  <View
+                    style={{
+                      width: "100%",
+                      borderBottom: "1px solid #E2E2EA",
+                      marginVertical: PX_TO_PT * 2,
+                    }}
+                  />
+                )}
+              </React.Fragment>
+            ))}
 
-      {refundNotes && (
-        <Text
-          style={[
-            {
-              fontFamily: pageFormat?.fontFamily,
-              fontSize: (pageFormat?.fontSize || 12) * PX_TO_PT,
-              fontWeight: 500,
-              color: "#000",
-            },
-          ]}
-        >
-          {"\n"}Credit Note:&nbsp;
-          <Text
-            style={{
-              fontFamily: pageFormat?.fontFamily,
-              fontWeight: 400,
-            }}
-          >
-            {refundNotes}
-          </Text>
-        </Text>
-      )}
+          {refundNotes && (
+            <>
+              <Text
+                style={{
+                  fontFamily: pageFormat?.fontFamily,
+                  fontSize: (pageFormat?.fontSize || 12) * PX_TO_PT,
+                  color: "#454551",
+                }}
+              >
+                <Text style={{ fontWeight: 600 }}>Refund Remarks:</Text>
+                <Text style={{ fontWeight: 400 }}> {refundNotes}</Text>
+              </Text>
+              {notes && (
+                <View
+                  style={{
+                    width: "100%",
+                    borderBottom: "1px solid #E2E2EA",
+                    marginVertical: PX_TO_PT * 2,
+                  }}
+                />
+              )}
+            </>
+          )}
 
-      {notes && (
-        <Text
-          style={[
-            {
-              fontFamily: pageFormat?.fontFamily,
-              fontSize: (pageFormat?.fontSize || 12) * PX_TO_PT,
-              fontWeight: 500,
-              color: "#000",
-            },
-          ]}
-        >
-          {"\n"}Notes:&nbsp;
-          <Text
-            style={{
-              fontFamily: pageFormat?.fontFamily,
-              fontWeight: 400,
-            }}
-          >
-            {notes}
-          </Text>
-        </Text>
+          {notes && (
+            <Text
+              style={{
+                fontFamily: pageFormat?.fontFamily,
+                fontSize: (pageFormat?.fontSize || 12) * PX_TO_PT,
+                color: "#454551",
+              }}
+            >
+              <Text style={{ fontWeight: 600 }}>Notes:</Text>
+              <Text style={{ fontWeight: 400 }}> {notes}</Text>
+            </Text>
+          )}
+        </View>
       )}
     </>
   );

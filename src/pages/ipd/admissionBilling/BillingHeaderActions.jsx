@@ -117,12 +117,7 @@ const BillingHeaderActions = forwardRef(
           (bill) => bill?.admissionId && bill.admissionId !== currentAdmissionId
         );
 
-        // Also check summary count as fallback
-        const totalBillsCount = response?.summary?.count || 0;
-        const hasBills =
-          hasOtherBills || (totalBillsCount > 0 && billsArray.length > 0);
-
-        setHasPastBills(hasBills);
+        setHasPastBills(hasOtherBills);
       } catch (error) {
         console.error("Error checking past bills:", error);
         setHasPastBills(false);

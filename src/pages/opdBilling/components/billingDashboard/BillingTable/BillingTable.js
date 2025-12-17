@@ -87,8 +87,9 @@ export default function BillingTable({
   createBillDrawer,
   totalAdvanceBalance,
   showHideSubModal,
-  billType,
+  ipdAdmissionId,
 }) {
+  const billType = ipdAdmissionId ? "ipd" : "opd";
   const decodedToken = getDecodedToken();
   const isAdmin = decodedToken?.result?.admin;
   const [selectAll, setSelectAll] = useState(true);
@@ -553,7 +554,7 @@ export default function BillingTable({
     const params = {
       status:
         selectedCard === 1
-          ? ["FullyPaid","Due","CarriedForward"]
+          ? ["FullyPaid", "Due", "CarriedForward"]
           : selectedCard === 2
           ? ["FullyPaid"]
           : selectedCard === 3
@@ -622,20 +623,24 @@ export default function BillingTable({
     if (!hasMore && !resetData) return;
 
     const params = {
-      status:
-        selectedCard === 1
-          ? ["FullyPaid","Due","CarriedForward"]
-          : selectedCard === 2
-          ? ["FullyPaid"]
-          : selectedCard === 3
-          ? ["Due", "CarriedForward"]
-          : ["Refunded"],
+      ...(!ipdAdmissionId && {
+        status:
+          selectedCard === 1
+            ? ["FullyPaid", "Due", "CarriedForward"]
+            : selectedCard === 2
+            ? ["FullyPaid"]
+            : selectedCard === 3
+            ? ["Due", "CarriedForward"]
+            : ["Refunded"],
+      }),
       sortBy: sortConfig?.field || "date",
       sortOrder: sortConfig?.order || "desc",
       page: resetData ? 1 : page,
       limit: 25,
-      startDate: dateRange.startDate,
-      endDate: dateRange.endDate,
+      ...(!ipdAdmissionId && {
+        startDate: dateRange.startDate,
+        endDate: dateRange.endDate,
+      }),
       doctorIds:
         selectedDoctors.length > 0 ? [...selectedDoctors] : [...doctorIds],
       search: searchQuery || "",
@@ -644,12 +649,15 @@ export default function BillingTable({
     };
     try {
       const response = await fetchBillsByPatient(params, billType);
+      const bills = ipdAdmissionId
+        ? response.bills.filter((bill) => bill.admissionId !== ipdAdmissionId)
+        : response.bills;
       setPage(resetData ? 2 : page + 1);
       setHasMore(response.bills.length >= 25);
       setData((prev) =>
         resetData
-          ? response
-          : { ...response, bills: [...(prev?.bills || []), ...response.bills] }
+          ? { ...response, bills }
+          : { ...response, bills: [...(prev?.bills || []), ...bills] }
       );
     } catch (error) {
       console.error("Error loading dashboard data:", error);
@@ -716,10 +724,13 @@ export default function BillingTable({
 
       try {
         const response = patientData
-          ? await fetchBillsByPatient({
-              ...params,
-              patientId: patientData?.patient_unique_id,
-            }, billType)
+          ? await fetchBillsByPatient(
+              {
+                ...params,
+                patientId: patientData?.patient_unique_id,
+              },
+              billType
+            )
           : await fetchBillingDashboard(params, billType);
         if (response?.bills?.length > 0) {
           allBills = [...allBills, ...response.bills];
@@ -760,163 +771,172 @@ export default function BillingTable({
             />
           </div>
           <div className="d-flex flex-row gap-2">
-            {(isAdmin || isReceptionist) && finalDoctorList?.length > 1 ? (
-              <div className="doctor-select-container">
-                <Select
-                  className="doctor-select"
-                  dropdownRender={(menu) => (
-                    <div className="doctor-select-dropdown">
-                      <div className="d-flex justify-content-between align-items-center w-100">
-                        <button
-                          className="all-doctors-button"
-                          onClick={() => handleSelectAll()}
-                        >
-                          All Doctors
-                        </button>
-                      </div>
-
-                      <div className="doctor-select-divider">
-                        <span>or</span>
-                      </div>
-
-                      <div className="custom-doctors-section">
-                        <div className="section-title fs-16">
-                          Select Custom Doctors
-                        </div>
-                        <div className="doctor-select-list">
-                          {finalDoctorList.map((doctor) => (
-                            <div
-                              key={doctor.um_id}
-                              style={{ padding: "8px 0" }}
+            {!ipdAdmissionId && (
+              <>
+                {(isAdmin || isReceptionist) && finalDoctorList?.length > 1 ? (
+                  <div className="doctor-select-container">
+                    <Select
+                      className="doctor-select"
+                      dropdownRender={(menu) => (
+                        <div className="doctor-select-dropdown">
+                          <div className="d-flex justify-content-between align-items-center w-100">
+                            <button
+                              className="all-doctors-button"
+                              onClick={() => handleSelectAll()}
                             >
-                              <Checkbox
-                                checked={selectedDoctors.includes(doctor.um_id)}
-                                onChange={(e) =>
-                                  handleDoctorSelection(
-                                    doctor.um_id,
-                                    e.target.checked
-                                  )
-                                }
-                              >
-                                {doctor.um_name}
-                              </Checkbox>
+                              All Doctors
+                            </button>
+                          </div>
+
+                          <div className="doctor-select-divider">
+                            <span>or</span>
+                          </div>
+
+                          <div className="custom-doctors-section">
+                            <div className="section-title fs-16">
+                              Select Custom Doctors
                             </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                  value="placeholder"
-                >
-                  <Option value="placeholder">
-                    <div className="select-value-content">
-                      {selectedDoctors.length > 0 ? (
-                        <div className="selected-doctors-wrapper">
-                          <div className="selected-doctors-tags">
-                            {selectedDoctors.map((doctorId) => {
-                              const doctor = finalDoctorList.find(
-                                (d) => d.um_id === doctorId
-                              );
-                              return (
-                                <span key={doctorId} className="doctor-tag">
-                                  {doctor?.um_name}
-                                  <i
-                                    className="icon-Cross"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleDoctorSelection(doctorId, false);
-                                    }}
-                                  />
-                                </span>
-                              );
-                            })}
+                            <div className="doctor-select-list">
+                              {finalDoctorList.map((doctor) => (
+                                <div
+                                  key={doctor.um_id}
+                                  style={{ padding: "8px 0" }}
+                                >
+                                  <Checkbox
+                                    checked={selectedDoctors.includes(
+                                      doctor.um_id
+                                    )}
+                                    onChange={(e) =>
+                                      handleDoctorSelection(
+                                        doctor.um_id,
+                                        e.target.checked
+                                      )
+                                    }
+                                  >
+                                    {doctor.um_name}
+                                  </Checkbox>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         </div>
-                      ) : (
-                        <span>Select Doctors</span>
                       )}
-                    </div>
-                  </Option>
-                </Select>
-              </div>
-            ) : null}
-            <div className="massage-date-wrapper">
-              <div
-                className="fs-14 h-100 w-100 d-flex align-items-center justify-content-between"
-                onClick={handlePickerModal}
-              >
-                <span>
-                  {dateStatus === 1 ? (
-                    "Today"
-                  ) : dateStatus === 2 ? (
-                    "Last week"
-                  ) : dateStatus === 3 ? (
-                    "Last month"
-                  ) : (
-                    <>
-                      {moment(dateRange.startDate).format(showDateFormat)} -{" "}
-                      {moment(dateRange.endDate).format(showDateFormat)}
-                    </>
-                  )}
-                </span>
-                <i className="mx-2 fs-18 icon-calendar"></i>
-              </div>
-              <RangePicker
-                disabledDate={(current) => disabledDate(current)}
-                open={pickerModal}
-                presets={rangePresets}
-                format={showDateFormat}
-                onChange={onRangeChange}
-                popupClassName="massage-date"
-                className="massage-input"
-                inputReadOnly
-                renderExtraFooter={() => (
-                  <div className="d-flex align-items-center justify-content-between py-1">
-                    <div>
-                      {moment(dateRange.startDate).format(showDateFormat)} -{" "}
-                      {moment(dateRange.endDate).format(showDateFormat)}
-                    </div>
-                    <div>
-                      <button
-                        className="btn btn-text me-3 px-0"
-                        onClick={() => {
-                          setDateStatus(1);
-                          setDateRange({
-                            startDate: moment().format(dateFormat),
-                            endDate: moment().format(dateFormat),
-                          });
-                          handlePickerModal();
-                        }}
-                      >
-                        <span>Cancel</span>
-                      </button>
-                      <Button
-                        className="px-4"
-                        type="primary"
-                        onClick={handlePickerModal}
-                      >
-                        Done
-                      </Button>
-                    </div>
+                      value="placeholder"
+                    >
+                      <Option value="placeholder">
+                        <div className="select-value-content">
+                          {selectedDoctors.length > 0 ? (
+                            <div className="selected-doctors-wrapper">
+                              <div className="selected-doctors-tags">
+                                {selectedDoctors.map((doctorId) => {
+                                  const doctor = finalDoctorList.find(
+                                    (d) => d.um_id === doctorId
+                                  );
+                                  return (
+                                    <span key={doctorId} className="doctor-tag">
+                                      {doctor?.um_name}
+                                      <i
+                                        className="icon-Cross"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleDoctorSelection(
+                                            doctorId,
+                                            false
+                                          );
+                                        }}
+                                      />
+                                    </span>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          ) : (
+                            <span>Select Doctors</span>
+                          )}
+                        </div>
+                      </Option>
+                    </Select>
                   </div>
-                )}
-                onOpenChange={() => {}}
-                value={[
-                  dateRange.startDate != dateRange.endDate
-                    ? dayjs(
-                        moment(dateRange.startDate).format(showDateFormat),
-                        showDateFormat
-                      )
-                    : "",
-                  dateRange.startDate != dateRange.endDate
-                    ? dayjs(
-                        moment(dateRange.endDate).format(showDateFormat),
-                        showDateFormat
-                      )
-                    : "",
-                ]}
-              />
-            </div>
+                ) : null}
+                <div className="massage-date-wrapper">
+                  <div
+                    className="fs-14 h-100 w-100 d-flex align-items-center justify-content-between"
+                    onClick={handlePickerModal}
+                  >
+                    <span>
+                      {dateStatus === 1 ? (
+                        "Today"
+                      ) : dateStatus === 2 ? (
+                        "Last week"
+                      ) : dateStatus === 3 ? (
+                        "Last month"
+                      ) : (
+                        <>
+                          {moment(dateRange.startDate).format(showDateFormat)} -{" "}
+                          {moment(dateRange.endDate).format(showDateFormat)}
+                        </>
+                      )}
+                    </span>
+                    <i className="mx-2 fs-18 icon-calendar"></i>
+                  </div>
+                  <RangePicker
+                    disabledDate={(current) => disabledDate(current)}
+                    open={pickerModal}
+                    presets={rangePresets}
+                    format={showDateFormat}
+                    onChange={onRangeChange}
+                    popupClassName="massage-date"
+                    className="massage-input"
+                    inputReadOnly
+                    renderExtraFooter={() => (
+                      <div className="d-flex align-items-center justify-content-between py-1">
+                        <div>
+                          {moment(dateRange.startDate).format(showDateFormat)} -{" "}
+                          {moment(dateRange.endDate).format(showDateFormat)}
+                        </div>
+                        <div>
+                          <button
+                            className="btn btn-text me-3 px-0"
+                            onClick={() => {
+                              setDateStatus(1);
+                              setDateRange({
+                                startDate: moment().format(dateFormat),
+                                endDate: moment().format(dateFormat),
+                              });
+                              handlePickerModal();
+                            }}
+                          >
+                            <span>Cancel</span>
+                          </button>
+                          <Button
+                            className="px-4"
+                            type="primary"
+                            onClick={handlePickerModal}
+                          >
+                            Done
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                    onOpenChange={() => {}}
+                    value={[
+                      dateRange.startDate != dateRange.endDate
+                        ? dayjs(
+                            moment(dateRange.startDate).format(showDateFormat),
+                            showDateFormat
+                          )
+                        : "",
+                      dateRange.startDate != dateRange.endDate
+                        ? dayjs(
+                            moment(dateRange.endDate).format(showDateFormat),
+                            showDateFormat
+                          )
+                        : "",
+                    ]}
+                  />
+                </div>
+              </>
+            )}
             <div className="download-modal-container">
               <Dropdown
                 overlay={menu}
@@ -934,57 +954,61 @@ export default function BillingTable({
           </div>
         </Row>
         <Row className="justify-content-between align-items-center px-4">
-          <div className="card-container">
-            {cards.map((card) => (
-              <div
-                key={card.id}
-                className={`card ${selectedCard === card.id ? "selected" : ""}`}
-                onClick={() => setSelectedCard(card.id)}
-                style={{
-                  borderColor: "transparent",
-                  background: `linear-gradient(180deg, ${card.color}4D 0%, ${card.color}00 35%)`,
-                  position: "relative",
-                }}
-              >
+          {!ipdAdmissionId && (
+            <div className="card-container">
+              {cards.map((card) => (
                 <div
-                  className="card-title"
-                  style={{ "--dynamic-color": card.fontColor }}
+                  key={card.id}
+                  className={`card ${
+                    selectedCard === card.id ? "selected" : ""
+                  }`}
+                  onClick={() => setSelectedCard(card.id)}
+                  style={{
+                    borderColor: "transparent",
+                    background: `linear-gradient(180deg, ${card.color}4D 0%, ${card.color}00 35%)`,
+                    position: "relative",
+                  }}
                 >
-                  {card.title}
-                  {"("}
-                  {card.id === 1 && data ? totalBillCount : card.count}
-                  {")"}
-                </div>
-                <div className="card-amount">
-                  ₹{parseFloat(card.amount).toFixed(2)}
-                  {card.id === 1 && data && (
-                    <span style={{ fontSize: "16px", fontWeight: 500 }}>
-                      {"/"}₹
-                      {parseFloat(data?.summary?.totalBillAmount).toFixed(2)}
-                    </span>
+                  <div
+                    className="card-title"
+                    style={{ "--dynamic-color": card.fontColor }}
+                  >
+                    {card.title}
+                    {"("}
+                    {card.id === 1 && data ? totalBillCount : card.count}
+                    {")"}
+                  </div>
+                  <div className="card-amount">
+                    ₹{parseFloat(card.amount).toFixed(2)}
+                    {card.id === 1 && data && (
+                      <span style={{ fontSize: "16px", fontWeight: 500 }}>
+                        {"/"}₹
+                        {parseFloat(data?.summary?.totalBillAmount).toFixed(2)}
+                      </span>
+                    )}
+                  </div>
+                  {selectedCard === card.id && (
+                    <div
+                      className="arrow-down"
+                      style={{
+                        position: "absolute",
+                        bottom: "-10px",
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        width: 0,
+                        height: 0,
+                        borderLeft: "10px solid transparent",
+                        borderRight: "10px solid transparent",
+                        borderTop: "10px solid #fff",
+                        filter: "drop-shadow(0px 2px 2px rgba(0, 0, 0, 0.1))",
+                        zIndex: 1,
+                      }}
+                    />
                   )}
                 </div>
-                {selectedCard === card.id && (
-                  <div
-                    className="arrow-down"
-                    style={{
-                      position: "absolute",
-                      bottom: "-10px",
-                      left: "50%",
-                      transform: "translateX(-50%)",
-                      width: 0,
-                      height: 0,
-                      borderLeft: "10px solid transparent",
-                      borderRight: "10px solid transparent",
-                      borderTop: "10px solid #fff",
-                      filter: "drop-shadow(0px 2px 2px rgba(0, 0, 0, 0.1))",
-                      zIndex: 1,
-                    }}
-                  />
-                )}
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           <BillTable
             data={

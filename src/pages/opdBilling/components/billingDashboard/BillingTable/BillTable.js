@@ -497,6 +497,7 @@ const BillTable = ({
 
     // Conditionally add "Clear Due" if (due amount & not refunded)
     if (
+      billType !== "ipd" &&
       record.dueAmount &&
       parseFloat(record.dueAmount) > 0 &&
       record.paymentStatus !== "Refunded"

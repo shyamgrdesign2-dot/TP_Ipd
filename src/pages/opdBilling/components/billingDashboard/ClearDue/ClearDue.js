@@ -144,7 +144,7 @@ function ClearDue({
       if (remarks.trim()) {
         payload.paidDue.notes = remarks.trim();
       }
-debugger
+
       const response = await processClearDue(
         payload,
         admissionId ? "ipd" : "opd"
