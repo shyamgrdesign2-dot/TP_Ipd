@@ -273,11 +273,8 @@ const AdmissionBilling = ({
   useEffect(() => {
     if (shouldOpenAddAdvance) {
       setAddAdvanceDrawer(true);
-      if (onAddAdvanceDrawerOpened) {
-        onAddAdvanceDrawerOpened();
-      }
     }
-  }, [shouldOpenAddAdvance, onAddAdvanceDrawerOpened]);
+  }, [shouldOpenAddAdvance]);
 
   const showHideBackModal = () => {
     setIsBackModalOpen(!isBackModalOpen);
@@ -426,6 +423,7 @@ const AdmissionBilling = ({
 
   const handleAddAdvanceDrawer = () => {
     setAddAdvanceDrawer(!addAdvanceDrawer);
+    onAddAdvanceDrawerOpened();
   };
 
   const handleAddAdvanceSuccess = () => {
@@ -557,6 +555,31 @@ const AdmissionBilling = ({
               patientData={transformedPatientData}
               admissionId={admissionId}
               onBillCreated={handleBillCreated}
+            />
+          </Drawer>
+        )}
+        {/* Add Advance Drawer */}
+        {addAdvanceDrawer && (
+          <Drawer
+            closeIcon={false}
+            placement="right"
+            onClose={handleAddAdvanceDrawer}
+            open={addAdvanceDrawer}
+            width="100%"
+            push={false}
+          >
+            <AddAdvance
+              handleAddAdvanceDrawer={handleAddAdvanceDrawer}
+              patientData={transformedPatientData}
+              billData={billData}
+              onSuccess={handleAddAdvanceSuccess}
+              updateTotalAdvanceBalance={(balance) => {
+                setTotalAdvanceBalance(balance);
+                if (onTotalAdvanceBalanceChange) {
+                  onTotalAdvanceBalanceChange(balance);
+                }
+              }}
+              isReceptionistDashboard={false}
             />
           </Drawer>
         )}

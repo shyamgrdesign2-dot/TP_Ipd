@@ -326,6 +326,7 @@ const TableBillingDashboard = forwardRef(
                 totalAdvanceBalance={totalAdvanceBalance}
                 showHideSubModal={showHideSubModal}
                 ipdAdmissionId={ipdAdmissionId}
+                billType={billType}
               />
             ) : selectedTab === 2 ? (
               <BillingTable
@@ -345,6 +346,7 @@ const TableBillingDashboard = forwardRef(
                 totalAdvanceBalance={totalAdvanceBalance}
                 showHideSubModal={showHideSubModal}
                 ipdAdmissionId={ipdAdmissionId}
+                billType={billType}
               />
             ) : (
               <AdvanceDepositTable

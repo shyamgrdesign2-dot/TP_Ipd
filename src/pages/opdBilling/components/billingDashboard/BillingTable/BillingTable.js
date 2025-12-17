@@ -91,8 +91,8 @@ export default function BillingTable({
   ipdAdmissionId,
   billData,
   setBillData,
+  billType = "opd"
 }) {
-  const billType = ipdAdmissionId ? "ipd" : "opd";
   const decodedToken = getDecodedToken();
   const isAdmin = decodedToken?.result?.admin;
   const [selectAll, setSelectAll] = useState(true);
