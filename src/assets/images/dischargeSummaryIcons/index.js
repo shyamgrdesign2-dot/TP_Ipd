@@ -84,6 +84,8 @@ import wardBedManagementOutline from "./wardBedManagement-outline.svg";
 import dischargedPatientsSc from "./dischargedPatients-sc.svg";
 import billingPc from "./billing-pc.svg";
 import billingDark from "./billing-dark.svg";
+import activityLogsSc from './activityLogs-sc.svg';
+import activityLogsDark from './activityLogs-dark.svg';
 
 export const defaultIcons = {
   address,
@@ -170,7 +172,9 @@ export const defaultIcons = {
   dischargedPatientsSc,
   wardBedManagementOutline,
   billingPc,
-  billingDark
+  billingDark,
+  activityLogsSc,
+  activityLogsDark,
 };
 
 export {
@@ -258,5 +262,7 @@ export {
   dischargedPatientsSc,
   wardBedManagementOutline,
   billingPc,
-  billingDark
+  billingDark,
+  activityLogsSc,
+  activityLogsDark,
 };
