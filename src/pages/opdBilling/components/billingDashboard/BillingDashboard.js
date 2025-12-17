@@ -173,6 +173,9 @@ function BillingDashboard({ patientData, fromPath, isIpd = false }) {
         receptionistName: receptionistName,
       });
       setCreateBillDrawer(!createBillDrawer);
+      if (billData && Object.keys(billData).length > 0) {
+        setBillData(null);
+      }
     }
   }, [createBillDrawer]);
 

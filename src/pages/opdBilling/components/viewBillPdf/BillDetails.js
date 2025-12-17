@@ -2,6 +2,7 @@ import { Text, View } from "@react-pdf/renderer";
 import { PX_TO_PT, styles } from "./constants";
 import React from "react";
 import { formatDateWithOrdinal } from "../../utils/helper";
+import dayjs from "dayjs";
 
 const BillDetails = ({
   pageFormat,
@@ -300,7 +301,9 @@ const BillDetails = ({
                   },
                 ]}
               >
-                {item?.itemDate ?? ""}
+                {item?.itemDate
+                  ? dayjs(item?.itemDate).format("DD-MM-YYYY")
+                  : ""}
               </Text>
             )}
             <Text
@@ -538,7 +541,6 @@ const BillDetails = ({
         )}
       </View>
 
-      {/* Remarks Card - matching Figma design */}
       {(paidDues?.some((due) => !!due?.notes) || refundNotes || notes) && (
         <View
           style={{

@@ -386,7 +386,7 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
   }, [dispatch]);
 
   const getBillPrintSettings = useCallback(async () => {
-    const response = await fetchPrintSetting(isReceptionist ? urlParams.get("um_id") : "");
+    const response = await fetchPrintSetting(isReceptionist ? urlParams.get("um_id") : userId);
     if (response) dispatch(setBillPrintSettings(response));
   }, [dispatch, isReceptionist, urlParams]);
 

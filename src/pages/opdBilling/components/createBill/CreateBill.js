@@ -11,6 +11,7 @@ import {
   Radio,
   Select,
   Table,
+  Tooltip,
   message,
 } from "antd";
 import alertIcon from "./../../../../assets/images/alertIcon.svg";
@@ -299,7 +300,7 @@ const CreateBill = ({
 
   const getBillPrintSettings = async () => {
     const printSettingsResponse = await fetchPrintSetting(
-      isReceptionist ? urlParams.get("um_id") : ""
+      isReceptionist ? urlParams.get("um_id") : userId
     );
     if (printSettingsResponse) {
       dispatch(setBillPrintSettings(printSettingsResponse));
@@ -307,7 +308,7 @@ const CreateBill = ({
   };
 
   const getIpdBillPrintSettings = async () => {
-    const printSettingsResponse = await fetchPrintSetting("", "ipdBill");
+    const printSettingsResponse = await fetchPrintSetting(userId, "ipdBill");
     if (printSettingsResponse) {
       dispatch(setIpdBillPrintSettings(printSettingsResponse));
     }
@@ -397,6 +398,14 @@ const CreateBill = ({
   }, [advancedSettings]);
 
   useEffect(() => {
+    if (editBillData?.paymentModes) {
+      setTimeout(() => {
+        setPaymentModes(editBillData?.paymentModes);
+      }, 100);
+    }
+  }, [])
+
+  useEffect(() => {
     const timeOutId = setTimeout(() => {
       getSearchOptions();
     }, 500);
@@ -462,6 +471,25 @@ const CreateBill = ({
     );
   };
 
+  // Helper function to parse itemDate in multiple formats
+  const parseItemDate = (dateValue) => {
+    if (!dateValue) return null;
+    if (dayjs.isDayjs(dateValue)) return dateValue;
+    if (typeof dateValue !== 'string') return null;
+    
+    // Try parsing different date formats
+    const formats = ["DD-MM-YYYY", "YYYY-MM-DD", "DD MMM YYYY"];
+    for (const format of formats) {
+      const parsed = dayjs(dateValue, format, true);
+      if (parsed.isValid()) {
+        return parsed;
+      }
+    }
+    // Fallback to default parsing
+    const fallback = dayjs(dateValue);
+    return fallback.isValid() ? fallback : null;
+  };
+
   const handleAddRow = (updatedData) => {
     const newRow = {
       masterId: "",
@@ -473,7 +501,7 @@ const CreateBill = ({
       gst: "",
       totalAmount: "",
       createdBy: "",
-      itemDate: dayjs().format("DD-MM-YYYY") || "",
+      itemDate: dayjs().format("DD-MM-YYYY"),
     };
     setDataSource([...updatedData, newRow]);
     setSearchQuery("");
@@ -591,18 +619,14 @@ const CreateBill = ({
         <div>
           <DatePicker
             placeholder="Select Date"
-            onChange={(_, d) => {
-              handleInputChange(d ?? "", index, "itemDate");
+            onChange={(date) => {
+              handleInputChange(date ? date.format("DD-MM-YYYY") : "", index, "itemDate");
             }}
             format={{
               format: "DD MMM YYYY",
               type: "mask",
             }}
-            value={
-              record.itemDate && dayjs(record.itemDate).isValid()
-                ? dayjs(record.itemDate)
-                : ""
-            }
+            value={parseItemDate(record.itemDate)}
             style={{
               border: "none",
             }}
@@ -1398,27 +1422,36 @@ const CreateBill = ({
                 }`}
               >
                 <div>
-                  <Checkbox
-                    className="me-2"
-                    checked={shouldAddBillTo3C}
-                    onChange={(e) => {
-                      const clinic = getClinic();
-                      trackEvent("TP_Billing_AddBilltoForm3C", {
-                        patientName: patientDetails?.patientName || "",
-                        patientId: patientDetails?.patientUniqueId || "",
-                        doctorSpeciality: profile?.dp_name,
-                        doctorId: profile?.doctor_unique_id,
-                        doctorContact: profile?.um_contact,
-                        city: clinic?.hm_city,
-                        pincode: clinic?.hm_pincode,
-                        subscriptionStatus: planDetails?.currentPlanStatus,
-                        receptionistId: receptionistId,
-                        receptionistName: receptionistName,
-                      });
-                      setAddBillTo3C(e.target.checked);
-                    }}
-                    disabled={editBillData?.isForm3C}
-                  />
+                  <Tooltip
+                    title={
+                      editBillData?.isForm3C
+                        ? "This bill is already added to Form 3C, so this option cannot be changed."
+                        : ""
+                    }
+                  >
+                    <span>
+                      <Checkbox
+                        className={`me-2 ${editBillData?.isForm3C ? "disabled pe-none" : ""}`}
+                        checked={shouldAddBillTo3C}
+                        onChange={(e) => {
+                          const clinic = getClinic();
+                          trackEvent("TP_Billing_AddBilltoForm3C", {
+                            patientName: patientDetails?.patientName || "",
+                            patientId: patientDetails?.patientUniqueId || "",
+                            doctorSpeciality: profile?.dp_name,
+                            doctorId: profile?.doctor_unique_id,
+                            doctorContact: profile?.um_contact,
+                            city: clinic?.hm_city,
+                            pincode: clinic?.hm_pincode,
+                            subscriptionStatus: planDetails?.currentPlanStatus,
+                            receptionistId: receptionistId,
+                            receptionistName: receptionistName,
+                          });
+                          setAddBillTo3C(e.target.checked);
+                        }}
+                      />
+                    </span>
+                  </Tooltip>
                   Add bill for Form 3C
                 </div>
                 {!isDashboard &&

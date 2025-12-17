@@ -139,7 +139,7 @@ const PreviewBill = ({
 
   const getBillPrintSettings = async () => {
     const printSettingsResponse = await fetchPrintSetting(
-      isReceptionist ? billDetails?.doctorId : ""
+      isReceptionist ? billDetails?.doctorId : userId
     );
     if (printSettingsResponse) {
       dispatch(setBillPrintSettings(printSettingsResponse));
@@ -147,7 +147,7 @@ const PreviewBill = ({
   };
 
   const getIpdBillPrintSettings = async () => {
-    const printSettingsResponse = await fetchPrintSetting("", "ipdBill");
+    const printSettingsResponse = await fetchPrintSetting(userId, "ipdBill");
     if (printSettingsResponse) {
       dispatch(setIpdBillPrintSettings(printSettingsResponse));
     }
