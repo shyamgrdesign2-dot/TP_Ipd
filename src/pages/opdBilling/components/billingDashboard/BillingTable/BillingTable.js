@@ -91,7 +91,8 @@ export default function BillingTable({
   ipdAdmissionId,
   billData,
   setBillData,
-  billType = "opd"
+  billType = "ipd",
+  setBillingCount,
 }) {
   const decodedToken = getDecodedToken();
   const isAdmin = decodedToken?.result?.admin;
@@ -157,12 +158,19 @@ export default function BillingTable({
       amount: data?.summary[card?.amountKey] || 0,
       count: data?.summary[card?.countKey] || 0,
     }));
+    // Calculate totalBillCount excluding refunded bills (card 4)
+    // Only include cards 2 (Paid fully) and 3 (Due)
     const totalBillCount = updatedCards
-      .slice(1, 4) // Extracts cards 2, 3, and 4
+      .slice(1, 3) // Extracts cards 2 and 3 only (excludes card 4 - Refunded)
       .reduce((sum, card) => sum + (card.count || 0), 0);
     setTotalBillCount(totalBillCount);
     setCards(updatedCards);
-  }, [data]);
+    
+    // Update billing count in parent component when data changes
+    if (setBillingCount && data?.summary?.count !== undefined) {
+      setBillingCount(data.summary.count);
+    }
+  }, [data, setBillingCount]);
 
   const handleSelectAll = () => {
     setSelectedDoctors(finalDoctorList.map((doctor) => doctor.um_id));
@@ -557,7 +565,7 @@ export default function BillingTable({
     const params = {
       status:
         selectedCard === 1
-          ? ["FullyPaid", "Due", "CarriedForward"]
+          ? ["FullyPaid", "Due", "CarriedForward"] // Exclude Refunded from card 1
           : selectedCard === 2
           ? ["FullyPaid"]
           : selectedCard === 3
@@ -1018,15 +1026,20 @@ export default function BillingTable({
           <BillTable
             billData={billData}
             setBillData={setBillData}
+            selectedCard = {selectedCard}
             createBillDrawer={createBillDrawer}
             setCreateBillDrawer={setCreateBillDrawer}
             data={
-              patientData
+              (patientData
                 ? data?.bills?.map((item) => ({
                     ...item,
                     patient: data?.patient,
                   }))
                 : data?.bills
+              )?.filter((bill) => 
+                // Filter out refunded bills when card 1 is selected
+                selectedCard === 1 ? bill?.paymentStatus !== "Refunded" : true
+              ) || []
             }
             isPatientScreen={patientData ? true : false}
             handleMessageForm3c={handleMessageForm3c}
