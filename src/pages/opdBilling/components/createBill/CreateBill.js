@@ -109,6 +109,11 @@ const CreateBill = ({
     value: parseInt(id),
     label: umNames[index],
   }));
+  const editDoctorFromList = editBillData?.doctorId
+    ? doctorsList?.find(
+        (d) => String(d?.value) === String(editBillData?.doctorId)
+      )
+    : null;
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const deviceUid = localStorage.getItem("app_device_unique_id");
   const { profile, userId } = useSelector((state) => state.doctors);
@@ -1719,13 +1724,17 @@ const CreateBill = ({
                   <div style={{ paddingBottom: "5px" }}>
                     Doctor Name <span className="lab-params-warning">*</span>
                   </div>
-                  {!isReceptionist || doctorsList.length === 1 || editBillData?.doctorName ? (
+                  {!isReceptionist || doctorsList.length === 1 || editBillData?.doctorId ? (
                     <Input
                       className="input-create-bill"
                       value={
                         doctorsList.length === 1
                           ? doctorsList[0].label
-                          : profile?.um_name ? profile?.um_name : editBillData?.doctorName ? editBillData?.doctorName : ""
+                          : editDoctorFromList?.label
+                          ? editDoctorFromList?.label
+                          : profile?.um_name
+                          ? profile?.um_name
+                          : ""
                       }
                       style={{ height: 38, width: "12rem" }}
                       onInput={(e) => {
