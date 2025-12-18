@@ -245,6 +245,15 @@ const CreateBill = ({
   const receptionistName = urlParams.get("receptionistName");
 
   useEffect(() => {
+    if (editBillData?.patient) {
+      setPatientDetails({
+        ...editBillData?.patient,
+        patientUniqueId: editBillData?.patientId,
+      });
+    }
+  }, [editBillData]);
+
+  useEffect(() => {
     getStorageData();
     if (advancedSettings && Object.keys(advancedSettings).length === 0) {
       getAdvanceSettings();
@@ -2190,6 +2199,7 @@ const CreateBill = ({
             }
             updateTotalAdvanceBalance={setTotalAdvanceBalance}
             isReceptionistDashboard={isReceptionist}
+            billData={editBillData}
           />
         </Drawer>
       )}
