@@ -112,11 +112,13 @@ export const patientIpdDataShow = (id, patient_data, billData, profile) => {
   } else if (id == 12) {
     value = patient_data?.address ?? "-";
   } else if (id == 13) {
-    value = billData?.admission?.insuranceno ?? "-"; //need to check
-  } else if (id == 14) {
-    value = billData?.admission?.policyno ?? "-"; //need to check
-  } else if (id == 15) {
-    value = billData?.admission?.tpano ?? "-"; //need to check
+    value = billData?.admission?.metadata?.insuranceno ?? "-";
+  }
+  else if (id == 14) {
+    value = billData?.admission?.metadata?.policyno ?? "-";
+  }
+  else if (id == 15) {
+    value = billData?.admission?.metadata?.tpano ?? "-";
   }
   return value;
 };

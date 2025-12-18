@@ -443,7 +443,7 @@ const AdvanceBillSettings = ({ visible, onClose, getAdvanceSettings }) => {
                     <div className={styles.formItem}>
                       <div className={styles.inputWithIcon}>
                         <label>IPD Bill No. Sequence</label>
-                        <InfoTooltip type={"IpdBillNumber"} />
+                        <InfoTooltip type={"BillNumber"} />
                       </div>
                       <Input
                         value={generatePreview(
@@ -467,7 +467,7 @@ const AdvanceBillSettings = ({ visible, onClose, getAdvanceSettings }) => {
                     <div className={styles.formItem}>
                       <div className={styles.inputWithIcon}>
                         <label>IPD Receipt No. Sequence</label>
-                        <InfoTooltip type={"IpdBillReceiptNumber"} />
+                        <InfoTooltip type={"BillReceiptNumber"} />
                       </div>
                       <Input
                         value={generatePreview(
@@ -491,7 +491,7 @@ const AdvanceBillSettings = ({ visible, onClose, getAdvanceSettings }) => {
                     <div className={styles.formItem}>
                       <div className={styles.inputWithIcon}>
                         <label>Select Default Payment mode</label>
-                        <InfoTooltip type={"IpdDefaultPaymentMode"} />
+                        <InfoTooltip type={"DefaultPaymentMode"} />
                       </div>
                       <Select
                         value={settings?.ipdSetting?.defaultPaymentMode}

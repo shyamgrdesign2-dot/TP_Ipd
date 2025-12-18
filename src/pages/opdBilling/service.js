@@ -18,11 +18,11 @@ export const fetchPrintSetting = async function (doctorId, billType) {
   return res;
 };
 
-export const updatePrintSetting = async function (payload, billType) {
+export const updatePrintSetting = async function (payload) {
   let res = {};
   try {
     res = await api.post(
-      `/api/v1/billing/printSetting?${billType ? `billType=ipdBill` : ""}`,
+      `/api/v1/billing/printSetting`,
       payload,
       baseUrl
     );
@@ -36,7 +36,7 @@ export const deletePrintSetting = async function (billType) {
   let res = {};
   try {
     res = await api.delete(
-      `/api/v1/billing/printSetting?${billType ? `billType=ipdBill` : ""}`,
+      `/api/v1/billing/printSetting${billType ? `?billType=ipdBill` : ""}`,
       baseUrl
     );
   } catch (e) {

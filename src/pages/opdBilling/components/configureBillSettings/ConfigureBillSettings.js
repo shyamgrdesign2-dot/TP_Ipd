@@ -271,8 +271,11 @@ const ConfigureBillSettings = ({
     } else {
       formData.append("deleteSignature", true);
     }
+    if (isIpdBill) {
+      formData.append("billType", "ipdBill");
+    }
 
-    const updatePrintSettingRes = await updatePrintSetting(formData, isIpdBill ? "ipdBill" : "");
+    const updatePrintSettingRes = await updatePrintSetting(formData);
     if (updatePrintSettingRes?.status === 200) {
       dispatch(isIpdBill ? setIpdBillPrintSettings(printSettings) : setBillPrintSettings(printSettings));
       message.open({
@@ -425,6 +428,7 @@ const ConfigureBillSettings = ({
             src={imgCloseVisit}
             className="ms-3"
             onClick={() => message.destroy()}
+            alt="close"
           />
         </div>
       ),

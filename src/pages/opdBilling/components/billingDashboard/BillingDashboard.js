@@ -157,7 +157,7 @@ function BillingDashboard({ patientData, fromPath, isIpd = false }) {
     }
   };
 
-  const handleCreateBillDrawer = useCallback(async (record) => {
+  const handleCreateBillDrawer = useCallback(async (isPreviewScreen = false) => {
     const isPurchased = await checkBillingPurchased()
     if (isPurchased) {
       const clinic = getClinic();
@@ -173,7 +173,7 @@ function BillingDashboard({ patientData, fromPath, isIpd = false }) {
         receptionistName: receptionistName,
       });
       setCreateBillDrawer(!createBillDrawer);
-      if (billData && Object.keys(billData).length > 0) {
+      if (billData && Object.keys(billData).length > 0 && !isPreviewScreen) {
         setBillData(null);
       }
     }

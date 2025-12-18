@@ -491,7 +491,7 @@ const CreateBill = ({
       gst: "",
       totalAmount: "",
       createdBy: "",
-      itemDate: dayjs().format("DD-MM-YYYY"),
+      itemDate: dayjs().format("YYYY-MM-DD"),
     };
     setDataSource([...updatedData, newRow]);
     setSearchQuery("");
@@ -938,11 +938,7 @@ const CreateBill = ({
       admissionId: admissionId,
       id: editBillData?.id,
     };
-    const createRes = await createBill(
-      payload,
-      isIpdBill ? "ipdBill" : "",
-      editBillData?.id
-    );
+    const createRes = await createBill(payload, isIpdBill ? "ipd" : "", editBillData?.id);
     if (createRes?.id) {
       message.open({
         key: MESSAGE_KEY,
@@ -1363,7 +1359,7 @@ const CreateBill = ({
                     }
                   />
                 </div>
-                <span className="title-digitise-card">Create Bill</span>
+                <span className="title-digitise-card">{editBillData ? "Edit" : "Create"} Bill</span>
                 {((patientData && Object.keys(patientData).length !== 0) ||
                   (patientDetails &&
                     Object.keys(patientDetails)?.length !== 0)) && (
@@ -1673,7 +1669,7 @@ const CreateBill = ({
                   ) : (
                     <div
                       className={`d-flex align-items-center flex-wrap border border-radius-10 cursor-pointer w-100 ${
-                        patientData?.patient_unique_id && "pe-none disabled"
+                        (patientData?.patient_unique_id || editBillData?.patientId) && "pe-none disabled"
                       }`}
                       onClick={() => {
                         setIsEditingName(true);

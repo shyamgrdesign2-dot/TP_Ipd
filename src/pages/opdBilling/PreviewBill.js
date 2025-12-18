@@ -26,6 +26,8 @@ import RefundBill from "./components/billingDashboard/RefundBill/RefundBill";
 import { getClinic, trackEvent } from "../../utils/utils";
 import wtsp from "./../../assets/images/wtsp.svg";
 import loadingImg from "./../../assets/images/loading.png";
+import refundActive from "./../../assets/images/Refund_active.svg";
+import refundInactive from "./../../assets/images/Refund_inactive.svg";
 import { PERSISTANT_STORAGE_KEY_BILL_TOKEN } from "../../utils/constants";
 import { useLocalStorage } from "../../utils/localStorage";
 import config from "../../config";
@@ -93,6 +95,7 @@ const PreviewBill = ({
   const [printBlob, setPrintBlob] = useState(null);
   const [pdfUrl, setPdfUrl] = useState(null);
   const [refundBillDrawer, setRefundBillDrawer] = useState(false);
+  const [isRefundBtnHover, setIsRefundBtnHover] = useState(false);
   const [isRefunded, setIsRefunded] = useState(
     billData?.paymentStatus === "Refunded"
   );
@@ -118,10 +121,12 @@ const PreviewBill = ({
   }, [divRef]);
 
   useEffect(() => {
-    if (billPrintSettings && Object.keys(billPrintSettings).length > 0) {
+    const settings = isIpdBill ? ipdBillPrintSettings : billPrintSettings;
+
+    if (settings && Object.keys(settings).length > 0) {
       makePDFUrl();
     }
-  }, [billPrintSettings, billDetails]);
+  }, [billPrintSettings, ipdBillPrintSettings, billDetails]);
 
   useEffect(() => {
     if (
@@ -224,7 +229,7 @@ const PreviewBill = ({
       receptionistId: receptionistId,
       receptionistName: receptionistName,
     });
-    setRefundBillDrawer(!refundBillDrawer);
+    setRefundBillDrawer((prev) => !prev);
   };
 
   const handleSendToWhatsapp = async () => {
@@ -310,7 +315,7 @@ const PreviewBill = ({
                 <div className="align-items-center d-flex h-100 gap-2">
                   <div className="border-end h-100 text-center">
                     <div
-                      onClick={handleCreateBillDrawer}
+                      onClick={() => handleCreateBillDrawer(true)}
                       className="btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer"
                     >
                       <i className="icon-right" />
@@ -326,7 +331,7 @@ const PreviewBill = ({
         <HeaderPrescriptionPrint
           patient_data={patientData}
           tcm_id={6222}
-          handleGoToAppointment={handleCreateBillDrawer}
+          handleGoToAppointment={() => handleCreateBillDrawer(true)}
         />
       )}
 
@@ -411,24 +416,37 @@ const PreviewBill = ({
                       className={`btn btnicon20 align-items-center d-flex btn-41 w-100 mb-3 ${
                         isReceptionist ? "receptionist-white-btn" : "btn-input"
                       }`}
-                      icon={<i className="icon-Edit" />}
+                      icon={
+                        <img
+                          src={
+                            isRefundBtnHover ? refundInactive : refundActive
+                          }
+                          alt="refund"
+                        />
+                      }
+                      onMouseEnter={() => setIsRefundBtnHover(true)}
+                      onMouseLeave={() => setIsRefundBtnHover(false)}
+                      onFocus={() => setIsRefundBtnHover(true)}
+                      onBlur={() => setIsRefundBtnHover(false)}
                       onClick={() => handleRefundBillDrawer()}
                     >
                       <span className="fw-semibold">Refund</span>
                       <i className="icon-right iconrotate180 ms-auto"></i>
                     </Button>
                   )}
-                {!isEditDisabled && <Button
-                  type="text"
-                  className={`btn btnicon20 align-items-center d-flex btn-41 w-100 mb-3 ${
-                    isReceptionist ? "receptionist-white-btn" : "btn-input"
-                  }`}
-                  icon={<i className="icon-Edit" />}
-                  onClick={() => handleEditBillDrawer()}
-                >
-                  <span className="fw-semibold">Edit Bill</span>
-                  <i className="icon-right iconrotate180 ms-auto"></i>
-                </Button>}
+                {!isEditDisabled && (
+                  <Button
+                    type="text"
+                    className={`btn btnicon20 align-items-center d-flex btn-41 w-100 mb-3 ${
+                      isReceptionist ? "receptionist-white-btn" : "btn-input"
+                    }`}
+                    icon={<i className="icon-Edit" />}
+                    onClick={() => handleEditBillDrawer()}
+                  >
+                    <span className="fw-semibold">Edit Bill</span>
+                    <i className="icon-right iconrotate180 ms-auto"></i>
+                  </Button>
+                )}
 
                 <div className="bg-body d-flex flex-column p-3 rounded-10px border">
                   <div className="d-flex">
