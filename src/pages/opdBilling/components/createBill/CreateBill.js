@@ -946,7 +946,7 @@ const CreateBill = ({
         className: "message-appointment",
         content: (
           <div className="d-flex align-items-center">
-            <img src={visitEnd} className="me-3" />
+            <img src={visitEnd} className="me-3" alt="visit-end" />
             <div>
               <div className="title-common text-start fontroboto">
                 {`${
@@ -1719,13 +1719,13 @@ const CreateBill = ({
                   <div style={{ paddingBottom: "5px" }}>
                     Doctor Name <span className="lab-params-warning">*</span>
                   </div>
-                  {!isReceptionist || doctorsList.length === 1 ? (
+                  {!isReceptionist || doctorsList.length === 1 || editBillData?.doctorName ? (
                     <Input
                       className="input-create-bill"
                       value={
                         doctorsList.length === 1
                           ? doctorsList[0].label
-                          : profile?.um_name
+                          : profile?.um_name ? profile?.um_name : editBillData?.doctorName ? editBillData?.doctorName : ""
                       }
                       style={{ height: 38, width: "12rem" }}
                       onInput={(e) => {

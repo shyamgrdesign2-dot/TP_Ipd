@@ -434,7 +434,7 @@ const PreviewBill = ({
                       <i className="icon-right iconrotate180 ms-auto"></i>
                     </Button>
                   )}
-                {!isEditDisabled && (
+                {!isEditDisabled && !isDepositReceipt && (
                   <Button
                     type="text"
                     className={`btn btnicon20 align-items-center d-flex btn-41 w-100 mb-3 ${

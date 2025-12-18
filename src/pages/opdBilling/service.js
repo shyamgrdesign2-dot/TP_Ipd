@@ -478,6 +478,7 @@ export const updateAdvancedSettings = async function (payload) {
   try {
     res = await api.post(`/api/v1/billing/advancedSetting`, payload, baseUrl);
   } catch (e) {
+    res = e?.response;
     console.error("Error while updating advanced settings: ", e);
   }
   return res;
