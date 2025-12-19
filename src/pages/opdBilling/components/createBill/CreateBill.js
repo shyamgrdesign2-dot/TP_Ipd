@@ -485,6 +485,25 @@ const CreateBill = ({
     );
   };
 
+  // Helper function to parse itemDate in multiple formats
+  const parseItemDate = (dateValue) => {
+    if (!dateValue) return null;
+    if (dayjs.isDayjs(dateValue)) return dateValue;
+    if (typeof dateValue !== "string") return null;
+
+    // Try parsing different date formats
+    const formats = ["DD-MM-YYYY", "YYYY-MM-DD", "DD MMM YYYY"];
+    for (const format of formats) {
+      const parsed = dayjs(dateValue, format, true);
+      if (parsed.isValid()) {
+        return parsed;
+      }
+    }
+    // Fallback to default parsing
+    const fallback = dayjs(dateValue);
+    return fallback.isValid() ? fallback : null;
+  };
+
   const handleAddRow = (updatedData) => {
     const newRow = {
       masterId: "",
@@ -625,11 +644,7 @@ const CreateBill = ({
               format: "DD MMM YYYY",
               type: "mask",
             }}
-            value={
-              record.itemDate && dayjs(record.itemDate).isValid()
-                ? dayjs(record.itemDate)
-                : ""
-            }
+            value={parseItemDate(record.itemDate)}
             style={{
               border: "none",
             }}
@@ -948,7 +963,11 @@ const CreateBill = ({
       admissionId: admissionId,
       id: editBillData?.id,
     };
-    const createRes = await createBill(payload, isIpdBill ? "ipd" : "", editBillData?.id);
+    const createRes = await createBill(
+      payload,
+      isIpdBill ? "ipd" : "",
+      editBillData?.id
+    );
     if (createRes?.id) {
       message.open({
         key: MESSAGE_KEY,
@@ -1369,7 +1388,9 @@ const CreateBill = ({
                     }
                   />
                 </div>
-                <span className="title-digitise-card">{editBillData ? "Edit" : "Create"} Bill</span>
+                <span className="title-digitise-card">
+                  {editBillData ? "Edit" : "Create"} Bill
+                </span>
                 {((patientData && Object.keys(patientData).length !== 0) ||
                   (patientDetails &&
                     Object.keys(patientDetails)?.length !== 0)) && (
@@ -1679,7 +1700,9 @@ const CreateBill = ({
                   ) : (
                     <div
                       className={`d-flex align-items-center flex-wrap border border-radius-10 cursor-pointer w-100 ${
-                        (patientData?.patient_unique_id || editBillData?.patientId) && "pe-none disabled"
+                        (patientData?.patient_unique_id ||
+                          editBillData?.patientId) &&
+                        "pe-none disabled"
                       }`}
                       onClick={() => {
                         setIsEditingName(true);
@@ -1729,7 +1752,9 @@ const CreateBill = ({
                   <div style={{ paddingBottom: "5px" }}>
                     Doctor Name <span className="lab-params-warning">*</span>
                   </div>
-                  {!isReceptionist || doctorsList.length === 1 || editBillData?.doctorId ? (
+                  {!isReceptionist ||
+                  doctorsList.length === 1 ||
+                  editBillData?.doctorId ? (
                     <Input
                       className="input-create-bill"
                       value={
