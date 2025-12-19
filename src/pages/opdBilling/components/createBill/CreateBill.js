@@ -614,8 +614,12 @@ const CreateBill = ({
         <div>
           <DatePicker
             placeholder="Select Date"
-            onChange={(_, d) => {
-              handleInputChange(d ?? "", index, "itemDate");
+            onChange={(date) => {
+              handleInputChange(
+                date ? date.format("DD-MM-YYYY") : "",
+                index,
+                "itemDate"
+              );
             }}
             format={{
               format: "DD MMM YYYY",
@@ -631,6 +635,7 @@ const CreateBill = ({
             }}
             disabledDate={(current) => current && current > dayjs()}
             allowClear={false}
+            {...(isMobile && { suffixIcon: null })}
           />
         </div>
       ),
@@ -638,7 +643,7 @@ const CreateBill = ({
     {
       title: "QTY",
       dataIndex: "quantity",
-      width: "8%",
+      width: isIpdBill ? "7%" : "8%",
       render: (_, record, index) => (
         <Input
           value={record.quantity}
@@ -677,7 +682,7 @@ const CreateBill = ({
     {
       title: "DISCOUNT",
       dataIndex: "discount",
-      width: isIpdBill ? "14%" : "22%",
+      width: isIpdBill ? "17%" : "22%",
       render: (_, record, index) => (
         <>
           <Input
@@ -791,7 +796,7 @@ const CreateBill = ({
     {
       title: "ACTION",
       dataIndex: "action",
-      width: "4%",
+      width: isIpdBill ? "2%" : "4%",
       render: (_, record, index) => (
         <Button
           className={`btn btn-delete-prescription p-0 ${
@@ -1319,7 +1324,7 @@ const CreateBill = ({
               >
                 <div className="border-end h-100 text-center">
                   <div
-                    onClick={handleCreateBillDrawer}
+                    onClick={(e) => handleCreateBillDrawer(e, true)}
                     className="btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer"
                   >
                     <i className="icon-right" />
@@ -1618,8 +1623,8 @@ const CreateBill = ({
           <Col
             className="h-100"
             style={{
-              flex: "0 0 70%",
-              maxWidth: "70%",
+              flex: isIpdBill ? "0 0 75%" : "0 0 70%",
+              maxWidth: isIpdBill ? "75%" : "70%",
               overflowY: "auto",
               height: "100%",
               paddingRight: 0,
@@ -1774,8 +1779,8 @@ const CreateBill = ({
           <Col
             className="h-100 py-4"
             style={{
-              flex: "0 0 30%",
-              maxWidth: "30%",
+              flex: isIpdBill ? "0 0 25%" : "0 0 30%",
+              maxWidth: isIpdBill ? "25%" : "30%",
               overflowY: "auto",
               height: "100%",
               backgroundColor: "rgba(241, 241, 245, 0.5)",

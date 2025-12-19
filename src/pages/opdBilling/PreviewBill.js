@@ -315,7 +315,7 @@ const PreviewBill = ({
                 <div className="align-items-center d-flex h-100 gap-2">
                   <div className="border-end h-100 text-center">
                     <div
-                      onClick={() => handleCreateBillDrawer(true)}
+                      onClick={(e) => handleCreateBillDrawer(e, true)}
                       className="btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer"
                     >
                       <i className="icon-right" />
@@ -331,7 +331,7 @@ const PreviewBill = ({
         <HeaderPrescriptionPrint
           patient_data={patientData}
           tcm_id={6222}
-          handleGoToAppointment={() => handleCreateBillDrawer(true)}
+          handleGoToAppointment={(e) => handleCreateBillDrawer(e, true)}
         />
       )}
 
@@ -441,7 +441,7 @@ const PreviewBill = ({
                       isReceptionist ? "receptionist-white-btn" : "btn-input"
                     }`}
                     icon={<i className="icon-Edit" />}
-                    onClick={() => handleEditBillDrawer()}
+                    onClick={() => handleEditBillDrawer(true)}
                   >
                     <span className="fw-semibold">Edit Bill</span>
                     <i className="icon-right iconrotate180 ms-auto"></i>

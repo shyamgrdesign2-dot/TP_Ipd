@@ -533,8 +533,11 @@ const BillTable = ({
     }
   }, 500);
 
-  const handleEditBillDrawer = useCallback(() => {
+  const handleEditBillDrawer = useCallback((isPreviewScreen = false) => {
     setCreateBillDrawer(!createBillDrawer);
+    if (billData && Object.keys(billData).length > 0 && !isPreviewScreen) {
+      setBillData(null);
+    }
   }, [createBillDrawer]);
 
   return (
