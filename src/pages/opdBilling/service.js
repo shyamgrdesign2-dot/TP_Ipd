@@ -87,7 +87,7 @@ export const processClearDue = async function (payload, billType = "opd") {
 export const createBill = async function (payload, billType = "opd", id = null) {
   let res = {};
   try {
-    const base = billType === "ipdBill" ? "ipd-bill" : "bill";
+    const base = billType === "ipd" ? "ipd-bill" : "bill";
     const endpoint = `/api/v1/billing/${base}${id ? "/edit-bill" : ""}`;
     res = await api.post(endpoint, payload, baseUrl);
   } catch (e) {
