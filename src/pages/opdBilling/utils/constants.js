@@ -13,4 +13,4 @@ export const PaymentOptions = [
 
 export const WhatsAppOpdBillTemplateId = "tp_bill_to_patient2";
 
-export const EditBillDeployedDate = "2025-12-11";
+export const EditBillDeployedDate = "2025-12-22";
