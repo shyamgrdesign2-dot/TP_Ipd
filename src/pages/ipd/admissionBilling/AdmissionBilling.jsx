@@ -856,11 +856,14 @@ const AdmissionBilling = ({
               patientData={transformedPatientData}
               handleTotalAdvanceUpdate={() => {}}
               totalAdvanceBalance={totalAdvanceBalance}
-              createBillDrawer={() => {}}
+              createBillDrawer={createBillDrawer}
+              setCreateBillDrawer={setCreateBillDrawer}
               addAdvanceDrawer={() => {}}
               showHideSubModal={() => {}}
               fromPath="ipdDashboard"
               ipdAdmissionId={admissionId}
+              billData={billData}
+              setBillData={setBillData}
             />
           </div>
         </Drawer>

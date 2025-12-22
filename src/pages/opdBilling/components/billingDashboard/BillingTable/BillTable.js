@@ -53,6 +53,7 @@ const BillTable = ({
   billData,
   setBillData,
   selectedCard,
+  fromPath
 }) => {
   const { profile, servicesList } = useSelector((state) => state.doctors);
   const { planDetails } = useSelector((state) => state.subscription);
@@ -398,6 +399,7 @@ const BillTable = ({
             >
               <i className="icon-Print"></i>
             </button>
+           { fromPath !== "ipdDashboard" && 
             <Tooltip
               title={
                 isEditDisabled
@@ -430,6 +432,7 @@ const BillTable = ({
                 </button>
               </span>
             </Tooltip>
+            }
             <Dropdown
               className="cursor-pointer"
               menu={{

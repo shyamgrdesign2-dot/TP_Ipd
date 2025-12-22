@@ -363,6 +363,7 @@ const TableBillingDashboard = forwardRef(
                 showHideSubModal={showHideSubModal}
                 ipdAdmissionId={ipdAdmissionId}
                 billType={billType}
+                fromPath={fromPath}
               />
             ) : (
               <AdvanceDepositTable

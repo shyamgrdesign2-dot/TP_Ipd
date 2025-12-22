@@ -93,6 +93,7 @@ export default function BillingTable({
   setBillData,
   billType = "ipd",
   setBillingCount,
+  fromPath
 }) {
   const decodedToken = getDecodedToken();
   const isAdmin = decodedToken?.result?.admin;
@@ -1053,6 +1054,7 @@ export default function BillingTable({
             totalAdvanceBalance={totalAdvanceBalance}
             showHideSubModal={showHideSubModal}
             billType={billType}
+            fromPath={fromPath}
           />
         </Row>
 
