@@ -43,6 +43,7 @@ const PreviewBill = ({
   handleMessageForm3c,
   getPatientBills,
   handleEditBillDrawer,
+  isPreviewForm3c,
 }) => {
   const isIpdBill = !!billData?.admissionId;
   const [getBillToken, setBillToken] = useLocalStorage(
@@ -434,7 +435,7 @@ const PreviewBill = ({
                       <i className="icon-right iconrotate180 ms-auto"></i>
                     </Button>
                   )}
-                {!isEditDisabled && !isDepositReceipt && (
+                {!isEditDisabled && !isDepositReceipt && !isPreviewForm3c && (
                   <Button
                     type="text"
                     className={`btn btnicon20 align-items-center d-flex btn-41 w-100 mb-3 ${
