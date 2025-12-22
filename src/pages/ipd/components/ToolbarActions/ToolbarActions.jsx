@@ -1,5 +1,5 @@
 import React from "react";
-import { Dropdown } from "antd";
+import { Dropdown, Tooltip } from "antd";
 import "./styles.scss";
 import { defaultIcons } from "../../../../assets/images/icons";
 
@@ -21,6 +21,8 @@ export default function ToolbarActions({
   showPreview = true,
   showMoreActions = false,
   moreActionsMenuItems = [],
+  isEditDisabled = false,
+  editDisabledTooltip = "",
 }) {
   const BTN = {
     BIG: "big",
@@ -97,6 +99,8 @@ export default function ToolbarActions({
     if (!a.show) return null;
 
     const isBig = a.type === BTN.BIG;
+    const isEditAction = a.id === "edit";
+    const shouldDisable = isEditAction && isEditDisabled;
 
     // Special handling for more actions dropdown
     if (a.id === "more-actions" && moreActionsMenuItems.length > 0) {
@@ -122,12 +126,17 @@ export default function ToolbarActions({
       );
     }
 
-    return (
+    const button = (
       <button
         key={a.id}
         type="button"
         className={`action-btn ${isBig ? "is-big" : "is-square"}`}
-        onClick={a.onClick}
+        onClick={shouldDisable ? undefined : a.onClick}
+        disabled={shouldDisable}
+        style={{
+          opacity: shouldDisable ? 0.5 : 1,
+          cursor: shouldDisable ? "not-allowed" : "pointer",
+        }}
       >
         <span className="action-btn__icon">
           <img src={a.icon} alt={a.alt} />
@@ -135,6 +144,17 @@ export default function ToolbarActions({
         {isBig && <span className="action-btn__label">{a.label}</span>}
       </button>
     );
+
+    // Wrap edit button with tooltip if disabled
+    if (isEditAction && shouldDisable && editDisabledTooltip) {
+      return (
+        <Tooltip key={a.id} title={editDisabledTooltip}>
+          <span>{button}</span>
+        </Tooltip>
+      );
+    }
+
+    return button;
   };
 
   return (

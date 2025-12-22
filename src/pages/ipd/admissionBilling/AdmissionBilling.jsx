@@ -25,6 +25,7 @@ import {
   calculateTotalPaidAmount,
   handleDownload,
   printContent,
+  isEditBillDisabled,
 } from "../../opdBilling/utils/helper";
 import { setLoadingStatus } from "../../../redux/uploadDocSlice";
 import {
@@ -92,6 +93,19 @@ const AdmissionBilling = ({
   const [addAdvanceDrawer, setAddAdvanceDrawer] = useState(false);
   const billingTableRef = useRef(null);
   const totalPaidAmount = calculateTotalPaidAmount(billData);
+  
+  // Check if edit button should be disabled
+  const { isEditDisabled, hasRefundedAmount, hasPaidDues } = isEditBillDisabled(billData);
+  const editDisabledTooltip = isEditDisabled
+    ? hasRefundedAmount && hasPaidDues
+      ? "A refund and due clearance have been processed for this bill, so editing isn't allowed."
+      : hasRefundedAmount
+      ? "A refund has already been issued for this bill, so editing isn't allowed."
+      : hasPaidDues
+      ? "The full due amount or some of the due amount has been cleared for this bill, so editing isn't allowed."
+      : "Cannot edit bill"
+    : "";
+  
   const patientDataForPdf = {
     pm_pid: patientDetails?.details?.pm_pid,
     pm_fullname: patientDetails?.details?.name,
@@ -719,6 +733,8 @@ const AdmissionBilling = ({
           onSendToWhatsapp={handleSendToWhatsapp}
           showMoreActions={moreActionsMenuItems.length > 0}
           moreActionsMenuItems={moreActionsMenuItems}
+          isEditDisabled={isEditDisabled}
+          editDisabledTooltip={editDisabledTooltip}
         />
       </div>
 
@@ -829,7 +845,7 @@ const AdmissionBilling = ({
             <TableBillingDashboard
               ref={billingTableRef}
               onTabChange={() => {}}
-              patientData={patientDetails}
+              patientData={transformedPatientData}
               handleTotalAdvanceUpdate={() => {}}
               totalAdvanceBalance={totalAdvanceBalance}
               createBillDrawer={() => {}}

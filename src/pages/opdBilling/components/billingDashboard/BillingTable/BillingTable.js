@@ -663,6 +663,7 @@ export default function BillingTable({
       const bills = ipdAdmissionId
         ? response.bills.filter((bill) => bill.admissionId !== ipdAdmissionId)
         : response.bills;
+
       setPage(resetData ? 2 : page + 1);
       setHasMore(response.bills.length >= 25);
       setData((prev) =>

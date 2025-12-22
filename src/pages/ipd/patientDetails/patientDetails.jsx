@@ -86,6 +86,8 @@ import usePrintPreviewSetup from "../../../hooks/usePrintPreviewSetup";
 import { createRemoteComponent } from "../../../shared/remoteComponents";
 import AdmissionBilling from "../admissionBilling/AdmissionBilling";
 import BillingHeaderActions from "../admissionBilling/BillingHeaderActions";
+import { fetchAdvanceSetting } from "../../opdBilling/service";
+import { setAdvancedSettings } from "../../../redux/billingSlice";
 
 const PatientDetailsLayout = createRemoteComponent("PatientDetailsLayout");
 
@@ -365,7 +367,21 @@ const IPDPatientDetails = () => {
     }
   };
 
+  const getAdvanceSettings = async () => {
+    const advanceSettingsResponse = await fetchAdvanceSetting();
+    if (advanceSettingsResponse) {
+      dispatch(setAdvancedSettings(advanceSettingsResponse));
+    }
+  };
+
   useEffect(() => {
+    // Handle billing separately as it doesn't require patientId/admissionId for advance settings
+    if (activeMenuItem === "billing") {
+      getAdvanceSettings();
+      setIsLoading(false);
+      return;
+    }
+
     if (!patientId || !admissionId) return;
 
     if (activeMenuItem === "assessment") {

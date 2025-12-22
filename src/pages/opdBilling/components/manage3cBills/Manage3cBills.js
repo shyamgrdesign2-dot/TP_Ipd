@@ -549,14 +549,15 @@ const Manage3cBills = forwardRef(
             >
               <i className="icon-Print"></i>
             </button>
-            <button
+            {/* commenting the Edit from Form#C table for now (Need to confirm whether it is required here)*/}
+            {/* <button
               className="btn p-0"
               onClick={() => {
                 handleEditBillDrawer(record);
               }}
             >
               <i className="icon-Edit"></i>
-            </button>
+            </button> */}
           </div>
         ),
       },
