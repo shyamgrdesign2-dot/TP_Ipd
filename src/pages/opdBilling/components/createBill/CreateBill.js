@@ -587,7 +587,7 @@ const CreateBill = ({
     {
       title: "ITEMS",
       dataIndex: "name",
-      width: "26%",
+      width: isIpdBill ? "23%" : "26%",
       render: (_, record, index) => (
         <>
           <AutoComplete
@@ -658,7 +658,7 @@ const CreateBill = ({
     {
       title: "QTY",
       dataIndex: "quantity",
-      width: isIpdBill ? "7%" : "8%",
+      width: isIpdBill ? "6%" : "9%",
       render: (_, record, index) => (
         <Input
           value={record.quantity}
@@ -677,7 +677,7 @@ const CreateBill = ({
     {
       title: "PRICE PER UNIT",
       dataIndex: "amount",
-      width: "14%",
+      width: isIpdBill ? "13%" : "14%",
       render: (_, record, index) => (
         <Input
           value={record.amount}
@@ -697,7 +697,7 @@ const CreateBill = ({
     {
       title: "DISCOUNT",
       dataIndex: "discount",
-      width: isIpdBill ? "17%" : "22%",
+      width: isIpdBill ? "18%" : "22%",
       render: (_, record, index) => (
         <>
           <Input
@@ -763,7 +763,7 @@ const CreateBill = ({
     {
       title: "GST (%)",
       dataIndex: "gst",
-      width: "11%",
+      width: isIpdBill ? "10%" : "11%",
       render: (_, record, index) => (
         <Input
           value={record.gst}
@@ -811,7 +811,7 @@ const CreateBill = ({
     {
       title: "ACTION",
       dataIndex: "action",
-      width: isIpdBill ? "2%" : "4%",
+      width: isIpdBill ? "2%" : "5%",
       render: (_, record, index) => (
         <Button
           className={`btn btn-delete-prescription p-0 ${

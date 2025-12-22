@@ -73,10 +73,13 @@ const BillTable = ({
   const urlParams = new URLSearchParams(window.location.search);
   const isReceptionist = urlParams.has("receptionist");
 
-  const handleDrawerPreviewBill = () => {
+  const handleDrawerPreviewBill = (e, isPreviewScreen = false) => {
     setPreviewBillDrawer(!previewBillDrawer);
     if (previewBillDrawer && !isReceptionist) {
       handleRecentBillDrawer && handleRecentBillDrawer();
+    }
+    if (isPreviewScreen) {
+      setBillData(null);
     }
   };
 

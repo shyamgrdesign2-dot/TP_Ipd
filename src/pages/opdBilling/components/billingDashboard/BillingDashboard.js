@@ -493,6 +493,7 @@ function BillingDashboard({ patientData, fromPath, isIpd = false }) {
               form3cData={form3cData}
               handleEditBillDrawer={handleCreateBillDrawer}
               isIpd={isIpd}
+              setEditBillData={setBillData}
             />
           </Drawer>
         )}

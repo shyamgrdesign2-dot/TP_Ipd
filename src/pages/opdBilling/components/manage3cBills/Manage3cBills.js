@@ -86,16 +86,7 @@ const SELECT_AFTER = [
 const GENDER = ["Male", "Female", "Other"];
 
 const Manage3cBills = forwardRef(
-  (
-    {
-      handleForm3cBill,
-      handleAddForm3cDrawer,
-      form3cData,
-      handleEditBillDrawer,
-      isIpd = false,
-    },
-    ref
-  ) => {
+  ({ handleForm3cBill, handleAddForm3cDrawer, form3cData, handleEditBillDrawer, isIpd = false, setEditBillData }, ref) => {
     const [getBillToken, setBillToken] = useLocalStorage(
       PERSISTANT_STORAGE_KEY_BILL_TOKEN
     );
@@ -553,7 +544,8 @@ const Manage3cBills = forwardRef(
             {/* <button
               className="btn p-0"
               onClick={() => {
-                handleEditBillDrawer(record);
+                handleEditBillDrawer(record, true);
+                setEditBillData(record);
               }}
             >
               <i className="icon-Edit"></i>
