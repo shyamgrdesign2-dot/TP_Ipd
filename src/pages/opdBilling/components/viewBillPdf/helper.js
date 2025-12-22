@@ -108,7 +108,7 @@ export const patientIpdDataShow = (id, patient_data, billData, profile) => {
       ? moment(billData?.admission?.dischargedAt).format("DD/MM/YYYY")
       : "-";
   } else if (id == 11) {
-    value = billData?.dischargeNo ?? "-";
+    value = billData?.admission?.dischargeNo ?? "-";
   } else if (id == 12) {
     value = patient_data?.address ?? "-";
   } else if (id == 13) {

@@ -126,6 +126,9 @@ const AdmissionBilling = ({
 
   // Check if bill exists for this admission and fetch advance balance
   useEffect(() => {
+    const attachAdmission = (bill) =>
+      bill ? { ...bill, admission: patientDetails } : bill;
+
     const checkBillExists = async () => {
       if (!admissionId) {
         setIsLoading(false);
@@ -138,7 +141,8 @@ const AdmissionBilling = ({
 
         if (response?.[admissionId]) {
           // Bill exists - get the first bill
-          setBillData(response?.[admissionId]?.bills?.[0]);
+          const firstBill = response?.[admissionId]?.bills?.[0];
+          setBillData(attachAdmission(firstBill));
         } else {
           // No bill exists
           setBillData(null);
@@ -191,13 +195,15 @@ const AdmissionBilling = ({
   const makePDFUrl = React.useCallback(async () => {
     if (!billData || !ipdBillPrintSettings) return;
 
+    const billWithAdmission = { ...billData, admission: patientDetails };
+    
     try {
       const blob = await pdf(
         <ViewBillPdf
           printSettings={ipdBillPrintSettings}
           patientData={patientDataForPdf}
           profile={profile}
-          billData={billData}
+          billData={billWithAdmission}
           totalAdvanceBalance={totalAdvanceBalance || 0}
           gstIn={advancedSettings?.GSTIN}
           showCreatedBy={
@@ -306,10 +312,11 @@ const AdmissionBilling = ({
         if (response?.[admissionId]?.bills) {
           const bills = response[admissionId].bills;
           // If bills is an array, get the first one, otherwise use the bill object directly
-          setBillData(Array.isArray(bills) ? bills[0] : bills);
+          const nextBill = Array.isArray(bills) ? bills[0] : bills;
+          setBillData(attachAdmission(nextBill));
         } else if (newBillData) {
           // Fallback to the new bill data if refetch fails
-          setBillData(newBillData);
+          setBillData(attachAdmission(newBillData));
         }
       } catch (error) {
         console.error("Error fetching bill after creation:", error);
@@ -417,7 +424,8 @@ const AdmissionBilling = ({
       const response = await fetchBillsByAdmissionIds([admissionId]);
       if (response?.[admissionId]?.bills) {
         const bills = response[admissionId].bills;
-        setBillData(Array.isArray(bills) ? bills[0] : bills);
+        const nextBill = Array.isArray(bills) ? bills[0] : bills;
+        setBillData(attachAdmission(nextBill));
       }
     } catch (error) {
       console.error("Error refetching bill data:", error);
