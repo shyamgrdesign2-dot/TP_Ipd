@@ -628,7 +628,7 @@ const CreateBill = ({
     isIpdBill && {
       title: "DATE",
       dataIndex: "itemDate",
-      width: "15%",
+      width: "16%",
       render: (_, record, index) => (
         <div>
           <DatePicker
@@ -641,7 +641,7 @@ const CreateBill = ({
               );
             }}
             format={{
-              format: "DD MMM YYYY",
+              format: "DD-MM-YYYY",
               type: "mask",
             }}
             value={parseItemDate(record.itemDate)}
@@ -1644,8 +1644,8 @@ const CreateBill = ({
           <Col
             className="h-100"
             style={{
-              flex: isIpdBill ? "0 0 75%" : "0 0 70%",
-              maxWidth: isIpdBill ? "75%" : "70%",
+              flex: isIpdBill ? "0 0 76%" : "0 0 70%",
+              maxWidth: isIpdBill ? "76%" : "70%",
               overflowY: "auto",
               height: "100%",
               paddingRight: 0,
@@ -1804,8 +1804,8 @@ const CreateBill = ({
           <Col
             className="h-100 py-4"
             style={{
-              flex: isIpdBill ? "0 0 25%" : "0 0 30%",
-              maxWidth: isIpdBill ? "25%" : "30%",
+              flex: isIpdBill ? "0 0 24%" : "0 0 30%",
+              maxWidth: isIpdBill ? "24%" : "30%",
               overflowY: "auto",
               height: "100%",
               backgroundColor: "rgba(241, 241, 245, 0.5)",
@@ -1862,7 +1862,7 @@ const CreateBill = ({
                               onChange={(value) =>
                                 handleModeChange(value, index, "paymentMode")
                               }
-                              className="payment-mode"
+                              className={`${isIpdBill && isMobile ? "payment-mode-ipd" : "payment-mode"}`}
                               dropdownStyle={{ width: 180 }}
                               options={filteredOptions}
                             />

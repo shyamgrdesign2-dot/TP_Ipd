@@ -13,6 +13,21 @@
   }
 }
 
+.payment-mode-ipd {
+  &.ant-select {
+    .ant-select-selector {
+      border-radius: 10px 0px 0px 10px !important;
+      width: 100px;
+      height: 48px;
+      background: var(--T-BG-10, #f1f1f5);
+    }
+
+    .ant-select-arrow {
+      top: 72%;
+    }
+  }
+}
+
 .payment-input {
   &.ant-input-affix-wrapper {
     border-radius: 0px 10px 10px 0px !important;

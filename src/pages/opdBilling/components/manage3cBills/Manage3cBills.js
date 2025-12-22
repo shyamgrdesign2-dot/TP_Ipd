@@ -127,8 +127,11 @@ const Manage3cBills = forwardRef(
     const [hasMore, setHasMore] = useState(true);
     const tableRef = useRef(null);
 
-    const handleDrawerPreviewBill = () => {
+    const handleDrawerPreviewBill = (isPreviewScreen = false) => {
       setPreviewBillDrawer(!previewBillDrawer);
+      if (isPreviewScreen) {
+        setEditBillData(null);
+      }
     };
 
     const onSearch = useCallback(
@@ -398,6 +401,7 @@ const Manage3cBills = forwardRef(
             onClick={async () => {
               await getPatientWalletBalance(record?.patientId);
               setBillData(record);
+              setEditBillData(record);
               handleDrawerPreviewBill();
             }}
           >
@@ -772,11 +776,12 @@ const Manage3cBills = forwardRef(
               push={false}
             >
               <PreviewBill
+                handleDrawerPreviewBill={handleDrawerPreviewBill}
                 handleCreateBillDrawer={handleDrawerPreviewBill}
                 isPreviewFromTable={true}
                 billData={billData}
                 totalAdvanceBalance={patientWalletBalance}
-                handleEditBillDrawer={handleEditBillDrawer}
+                handleEditBillDrawer={() => handleEditBillDrawer(null, true)}
               />
             </Drawer>
           )}
