@@ -19,7 +19,6 @@ import {
   setFileUploadToken,
   setFileUploadSessionId,
 } from "../../../../redux/ipd/ipdSnapRxDigitizationSlice";
-import { useIPDSnapRxSession } from "../context/SnapRxSessionContext";
 import { getShortLink } from "../../../../redux/shortLinkSlice";
 import * as pdfjsLib from "pdfjs-dist";
 import pdfjsWorker from "pdfjs-dist/build/pdf.worker.entry";
@@ -41,6 +40,7 @@ const UploadWrittenRx = forwardRef(
       handleUpdatedFiles,
       uploadedFiles,
       setIsAddMoreClicked,
+      schemaKey
     },
     ref
   ) => {
@@ -49,11 +49,10 @@ const UploadWrittenRx = forwardRef(
     const { patientDetails } = state || {};
     const [dragActive, setDragActive] = useState(false);
     const { userId, profile } = useSelector((state) => state.doctors);
-    const { fileUploadToken } = useSelector((state) => state.ipdSnapRx);
+    const { fileUploadToken, fileUploadSessionId: sessionId } = useSelector((state) => state.ipdSnapRx);
     const { shortLink } = useSelector((state) => state.shortLink);
     const { patient_data, tcmId, pamId } = useContext(CashManagerContext);
     const [storedFileIdToReplace, setStoredFileIdToReplace] = useState(null);
-    const { sessionId } = useIPDSnapRxSession();
     const dispatch = useDispatch();
 
     const [isFileLimitError, setIsFileLimitError] = useState(false);
@@ -258,7 +257,9 @@ const UploadWrittenRx = forwardRef(
 
       const qrData = {
         type: "snap_rx_upload",
+        schemaKey: schemaKey,
         patientId: patientDetails?.details?.id || patient_data?.patient_unique_id,
+        admissionId: patientDetails?.admissionId,
         doctorId: userId,
         tcmId: tcmId || 0,
         pamId: pamId || 0,
@@ -275,12 +276,13 @@ const UploadWrittenRx = forwardRef(
       const encodedData = encodeURIComponent(JSON.stringify(qrData));
       dispatch(
         getShortLink(
-          `${window.location.origin}/snap-rx/mobile-upload/?uploadParams=${encodedData}`
+          `${window.location.origin}/ipd/snap-rx/mobile-upload/?uploadParams=${encodedData}`
         )
       );
     }, [fileUploadToken, patient_data, userId, tcmId, pamId, sessionId, profile]);
 
     const generateQRData = useMemo(() => shortLink || "", [shortLink]);
+    console.log('INTEL ==> shortLink', shortLink)
 
     const handleAddMore = () => {
       if ((uploadedFiles || []).length >= maxFileLimit) {

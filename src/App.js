@@ -91,6 +91,10 @@ import DischargedPatients from "./pages/ipd/inPatients/DischargedPatients";
 import ApproveToDischargePatients from "./pages/ipd/inPatients/ApproveToDischargePatients";
 import IpdAddNewPatient from "./pages/ipd/addNewPatient/IpdAddNewPatient";
 import CreateAdmission from "./pages/ipd/createAdmission/CreateAdmission";
+import IPDSnapRx from "./pages/ipd/snapRx/SnapRx";
+import IPDSnapRxDigitise from "./pages/ipd/snapRx/SnapRxDigitise";
+import IPDSnapRxPreview from "./pages/ipd/snapRx/SnapRxPreview";
+import IPDUploadRx from "./pages/ipd/snapRx/uploadRx";
 import WardAndBedManagement from "./pages/ipd/wardAndBedManagement/WardAndBedManagement";
 import IpdBillingHistory from "./pages/ipd/billing/IpdBillingHistory";
 
@@ -485,6 +489,7 @@ function App() {
 
               {/* Restricted route - authorized only to get/upload snapRx files */}
               <Route path="snap-rx/mobile-upload" element={<UploadRx />} />
+              <Route path="ipd/snap-rx/mobile-upload" element={<IPDUploadRx />} />
 
               {/* Protected routes */}
               <Route element={<PrivateRoute />}>

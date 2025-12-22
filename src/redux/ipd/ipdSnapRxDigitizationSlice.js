@@ -22,6 +22,7 @@ export const uploadFiles = createAsyncThunk(
   async (data, { getState, rejectWithValue }) => {
     try {
       const { fileUploadToken } = getState().ipdSnapRx || {};
+      console.log('INTEL ==> DATA', data)
       const result = await IPDSnapRxDigitization.uploadSnapRxFiles({
         ...data,
         fileUploadToken: data?.fileUploadToken || fileUploadToken,
@@ -92,7 +93,7 @@ export const getFiles = createAsyncThunk(
         message: error?.message || "Failed to fetch files",
         patientId: data?.patientId ?? null,
         admissionId: data?.admissionId ?? null,
-        schemaKey: formKey,
+        schemaKey: data.type,
       });
     }
   }

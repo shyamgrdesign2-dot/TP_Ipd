@@ -57,6 +57,7 @@ IPDSnapRxDigitization.uploadSnapRxFiles = function (data) {
   };
 
   const formQuery = schemaKey ? `?form=${schemaKey}` : "";
+  console.log('INTEL ==> DATA in api call', data, formQuery)
 
   return api.post(
     `/ai/smart-rx/snap-rx/upload-files${formQuery}`,

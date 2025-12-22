@@ -13,7 +13,6 @@ import { MESSAGE_KEY, SNAP_RX_KNOW_MORE_DATA } from "../../../utils/constants";
 import FileUploadErrorModal from "../../../components/common/FileUploadErrorModal";
 import {
   IPDSnapRxSessionProvider,
-  useIPDSnapRxSession,
 } from "./context/SnapRxSessionContext";
 import UploadMoreDrawer from "./components/UploadMoreDrawer";
 import UploadWrittenRx from "./components/UploadWrittenRx";
@@ -676,6 +675,7 @@ function SnapRxContent({ previousOutput, handleClose, schemaKey = "ASSESSMENTS",
               handleUpdatedFiles={setUploadedFiles}
               uploadedFiles={uploadedFiles}
               setIsAddMoreClicked={setIsAddMoreClicked}
+              schemaKey={schemaKey}
             />
             {/* Preview Drawer */}
           </div>
