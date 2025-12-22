@@ -54,6 +54,7 @@ const TableBillingDashboard = forwardRef(
       addAdvanceDrawer,
       showHideSubModal,
       fromPath = "opdDashboard",
+      source,
       ipdAdmissionId = null,
       billData,
       setBillData,
@@ -364,6 +365,7 @@ const TableBillingDashboard = forwardRef(
                 ipdAdmissionId={ipdAdmissionId}
                 billType={billType}
                 fromPath={fromPath}
+                source={source}
               />
             ) : (
               <AdvanceDepositTable
