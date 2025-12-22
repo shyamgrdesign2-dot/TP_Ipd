@@ -1126,7 +1126,7 @@ const IPDPatientDetails = () => {
         return (
           <AdmissionBilling
             patientDetails={patientDetails}
-            patient_data={patient_data}
+            patient_data={patientDetails || patient_data}
             fromTab={fromTab}
             shouldOpenCreateBill={shouldOpenCreateBill}
             onDrawerOpened={() => setShouldOpenCreateBill(false)}
