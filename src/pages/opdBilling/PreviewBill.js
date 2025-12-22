@@ -1,7 +1,7 @@
 import { Button, Col, Drawer, Row, Spin } from "antd";
 import HeaderPrescriptionPrint from "../../common/HeaderPrescriptionPrint";
 import { isMobile } from "react-device-detect";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import ConfigureBillSettings from "./components/configureBillSettings/ConfigureBillSettings";
 import { Document, Page } from "react-pdf";
 import ViewBillPdf from "./components/viewBillPdf/ViewBillPdf";
@@ -71,6 +71,8 @@ const PreviewBill = ({
   const { userId } = useSelector((state) => state.doctors);
   const { profile } = useSelector((state) => state.doctors);
   const divRef = useRef(null);
+  const pdfGenerationKeyRef = useRef(null);
+  const isGeneratingRef = useRef(false);
   const { isEditDisabled } = isEditBillDisabled(billDetails);
 
   // Helper function to determine if doctorId should be passed
@@ -96,10 +98,8 @@ const PreviewBill = ({
   const [printBlob, setPrintBlob] = useState(null);
   const [pdfUrl, setPdfUrl] = useState(null);
   const [refundBillDrawer, setRefundBillDrawer] = useState(false);
-  const [isRefundBtnHover, setIsRefundBtnHover] = useState(false);
-  const [isRefunded, setIsRefunded] = useState(
-    billData?.paymentStatus === "Refunded"
-  );
+  const refundIconRef = useRef(null);
+  const isRefunded = billData?.paymentStatus === "Refunded";
   const { planDetails } = useSelector((state) => state.subscription);
   const urlParams = new URLSearchParams(window.location.search);
   const isReceptionist = urlParams.has("receptionist");
@@ -110,6 +110,19 @@ const PreviewBill = ({
   const [isLoading, setIsLoading] = useState(false);
 
   const clinic = getClinic(profile?.hospital_data);
+
+  // Use ref to handle hover without causing re-renders
+  const handleRefundMouseEnter = useCallback(() => {
+    if (refundIconRef.current) {
+      refundIconRef.current.src = refundInactive;
+    }
+  }, []);
+
+  const handleRefundMouseLeave = useCallback(() => {
+    if (refundIconRef.current) {
+      refundIconRef.current.src = refundActive;
+    }
+  }, []);
 
   useEffect(() => {
     if (billDetails && Object.keys(billDetails).length > 0 && isIpdBill) {
@@ -160,19 +173,43 @@ const PreviewBill = ({
   };
 
   const makePDFUrl = async () => {
-    const blob = await pdf(
-      <ViewBillPdf
-        printSettings={isIpdBill ? ipdBillPrintSettings : billPrintSettings}
-        isDepositReceipt={isDepositReceipt}
-        patientData={patientData}
-        profile={profile}
-        billData={billDetails}
-        totalAdvanceBalance={totalAdvanceBalance}
-        gstIn={advancedSettings?.GSTIN}
-        showCreatedBy={advancedSettings?.enableCreatedByInRx}
-      />
-    ).toBlob();
-    setPdfUrl(URL.createObjectURL(blob));
+    // Create a stable key based on actual bill data
+    const currentKey = JSON.stringify({
+      billNumber: billDetails?.billNumber,
+      admissionId: billDetails?.admissionId,
+      patientId: billDetails?.patientId,
+      printSettings: isIpdBill ? ipdBillPrintSettings : billPrintSettings,
+      isDepositReceipt: isDepositReceipt,
+      totalAdvanceBalance: totalAdvanceBalance,
+      gstIn: advancedSettings?.GSTIN,
+      showCreatedBy: advancedSettings?.enableCreatedByInRx,
+    });
+
+    // Only regenerate if the key has actually changed and not already generating
+    if (pdfGenerationKeyRef.current === currentKey || isGeneratingRef.current) {
+      return;
+    }
+
+    pdfGenerationKeyRef.current = currentKey;
+    isGeneratingRef.current = true;
+
+    try {
+      const blob = await pdf(
+        <ViewBillPdf
+          printSettings={isIpdBill ? ipdBillPrintSettings : billPrintSettings}
+          isDepositReceipt={isDepositReceipt}
+          patientData={patientData}
+          profile={profile}
+          billData={billDetails}
+          totalAdvanceBalance={totalAdvanceBalance}
+          gstIn={advancedSettings?.GSTIN}
+          showCreatedBy={advancedSettings?.enableCreatedByInRx}
+        />
+      ).toBlob();
+      setPdfUrl(URL.createObjectURL(blob));
+    } finally {
+      isGeneratingRef.current = false;
+    }
   };
 
   const handleDrawerConfigureSettings = () => {
@@ -419,16 +456,14 @@ const PreviewBill = ({
                       }`}
                       icon={
                         <img
-                          src={
-                            isRefundBtnHover ? refundInactive : refundActive
-                          }
+                          ref={refundIconRef}
+                          src={refundActive}
                           alt="refund"
+                          loading="lazy"
                         />
                       }
-                      onMouseEnter={() => setIsRefundBtnHover(true)}
-                      onMouseLeave={() => setIsRefundBtnHover(false)}
-                      onFocus={() => setIsRefundBtnHover(true)}
-                      onBlur={() => setIsRefundBtnHover(false)}
+                      onMouseEnter={handleRefundMouseEnter}
+                      onMouseLeave={handleRefundMouseLeave}
                       onClick={() => handleRefundBillDrawer()}
                     >
                       <span className="fw-semibold">Refund</span>
