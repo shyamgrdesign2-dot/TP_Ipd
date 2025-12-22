@@ -1,7 +1,7 @@
 import { Button, Col, Drawer, Row, Spin } from "antd";
 import HeaderPrescriptionPrint from "../../common/HeaderPrescriptionPrint";
 import { isMobile } from "react-device-detect";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import ConfigureBillSettings from "./components/configureBillSettings/ConfigureBillSettings";
 import { Document, Page } from "react-pdf";
 import ViewBillPdf from "./components/viewBillPdf/ViewBillPdf";
@@ -14,10 +14,10 @@ import {
   generateBillToken,
   sendWhatsAppMessage,
 } from "./service";
-import { setBillPrintSettings } from "../../redux/billingSlice";
+import { setBillPrintSettings, setIpdBillPrintSettings } from "../../redux/billingSlice";
 import { useDispatch } from "react-redux";
 import { Container, Navbar } from "react-bootstrap";
-import { handleDownload, printContent } from "./utils/helper";
+import { handleDownload, isEditBillDisabled, printContent } from "./utils/helper";
 import { setLoadingStatus } from "../../redux/uploadDocSlice";
 import { db } from "../../firebase";
 import { deleteDoc, doc, getDoc, onSnapshot } from "firebase/firestore";
@@ -26,6 +26,8 @@ import RefundBill from "./components/billingDashboard/RefundBill/RefundBill";
 import { getClinic, trackEvent } from "../../utils/utils";
 import wtsp from "./../../assets/images/wtsp.svg";
 import loadingImg from "./../../assets/images/loading.png";
+import refundActive from "./../../assets/images/Refund_active.svg";
+import refundInactive from "./../../assets/images/Refund_inactive.svg";
 import { PERSISTANT_STORAGE_KEY_BILL_TOKEN } from "../../utils/constants";
 import { useLocalStorage } from "../../utils/localStorage";
 import config from "../../config";
@@ -40,7 +42,10 @@ const PreviewBill = ({
   patientAdvanceData,
   handleMessageForm3c,
   getPatientBills,
+  handleEditBillDrawer,
+  isPreviewForm3c,
 }) => {
+  const isIpdBill = !!billData?.admissionId;
   const [getBillToken, setBillToken] = useLocalStorage(
     PERSISTANT_STORAGE_KEY_BILL_TOKEN
   );
@@ -60,12 +65,15 @@ const PreviewBill = ({
   };
   const dispatch = useDispatch();
   const deviceUid = localStorage.getItem("app_device_unique_id");
-  const { billPrintSettings, advancedSettings } = useSelector(
+  const { billPrintSettings, advancedSettings, ipdBillPrintSettings } = useSelector(
     (state) => state.billing
   );
   const { userId } = useSelector((state) => state.doctors);
   const { profile } = useSelector((state) => state.doctors);
   const divRef = useRef(null);
+  const pdfGenerationKeyRef = useRef(null);
+  const isGeneratingRef = useRef(false);
+  const { isEditDisabled } = isEditBillDisabled(billDetails);
 
   // Helper function to determine if doctorId should be passed
   const getDoctorIdParam = () => {
@@ -90,9 +98,8 @@ const PreviewBill = ({
   const [printBlob, setPrintBlob] = useState(null);
   const [pdfUrl, setPdfUrl] = useState(null);
   const [refundBillDrawer, setRefundBillDrawer] = useState(false);
-  const [isRefunded, setIsRefunded] = useState(
-    billData?.paymentStatus === "Refunded"
-  );
+  const refundIconRef = useRef(null);
+  const isRefunded = billData?.paymentStatus === "Refunded";
   const { planDetails } = useSelector((state) => state.subscription);
   const urlParams = new URLSearchParams(window.location.search);
   const isReceptionist = urlParams.has("receptionist");
@@ -104,15 +111,36 @@ const PreviewBill = ({
 
   const clinic = getClinic(profile?.hospital_data);
 
+  // Use ref to handle hover without causing re-renders
+  const handleRefundMouseEnter = useCallback(() => {
+    if (refundIconRef.current) {
+      refundIconRef.current.src = refundInactive;
+    }
+  }, []);
+
+  const handleRefundMouseLeave = useCallback(() => {
+    if (refundIconRef.current) {
+      refundIconRef.current.src = refundActive;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (billDetails && Object.keys(billDetails).length > 0 && isIpdBill) {
+      handleRefundSuccess();
+    }
+  }, []);
+
   useEffect(() => {
     setDivWidth(divRef.current?.offsetWidth);
   }, [divRef]);
 
   useEffect(() => {
-    if (billPrintSettings && Object.keys(billPrintSettings).length > 0) {
+    const settings = isIpdBill ? ipdBillPrintSettings : billPrintSettings;
+
+    if (settings && Object.keys(settings).length > 0) {
       makePDFUrl();
     }
-  }, [billPrintSettings, billDetails]);
+  }, [billPrintSettings, ipdBillPrintSettings, billDetails]);
 
   useEffect(() => {
     if (
@@ -121,31 +149,67 @@ const PreviewBill = ({
     ) {
       getBillPrintSettings();
     }
+    if (
+      (ipdBillPrintSettings && Object.keys(ipdBillPrintSettings).length === 0) || isReceptionist
+    ) {
+      getIpdBillPrintSettings();
+    }
   }, []);
 
   const getBillPrintSettings = async () => {
     const printSettingsResponse = await fetchPrintSetting(
-      isReceptionist ? billDetails?.doctorId : ""
+      isReceptionist ? billDetails?.doctorId : userId
     );
     if (printSettingsResponse) {
       dispatch(setBillPrintSettings(printSettingsResponse));
     }
   };
 
+  const getIpdBillPrintSettings = async () => {
+    const printSettingsResponse = await fetchPrintSetting(userId, "ipdBill");
+    if (printSettingsResponse) {
+      dispatch(setIpdBillPrintSettings(printSettingsResponse));
+    }
+  };
+
   const makePDFUrl = async () => {
-    const blob = await pdf(
-      <ViewBillPdf
-        printSettings={billPrintSettings}
-        isDepositReceipt={isDepositReceipt}
-        patientData={patientData}
-        profile={profile}
-        billData={billDetails}
-        totalAdvanceBalance={totalAdvanceBalance}
-        gstIn={advancedSettings?.GSTIN}
-        showCreatedBy={advancedSettings?.enableCreatedByInRx}
-      />
-    ).toBlob();
-    setPdfUrl(URL.createObjectURL(blob));
+    // Create a stable key based on actual bill data
+    const currentKey = JSON.stringify({
+      billNumber: billDetails?.billNumber,
+      admissionId: billDetails?.admissionId,
+      patientId: billDetails?.patientId,
+      printSettings: isIpdBill ? ipdBillPrintSettings : billPrintSettings,
+      isDepositReceipt: isDepositReceipt,
+      totalAdvanceBalance: totalAdvanceBalance,
+      gstIn: advancedSettings?.GSTIN,
+      showCreatedBy: advancedSettings?.enableCreatedByInRx,
+    });
+
+    // Only regenerate if the key has actually changed and not already generating
+    if (pdfGenerationKeyRef.current === currentKey || isGeneratingRef.current) {
+      return;
+    }
+
+    pdfGenerationKeyRef.current = currentKey;
+    isGeneratingRef.current = true;
+
+    try {
+      const blob = await pdf(
+        <ViewBillPdf
+          printSettings={isIpdBill ? ipdBillPrintSettings : billPrintSettings}
+          isDepositReceipt={isDepositReceipt}
+          patientData={patientData}
+          profile={profile}
+          billData={billDetails}
+          totalAdvanceBalance={totalAdvanceBalance}
+          gstIn={advancedSettings?.GSTIN}
+          showCreatedBy={advancedSettings?.enableCreatedByInRx}
+        />
+      ).toBlob();
+      setPdfUrl(URL.createObjectURL(blob));
+    } finally {
+      isGeneratingRef.current = false;
+    }
   };
 
   const handleDrawerConfigureSettings = () => {
@@ -203,7 +267,7 @@ const PreviewBill = ({
       receptionistId: receptionistId,
       receptionistName: receptionistName,
     });
-    setRefundBillDrawer(!refundBillDrawer);
+    setRefundBillDrawer((prev) => !prev);
   };
 
   const handleSendToWhatsapp = async () => {
@@ -222,7 +286,7 @@ const PreviewBill = ({
         isDepositReceipt ? `&receiptNumber=${billDetails?.receiptNumber}` : ""
       }${billDetails?.patientId ? `&patientId=${billDetails?.patientId}` : ""}${
         doctorId ? `&doctorId=${doctorId}` : ""
-      }&receptionist=true&patientViewBill=true`
+      }${isIpdBill ? `&admissionId=${billDetails?.admissionId}` : ""}&receptionist=true&patientViewBill=true`
     );
     const message = {
       patient_name: patient?.name,
@@ -243,7 +307,9 @@ const PreviewBill = ({
 
   const handleRefundSuccess = async () => {
     const billDetailsRes = await fetchBillDetailsByBillNumber(
-      billDetails?.billNumber
+      billDetails?.billNumber,
+      isIpdBill ? billDetails?.admissionId : null,
+      isIpdBill ? "ipd" : "opd"
     );
     setBillDetails(billDetailsRes);
   };
@@ -287,7 +353,7 @@ const PreviewBill = ({
                 <div className="align-items-center d-flex h-100 gap-2">
                   <div className="border-end h-100 text-center">
                     <div
-                      onClick={handleCreateBillDrawer}
+                      onClick={(e) => handleCreateBillDrawer(e, true)}
                       className="btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer"
                     >
                       <i className="icon-right" />
@@ -303,7 +369,7 @@ const PreviewBill = ({
         <HeaderPrescriptionPrint
           patient_data={patientData}
           tcm_id={6222}
-          handleGoToAppointment={handleCreateBillDrawer}
+          handleGoToAppointment={(e) => handleCreateBillDrawer(e, true)}
         />
       )}
 
@@ -388,13 +454,35 @@ const PreviewBill = ({
                       className={`btn btnicon20 align-items-center d-flex btn-41 w-100 mb-3 ${
                         isReceptionist ? "receptionist-white-btn" : "btn-input"
                       }`}
-                      icon={<i className="icon-Edit" />}
+                      icon={
+                        <img
+                          ref={refundIconRef}
+                          src={refundActive}
+                          alt="refund"
+                          loading="lazy"
+                        />
+                      }
+                      onMouseEnter={handleRefundMouseEnter}
+                      onMouseLeave={handleRefundMouseLeave}
                       onClick={() => handleRefundBillDrawer()}
                     >
                       <span className="fw-semibold">Refund</span>
                       <i className="icon-right iconrotate180 ms-auto"></i>
                     </Button>
                   )}
+                {!isEditDisabled && !isDepositReceipt && !isPreviewForm3c && (
+                  <Button
+                    type="text"
+                    className={`btn btnicon20 align-items-center d-flex btn-41 w-100 mb-3 ${
+                      isReceptionist ? "receptionist-white-btn" : "btn-input"
+                    }`}
+                    icon={<i className="icon-Edit" />}
+                    onClick={() => handleEditBillDrawer(true)}
+                  >
+                    <span className="fw-semibold">Edit Bill</span>
+                    <i className="icon-right iconrotate180 ms-auto"></i>
+                  </Button>
+                )}
 
                 <div className="bg-body d-flex flex-column p-3 rounded-10px border">
                   <div className="d-flex">
@@ -520,6 +608,7 @@ const PreviewBill = ({
             billData={billDetails}
             totalAdvanceBalance={totalAdvanceBalance}
             isDepositReceipt={isDepositReceipt}
+            isIpdBill={!!billDetails?.admissionId}
           />
         </Drawer>
       )}

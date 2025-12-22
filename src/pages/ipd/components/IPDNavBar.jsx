@@ -135,6 +135,21 @@ function IPDNavbar() {
           </>
         )}
       </NavLink>
+
+      <NavLink to="/ipd/billing-history" replace={true} end>
+        {({ isActive }) => (
+          <>
+            <img
+              src={isActive ? defaultIcons.billingPc : defaultIcons.billingDark}
+              alt="Billing"
+              style={{ filter: isActive ? "grayscale(0%)" : "grayscale(100%)" }}
+            />
+            <div className="mt-1 px-2">
+              <div>Billing</div>
+            </div>
+          </>
+        )}
+      </NavLink>
     </div>
   );
 }

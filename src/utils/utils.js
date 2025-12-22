@@ -2308,7 +2308,7 @@ export const transformAdmissionToPatient = (source = {}) => {
         details.name.slice(1).toLowerCase()
       : "",
     pm_id: Number(details.id) || null, // safely parse to number
-    pm_pid: source.admissionId || "", // fallback: using admissionId
+    pm_pid: details.pm_pid || source.admissionId || "", // fallback: using admissionId
     pm_contact_no: details.contact || "",
     patient_unique_id: source?.patient_unique_id || null,
     pm_gender: details.gender

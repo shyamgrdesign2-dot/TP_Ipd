@@ -1,19 +1,42 @@
-import { Drawer, Dropdown, Table, message } from "antd";
+import { Drawer, Dropdown, Table, message, Tooltip } from "antd";
 import { useState, useCallback } from "react";
 import PreviewBill from "../../../PreviewBill";
 import RefundBill from "../RefundBill/RefundBill";
-import { addBillsToForm3C, fetchPatientWalletBalance } from "../../../service";
+import ClearDue from "../ClearDue/ClearDue";
+import {
+  addBillsToForm3C,
+  fetchPatientWalletBalance,
+  generateBillToken,
+} from "../../../service";
 import imgCloseVisit from "../../../../../assets/images/close-visit.svg";
 import visitEnd from "../../../../../assets/images/end-visit.svg";
-import { TRIAL, MESSAGE_KEY, S_BILLING, S_TATVA_PRACTICE } from "../../../../../utils/constants";
-import { formatDateWithOrdinal } from "../../../utils/helper";
+import {
+  TRIAL,
+  MESSAGE_KEY,
+  S_BILLING,
+  S_TATVA_PRACTICE,
+  PERSISTANT_STORAGE_KEY_BILL_TOKEN,
+} from "../../../../../utils/constants";
+import {
+  formatDateWithOrdinal,
+  calculateTotalPaidAmount,
+  isEditBillDisabled
+} from "../../../utils/helper";
 import InfoTooltip from "./InfoToolTip/InfoTooltip";
-import { isMobile } from "react-device-detect";
+import { browserName, isMobile } from "react-device-detect";
 import { throttle } from "lodash";
 import { useSelector, useDispatch } from "react-redux";
 import moment from "moment";
+import CreateBill from "../../createBill/CreateBill";
+import config from "../../../../../config";
+import { useLocalStorage } from "../../../../../utils/localStorage";
+import { EVENTS } from "../../../../../utils/events";
+import { sendMessageToParent } from "../../../../../utils/utils";
+import { EditBillDeployedDate } from "../../../utils/constants";
 
 const BillTable = ({
+  createBillDrawer,
+  setCreateBillDrawer,
   data,
   isPatientScreen,
   handleMessageForm3c,
@@ -25,42 +48,59 @@ const BillTable = ({
   tableRef,
   patientAdvanceData,
   totalAdvanceBalance,
-  showHideSubModal
+  showHideSubModal,
+  billType,
+  billData,
+  setBillData,
+  selectedCard,
+  fromPath
 }) => {
   const { profile, servicesList } = useSelector((state) => state.doctors);
   const { planDetails } = useSelector((state) => state.subscription);
   const { service_mappings } = planDetails || {};
-  const EMR_planDetails = service_mappings?.find(e => e.service_name === S_TATVA_PRACTICE)
-  const BILLING_planDetails = service_mappings?.find(e => e.service_name === S_BILLING)
-
+  const EMR_planDetails = service_mappings?.find(
+    (e) => e.service_name === S_TATVA_PRACTICE
+  );
+  const BILLING_planDetails = service_mappings?.find(
+    (e) => e.service_name === S_BILLING
+  );
+  const [getBillToken, setBillToken] = useLocalStorage(
+    PERSISTANT_STORAGE_KEY_BILL_TOKEN
+  );
   const [refundBillDrawer, setRefundBillDrawer] = useState(false);
+  const [clearDueDrawer, setClearDueDrawer] = useState(false);
   const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
-  const [billData, setBillData] = useState(null);
   const [patientWalletBalance, setPatientWalletBalance] = useState(0);
   const urlParams = new URLSearchParams(window.location.search);
   const isReceptionist = urlParams.has("receptionist");
 
-  const handleDrawerPreviewBill = () => {
+  const handleDrawerPreviewBill = (e, isPreviewScreen = false) => {
     setPreviewBillDrawer(!previewBillDrawer);
     if (previewBillDrawer && !isReceptionist) {
       handleRecentBillDrawer && handleRecentBillDrawer();
+    }
+    if (isPreviewScreen) {
+      setBillData(null);
     }
   };
 
   const checkBillingPurchased = async () => {
     // if (moment(planDetails?.plan_active_date).diff("2025-07-01", 'days') > 0) {
-      if (EMR_planDetails?.plan_tier !== TRIAL && BILLING_planDetails?.plan_tier === TRIAL) {
-        showHideSubModal()
-      } else {
-        return true;
-      }
+    if (
+      EMR_planDetails?.plan_tier !== TRIAL &&
+      BILLING_planDetails?.plan_tier === TRIAL
+    ) {
+      showHideSubModal();
+    } else {
+      return true;
+    }
     // } else {
     //   return true;
     // }
-  }
+  };
 
   const onBillingDetailsClick = async (status, record) => {
-    const isPurchased = await checkBillingPurchased()
+    const isPurchased = await checkBillingPurchased();
     if (isPurchased) {
       setBillData(record);
       if (status === 1) {
@@ -85,6 +125,7 @@ const BillTable = ({
                   </div>
                   <img
                     src={imgCloseVisit}
+                    alt="close"
                     className="ms-3"
                     onClick={() => message.destroy()}
                   />
@@ -115,6 +156,18 @@ const BillTable = ({
       getPatientBills();
     }
     setRefundBillDrawer(false);
+  }, [getPatientBills]);
+
+  const handleClearDueDrawer = () => {
+    setClearDueDrawer(!clearDueDrawer);
+  };
+
+  const handleClearDueComplete = useCallback(() => {
+    // If getPatientBills exists, call it, otherwise do nothing
+    if (getPatientBills) {
+      getPatientBills();
+    }
+    setClearDueDrawer(false);
   }, [getPatientBills]);
 
   const getPatientWalletBalance = async (patientId) => {
@@ -163,29 +216,29 @@ const BillTable = ({
     },
     !isPatientScreen
       ? {
-        title: "PATIENT DETAILS",
-        dataIndex: "patient_details",
-        key: "patient_details",
-        ellipsis: true,
-        width: "21%",
-        render: (text, record) => (
-          <div>
-            <div className="dashboard-table-font-style patient-name-cell">
-              {record?.patient?.name}
+          title: "PATIENT DETAILS",
+          dataIndex: "patient_details",
+          key: "patient_details",
+          ellipsis: true,
+          width: "21%",
+          render: (text, record) => (
+            <div>
+              <div className="dashboard-table-font-style patient-name-cell">
+                {record?.patient?.name}
+              </div>
+              <div className="fs-14 fw-normal text-truncate-twolines">
+                {record?.patient?.phone}
+              </div>
             </div>
-            <div className="fs-14 fw-normal text-truncate-twolines">
-              {record?.patient?.phone}
-            </div>
-          </div>
-        ),
-      }
+          ),
+        }
       : undefined,
     {
-      title: "TOTAL AMOUNT",
-      dataIndex: "totalAmount",
-      key: "totalAmount",
+      title: "Billed",
+      dataIndex: "payableAmount",
+      key: "payableAmount",
       ellipsis: true,
-      width: "14%",
+      width: "10%",
       sorter: true,
       onFilter: (value, record) => record.send_on.startsWith(value),
       render: (text, record) => (
@@ -195,101 +248,208 @@ const BillTable = ({
       ),
     },
     {
-      title: "PAID AMOUNT",
+      title: "Paid",
       dataIndex: "paidAmount",
       key: "paidAmount",
-      width: "13%",
+      width: "10%",
       ellipsis: true,
       sorter: true,
-      render: (text, record) => (
-        <div className="dashboard-table-font-style"> ₹{record.paidAmount} </div>
-      ),
-    },
-    {
-      title: "STATUS",
-      width: "21%",
-      dataIndex: "paymentStatus",
-      key: "paymentStatus",
-      ellipsis: true,
       render: (text, record) => {
-        // Determine the class name and display value based on the status
-        const getStatusDetails = (status) => {
-          switch (status.toLowerCase()) {
-            case "fullypaid":
-              return {
-                className: "status-paid-fully",
-                displayText: "Paid Fully",
-              };
-            case "due":
-              return {
-                className: "status-due",
-                displayText: `Due: ₹${parseFloat(record.dueAmount).toFixed(2)}`,
-              };
-            case "refunded":
-              return {
-                className: "status-refunded",
-                displayText: `Refunded ₹${parseFloat(record.paidAmount).toFixed(
-                  2
-                )}`,
-              };
-            case "carriedforward":
-              return {
-                className: "status-carriedforrward",
-                displayText: `Due ₹${parseFloat(record.dueAmount).toFixed(2)}`,
-              };
-            default:
-              return {
-                className: "status-due",
-                displayText: `Due: ₹${parseFloat(record.dueAmount).toFixed(2)}`,
-              };
-          }
-        };
-
-        // Get status details
-        const { className, displayText } = getStatusDetails(
-          record.paymentStatus
-        );
-
+        const totalPaidAmount = calculateTotalPaidAmount(record);
         return (
-          <div className="d-flex">
-            <div className={className}>{displayText}</div>
-            {("CarriedForward" === record.paymentStatus ||
-              ("Refunded" === record.paymentStatus && record.notes)) && (
-                <InfoTooltip
-                  type={record.paymentStatus}
-                  amount={
-                    record.paymentStatus === "Refunded"
-                      ? record.paidAmount
-                      : record.dueAmount
-                  }
-                  notes={record.notes}
-                  billNo={record.nextBillNumber}
-                />
-              )}
+          <div className="dashboard-table-font-style">
+            {" "}
+            ₹{totalPaidAmount.toFixed(2)}{" "}
           </div>
         );
       },
     },
+    selectedCard !== 4 ?
+    {
+      title: "Due",
+      dataIndex: "dueAmount",
+      key: "dueAmount",
+      width: "10%",
+      ellipsis: true,
+      sorter: true,
+      render: (text, record) => (
+        <div className="dashboard-table-font-style"> ₹{record.dueAmount} </div>
+      ),
+    } : undefined,
+    {
+      title: "Refund",
+      dataIndex: "refundedAmount",
+      key: "refundedAmount",
+      width: "10%",
+      ellipsis: true,
+      sorter: true,
+      render: (text, record) => (
+        <div className="dashboard-table-font-style">
+          {" "}
+          {record?.refundedAmount ? `₹ ${record.refundedAmount}` : "-"}{" "}
+        </div>
+      ),
+    },
+    // {
+    //   title: "STATUS",
+    //   width: "21%",
+    //   dataIndex: "paymentStatus",
+    //   key: "paymentStatus",
+    //   ellipsis: true,
+    //   render: (text, record) => {
+    //     // Determine the class name and display value based on the status
+    //     const getStatusDetails = (status) => {
+    //       switch (status.toLowerCase()) {
+    //         case "fullypaid":
+    //           return {
+    //             className: "status-paid-fully",
+    //             displayText: "Paid Fully",
+    //           };
+    //         case "due":
+    //           return {
+    //             className: "status-due",
+    //             displayText: `Due: ₹${parseFloat(record.dueAmount).toFixed(2)}`,
+    //           };
+    //         case "refunded":
+    //           return {
+    //             className: "status-refunded",
+    //             displayText: `Refunded ₹${parseFloat(record.paidAmount).toFixed(
+    //               2
+    //             )}`,
+    //           };
+    //         case "carriedforward":
+    //           return {
+    //             className: "status-carriedforrward",
+    //             displayText: `Due ₹${parseFloat(record.dueAmount).toFixed(2)}`,
+    //           };
+    //         default:
+    //           return {
+    //             className: "status-due",
+    //             displayText: `Due: ₹${parseFloat(record.dueAmount).toFixed(2)}`,
+    //           };
+    //       }
+    //     };
+
+    //     // Get status details
+    //     const { className, displayText } = getStatusDetails(
+    //       record.paymentStatus
+    //     );
+
+    //     return (
+    //       <div className="d-flex">
+    //         <div className={className}>{displayText}</div>
+    //         {("CarriedForward" === record.paymentStatus ||
+    //           ("Refunded" === record.paymentStatus && record.notes)) && (
+    //           <InfoTooltip
+    //             type={record.paymentStatus}
+    //             amount={
+    //               record.paymentStatus === "Refunded"
+    //                 ? record.paidAmount
+    //                 : record.dueAmount
+    //             }
+    //             notes={record.notes}
+    //             billNo={record.nextBillNumber}
+    //           />
+    //         )}
+    //       </div>
+    //     );
+    //   },
+    // },
     {
       title: "Action",
       key: "action",
       width: "9%",
-      render: (text, record) => (
-        <Dropdown
-          className="cursor-pointer"
-          menu={{
-            items: getMenuItems(record),
-          }}
-          trigger={["click"]}
-          onClick={() => {
-            if (!isPatientScreen) {
-              getPatientWalletBalance(record?.patientId);
+      render: (text, record) => {
+        // Check if edit button should be disabled
+        const { isEditDisabled, hasPaidDues, hasRefundedAmount } = isEditBillDisabled(record);
+
+        return (
+          <div
+            className="d-flex align-items-center justify-content-center gap-2"
+            style={{ marginLeft: "-60px" }}
+          >
+            <button
+              className="btn p-0 ms-3"
+              onClick={async () => {
+                let token = getBillToken();
+                if (!token) {
+                  token = await generateBillToken();
+                  setBillToken(token);
+                }
+                const billLink = `${
+                  config.doctor_portal_url
+                }/opd-bill?token=${token}${
+                  record?.billNumber ? `&billNumber=${record?.billNumber}` : ""
+                }${record?.patientId ? `&patientId=${record?.patientId}` : ""}${
+                  record?.doctorId ? `&doctorId=${record?.doctorId}` : ""
+                }${
+                  record?.admissionId
+                    ? `&admissionId=${record?.admissionId}`
+                    : ""
+                }&patientViewBill=true`;
+                if (
+                  browserName == "Chrome WebView" ||
+                  browserName == "WebKit"
+                ) {
+                  sendMessageToParent(EVENTS.PRINT, { url: billLink });
+                } else {
+                  window.open(billLink, "_blank");
+                }
+              }}
+            >
+              <i className="icon-Print"></i>
+            </button>
+           { fromPath !== "ipdDashboard" && 
+            <Tooltip
+              title={
+                isEditDisabled
+                  ? hasRefundedAmount && hasPaidDues
+                    ? "A refund and due clearance have been processed for this bill, so editing isn’t allowed."
+                    : hasRefundedAmount
+                    ? "A refund has already been issued for this bill, so editing isn’t allowed."
+                    : hasPaidDues
+                    ? "The full due amount or some of the due amount has been cleared for this bill, so editing isn’t allowed."
+                    : "Cannot edit bill"
+                  : ""
+              }
+            >
+              <span>
+                <button
+                  className="btn p-0"
+                  disabled={isEditDisabled}
+                  onClick={() => {
+                    if (!isEditDisabled) {
+                      handleEditBillDrawer();
+                      setBillData(record);
+                    }
+                  }}
+                  style={{
+                    opacity: isEditDisabled ? 0.5 : 1,
+                    border: "none",
+                  }}
+                >
+                  <i className="icon-Edit"></i>
+                </button>
+              </span>
+            </Tooltip>
             }
-          }}
-        >
-          <i className="icon-More"></i>
-        </Dropdown>
-      ),
+            <Dropdown
+              className="cursor-pointer"
+              menu={{
+                items: getMenuItems(record),
+              }}
+              trigger={["click"]}
+              onClick={() => {
+                if (!isPatientScreen) {
+                  getPatientWalletBalance(record?.patientId);
+                }
+              }}
+            >
+              <i className="icon-More iconrotate270"></i>
+            </Dropdown>
+          </div>
+        );
+      },
     },
   ]?.filter((item) => item);
 
@@ -307,7 +467,7 @@ const BillTable = ({
     const items = [
       {
         label: (
-          <div onClick={() => onBillingDetailsClick(1, record)}>View bill</div>
+          <div onClick={() => onBillingDetailsClick(1, record)}>View Bill</div>
         ),
         key: "view_bill",
       },
@@ -325,7 +485,7 @@ const BillTable = ({
       });
     }
 
-    // Conditionally add "Add to Form 3C" if isForm3C is false
+    // Conditionally add "Refund bill" if not refunded
     if (record.paymentStatus !== "Refunded") {
       items.push({
         label: (
@@ -337,6 +497,34 @@ const BillTable = ({
       });
     }
 
+    // Conditionally add "Clear Due" if (due amount & not refunded)
+    if (
+      billType !== "ipd" &&
+      record.dueAmount &&
+      parseFloat(record.dueAmount) > 0 &&
+      record.paymentStatus !== "Refunded"
+    ) {
+      items.push({
+        label: (
+          <div
+            onClick={async () => {
+              const isPurchased = await checkBillingPurchased();
+              if (isPurchased) {
+                if (!isPatientScreen) {
+                  await getPatientWalletBalance(record?.patientId);
+                }
+                setBillData(record);
+                handleClearDueDrawer();
+              }
+            }}
+          >
+            Clear Due
+          </div>
+        ),
+        key: "clear_due",
+      });
+    }
+
     return items;
   };
 
@@ -344,12 +532,19 @@ const BillTable = ({
     const { target } = e;
     if (
       Math.abs(target.scrollHeight - target.scrollTop - target.clientHeight) <=
-      5 &&
+        5 &&
       hasMore
     ) {
       loadData(false);
     }
   }, 500);
+
+  const handleEditBillDrawer = useCallback((isPreviewScreen = false) => {
+    setCreateBillDrawer(!createBillDrawer);
+    if (billData && Object.keys(billData).length > 0 && !isPreviewScreen) {
+      setBillData(null);
+    }
+  }, [createBillDrawer]);
 
   return (
     <>
@@ -384,6 +579,7 @@ const BillTable = ({
             totalAdvanceBalance={
               isPatientScreen ? totalAdvanceBalance : patientWalletBalance
             }
+            handleEditBillDrawer={handleEditBillDrawer}
           />
         </Drawer>
       )}
@@ -403,6 +599,27 @@ const BillTable = ({
             getPatientBills={getPatientBills}
             onRefundSuccess={handleRefundComplete}
             patientAdvanceData={patientAdvanceData}
+            billType={billType}
+          />
+        </Drawer>
+      )}
+
+      {clearDueDrawer && (
+        <Drawer
+          closeIcon={false}
+          placement="right"
+          onClose={handleClearDueDrawer}
+          open={clearDueDrawer}
+          width={isMobile ? "80%" : "60%"}
+        >
+          <ClearDue
+            handleClearDueDrawer={handleClearDueDrawer}
+            billData={billData}
+            handleMessageForm3c={handleMessageForm3c}
+            getPatientBills={getPatientBills}
+            onClearDueSuccess={handleClearDueComplete}
+            patientAdvanceData={patientAdvanceData}
+            admissionId={billData?.admissionId}
           />
         </Drawer>
       )}

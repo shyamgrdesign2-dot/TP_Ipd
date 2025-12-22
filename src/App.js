@@ -92,6 +92,7 @@ import ApproveToDischargePatients from "./pages/ipd/inPatients/ApproveToDischarg
 import IpdAddNewPatient from "./pages/ipd/addNewPatient/IpdAddNewPatient";
 import CreateAdmission from "./pages/ipd/createAdmission/CreateAdmission";
 import WardAndBedManagement from "./pages/ipd/wardAndBedManagement/WardAndBedManagement";
+import IpdBillingHistory from "./pages/ipd/billing/IpdBillingHistory";
 
 
 const growthbook = new GrowthBook({
@@ -618,6 +619,7 @@ function App() {
                   <Route path="add-admission" element={<AddAdmission />} />
                   <Route path="patient-admission" element={<PatientAdmission />} />
                   <Route path="ward-bed-management" element={<WardAndBedManagement />} />
+                  <Route path="billing-history" element={<IpdBillingHistory />} />
                 </Route>
                 <Route path="ipd/create-admission" element={<CreateAdmission />} />
                 <Route path="ipd/add-new-patient" element={<IpdAddNewPatient />} />

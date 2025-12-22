@@ -7,7 +7,7 @@ import CommonModal from "../../../../common/CommonModal";
 const SequenceSettings = ({
   open,
   onClose,
-  type = "bill", // 'bill' or 'receipt'
+  type = "Bill", // 'bill' or 'receipt'
   initialValues,
   onSave,
 }) => {
@@ -97,13 +97,7 @@ const SequenceSettings = ({
       isModalOpen={open}
       onCancel={onClose}
       modalWidth={500}
-      title={`Set ${
-        type === "bill"
-          ? "Bill"
-          : type === "receipt"
-          ? "Receipt"
-          : "Advance Receipt"
-      } No. Sequence`}
+      title={`Set ${type} No. Sequence`}
       modalBody={
         <>
           <div className={styles.sequenceCard}>

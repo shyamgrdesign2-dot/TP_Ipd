@@ -29,6 +29,7 @@ import { useReactToPrint } from "react-to-print";
 import {
   getClinic,
   handlePrintClick,
+  sendMessageToParent,
   trackEvent,
 } from "../../../../utils/utils.js";
 
@@ -40,23 +41,32 @@ import moment from "moment";
 import dayjs from "dayjs";
 // import MenuDivider from "antd/es/menu/MenuDivider";
 import Form3cPrint from "./Form3cPrint.js";
-import { MESSAGE_KEY } from "../../../../utils/constants.js";
+import {
+  MESSAGE_KEY,
+  PERSISTANT_STORAGE_KEY_BILL_TOKEN,
+} from "../../../../utils/constants.js";
 import visitEnd from "../../../../assets/images/end-visit.svg";
 import imgCloseVisit from "../../../../assets/images/close-visit.svg";
 import {
   fetchBillingDashboard,
   fetchPatientWalletBalance,
+  generateBillToken,
 } from "../../service.js";
 import {
   formatDateWithOrdinal,
   handleDownload,
   printContent,
+  calculateTotalPaidAmount,
 } from "../../utils/helper.js";
 import InfoTooltip from "../billingDashboard/BillingTable/InfoToolTip/InfoTooltip.js";
 import PreviewBill from "../../PreviewBill.js";
 import html2pdf from "html2pdf.js";
 import { setLoadingStatus } from "../../../../redux/uploadDocSlice.js";
 import { throttle } from "lodash";
+import config from "../../../../config.js";
+import { browserName } from "react-device-detect";
+import { EVENTS } from "../../../../utils/events.js";
+import { useLocalStorage } from "../../../../utils/localStorage.js";
 
 const { RangePicker } = DatePicker;
 const dateFormat = "YYYY-MM-DD";
@@ -76,7 +86,10 @@ const SELECT_AFTER = [
 const GENDER = ["Male", "Female", "Other"];
 
 const Manage3cBills = forwardRef(
-  ({ handleForm3cBill, handleAddForm3cDrawer, form3cData }, ref) => {
+  ({ handleForm3cBill, handleAddForm3cDrawer, form3cData, handleEditBillDrawer, isIpd = false, setEditBillData }, ref) => {
+    const [getBillToken, setBillToken] = useLocalStorage(
+      PERSISTANT_STORAGE_KEY_BILL_TOKEN
+    );
     const {
       loading,
       userCreditObj,
@@ -114,8 +127,11 @@ const Manage3cBills = forwardRef(
     const [hasMore, setHasMore] = useState(true);
     const tableRef = useRef(null);
 
-    const handleDrawerPreviewBill = () => {
+    const handleDrawerPreviewBill = (isPreviewScreen = false) => {
       setPreviewBillDrawer(!previewBillDrawer);
+      if (isPreviewScreen) {
+        setEditBillData(null);
+      }
     };
 
     const onSearch = useCallback(
@@ -385,6 +401,7 @@ const Manage3cBills = forwardRef(
             onClick={async () => {
               await getPatientWalletBalance(record?.patientId);
               setBillData(record);
+              setEditBillData(record);
               handleDrawerPreviewBill();
             }}
           >
@@ -413,8 +430,8 @@ const Manage3cBills = forwardRef(
       },
       {
         title: "TOTAL AMOUNT",
-        dataIndex: "totalAmount",
-        key: "totalAmount",
+        dataIndex: "payableAmount",
+        key: "payableAmount",
         ellipsis: true,
         sorter: true,
         render: (text, record) => <div> ₹{record.payableAmount} </div>,
@@ -425,7 +442,10 @@ const Manage3cBills = forwardRef(
         key: "paidAmount",
         ellipsis: true,
         sorter: true,
-        render: (text, record) => <div> ₹{record.paidAmount} </div>,
+        render: (text, record) => {
+          const totalPaidAmount = calculateTotalPaidAmount(record);
+          return <div>₹{totalPaidAmount.toFixed(2)} </div>;
+        },
       },
       {
         title: "STATUS",
@@ -484,6 +504,49 @@ const Manage3cBills = forwardRef(
           );
         },
       },
+      {
+        title: "Action",
+        key: "action",
+        width: "9%",
+        render: (text, record) => (
+          <div
+            className="d-flex align-items-center justify-content-center gap-2"
+            style={{ marginLeft: "-60px" }}
+          >
+            <button
+              className="btn p-0 ms-3"
+              onClick={async () => {
+                let token = getBillToken();
+                if (!token) {
+                  token = await generateBillToken();
+                  setBillToken(token);
+                }
+                const billLink = `${
+                  config.doctor_portal_url
+                }/opd-bill?token=${token}${
+                  record?.billNumber ? `&billNumber=${record?.billNumber}` : ""
+                }${record?.patientId ? `&patientId=${record?.patientId}` : ""}${
+                  record?.doctorId ? `&doctorId=${record?.doctorId}` : ""
+                }${
+                  record?.admissionId
+                    ? `&admissionId=${record?.admissionId}`
+                    : ""
+                }&patientViewBill=true`;
+                if (
+                  browserName == "Chrome WebView" ||
+                  browserName == "WebKit"
+                ) {
+                  sendMessageToParent(EVENTS.PRINT, { url: billLink });
+                } else {
+                  window.open(billLink, "_blank");
+                }
+              }}
+            >
+              <i className="icon-Print"></i>
+            </button>
+          </div>
+        ),
+      },
     ];
 
     const loadData = async (resetData = true) => {
@@ -500,7 +563,10 @@ const Manage3cBills = forwardRef(
         search: searchQuery || "",
       };
       try {
-        const response = await fetchBillingDashboard(params);
+        const response = await fetchBillingDashboard(
+          params,
+          isIpd ? "ipd" : "opd"
+        );
         setPage(resetData ? 2 : page + 1);
         setHasMore(response.bills.length >= 25);
         setData((prev) =>
@@ -700,10 +766,13 @@ const Manage3cBills = forwardRef(
               push={false}
             >
               <PreviewBill
+                handleDrawerPreviewBill={handleDrawerPreviewBill}
                 handleCreateBillDrawer={handleDrawerPreviewBill}
                 isPreviewFromTable={true}
                 billData={billData}
                 totalAdvanceBalance={patientWalletBalance}
+                handleEditBillDrawer={() => handleEditBillDrawer(null, true)}
+                isPreviewForm3c={true}
               />
             </Drawer>
           )}

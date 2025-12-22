@@ -4,12 +4,14 @@ import {
   AutoComplete,
   Button,
   Checkbox,
+  DatePicker,
   Divider,
   Drawer,
   Input,
   Radio,
   Select,
   Table,
+  Tooltip,
   message,
 } from "antd";
 import alertIcon from "./../../../../assets/images/alertIcon.svg";
@@ -51,6 +53,7 @@ import { deleteDocsUploadedFromAndroid } from "../../../medicalRecords/service";
 import {
   setAdvancedSettings,
   setBillPrintSettings,
+  setIpdBillPrintSettings,
 } from "../../../../redux/billingSlice";
 import { jwtDecode } from "jwt-decode";
 import {
@@ -77,6 +80,8 @@ import tutorial from "../../../../assets/images/tutorial-icon.svg";
 import videorotate from "../../../../assets/images/videorotate.gif";
 import VideoModal from "../../../../common/VideoModal";
 import { Popover } from "antd";
+import BillTemplate from "./BillTemplate";
+import dayjs from "dayjs";
 
 const CreateBill = ({
   handleCreateBillDrawer,
@@ -86,7 +91,11 @@ const CreateBill = ({
   patientData = {},
   isDashboard,
   isPreviewFromTable,
+  editBillData,
+  admissionId,
+  onBillCreated,
 }) => {
+  const isIpdBill = !!admissionId;
   const { state } = useLocation();
   const { pam_id } = state || {};
   const dispatch = useDispatch();
@@ -100,51 +109,57 @@ const CreateBill = ({
     value: parseInt(id),
     label: umNames[index],
   }));
+  const editDoctorFromList = editBillData?.doctorId
+    ? doctorsList?.find(
+        (d) => String(d?.value) === String(editBillData?.doctorId)
+      )
+    : null;
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const deviceUid = localStorage.getItem("app_device_unique_id");
   const { profile, userId } = useSelector((state) => state.doctors);
   const { patients, error } = useSelector((state) => state.records);
-  const { billPrintSettings, advancedSettings } = useSelector(
-    (state) => state.billing
-  );
+  const { billPrintSettings, advancedSettings, ipdBillPrintSettings } =
+    useSelector((state) => state.billing);
   const [billNotesDrawer, setBillNotesDrawer] = useState(false);
   const [previewBillDrawer, setPreviewBillDrawer] = useState(false);
-  const [patientBillNotes, setPatientBillNotes] = useState("");
+  const [patientBillNotes, setPatientBillNotes] = useState(
+    editBillData?.notes || ""
+  );
   const [searchItemSelected, setSearchItemSelected] = useState(null);
   const [shouldShowRefIdPopup, setShowRefIdPopup] = useState(-1);
-  const [dataSource, setDataSource] = useState([
-    {
-      masterId: "",
-      name: "",
-      quantity: "",
-      amount: "",
-      discount: "",
-      discountType: "",
-      gst: "",
-      totalAmount: "",
-      createdBy: "",
-    },
-  ]);
+  const [dataSource, setDataSource] = useState(editBillData?.billItems || []);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchOptions, setSearchOptions] = useState([]);
   const [patientSearchOptions, setPatientSearchOptions] = useState([]);
-  const [includeInRx, setIncludeInRx] = useState(false);
-  const [shouldAddBillTo3C, setAddBillTo3C] = useState(false);
+  const [includeInRx, setIncludeInRx] = useState(
+    editBillData?.includeInRx || false
+  );
+  const [shouldAddBillTo3C, setAddBillTo3C] = useState(
+    editBillData?.isForm3C || false
+  );
   const [editIndex, setEditIndex] = useState(-1);
-  const [extraDiscount, setExtraDiscount] = useState(undefined);
-  const [extraDiscountType, setExtraDiscountType] = useState("flat");
-  const [patientDueAmount, setPatientDueAmount] = useState(0);
+  const [extraDiscount, setExtraDiscount] = useState(
+    editBillData?.extraDiscount || undefined
+  );
+  const [extraDiscountType, setExtraDiscountType] = useState(
+    editBillData?.extraDiscountType || "flat"
+  );
+  const [patientDueAmount, setPatientDueAmount] = useState();
   const [patientWalletBalance, setPatientWalletBalance] = useState(0);
-  const [paymentModes, setPaymentModes] = useState([]);
+  const [paymentModes, setPaymentModes] = useState(
+    editBillData?.paymentModes || []
+  );
   const [disableSaveBtn, setDisableSaveBtn] = useState(true);
   const [getToken] = useLocalStorage(PERSISTANT_STORAGE_KEY_AUTH_TOKEN);
   const [tokenData, setTokenData] = useState(null);
-  const [billData, setBillData] = useState({});
+  const [billData, setBillData] = useState(editBillData || {});
   const [addAdvanceDrawer, setAddAdvanceDrawer] = useState(false);
   const [totalAdvanceBalance, setTotalAdvanceBalance] = useState(null);
 
   // Search patient related states
-  const [patientDetails, setPatientDetails] = useState(null);
+  const [patientDetails, setPatientDetails] = useState(
+    editBillData?.patient || null
+  );
   const [searchQueryName, setSearchQueryName] = useState("");
   const [searchQueryMobile, setSearchQueryMobile] = useState("");
   const [isEditingName, setIsEditingName] = useState(true);
@@ -218,11 +233,7 @@ const CreateBill = ({
       ? (totalBillAmount * (Number(extraDiscount) || 0)) / 100 // Percentage based
       : Number(extraDiscount) || 0; // Flat/Rupee based
 
-  const payableAmount = (
-    totalBillAmount -
-    extraDiscountAmount +
-    (Number(patientDueAmount) || 0)
-  ).toFixed(2);
+  const payableAmount = (totalBillAmount - extraDiscountAmount).toFixed(2);
 
   const paidAmount = paymentModes
     .reduce((sum, payment) => sum + (Number(payment.amount) || 0), 0)
@@ -239,6 +250,15 @@ const CreateBill = ({
   const receptionistName = urlParams.get("receptionistName");
 
   useEffect(() => {
+    if (editBillData?.patient) {
+      setPatientDetails({
+        ...editBillData?.patient,
+        patientUniqueId: editBillData?.patientId,
+      });
+    }
+  }, [editBillData]);
+
+  useEffect(() => {
     getStorageData();
     if (advancedSettings && Object.keys(advancedSettings).length === 0) {
       getAdvanceSettings();
@@ -246,13 +266,21 @@ const CreateBill = ({
     if (billPrintSettings && Object.keys(billPrintSettings).length === 0) {
       getBillPrintSettings();
     }
+    if (
+      ipdBillPrintSettings &&
+      Object.keys(ipdBillPrintSettings).length === 0
+    ) {
+      getIpdBillPrintSettings();
+    }
   }, []);
 
   useEffect(() => {
     const patientUniqueId =
-      patientData?.patient_unique_id || patientDetails?.patientUniqueId;
+      patientData?.patient_unique_id ||
+      patientDetails?.patientUniqueId ||
+      editBillData?.patient?.patientId;
     if (patientUniqueId) {
-      getPatientDueAmount(patientUniqueId);
+      // getPatientDueAmount(patientUniqueId);
       getPatientWalletBalance(patientUniqueId);
       patientAdvanceData(patientUniqueId);
     }
@@ -263,9 +291,7 @@ const CreateBill = ({
       dataSource.reduce(
         (sum, service) => sum + (Number(service.totalAmount) || 0),
         0
-      ) -
-      (Number(extraDiscountAmount) || 0) +
-      (Number(patientDueAmount) || 0)
+      ) - (Number(extraDiscountAmount) || 0)
     ).toFixed(2);
 
     if (
@@ -278,7 +304,7 @@ const CreateBill = ({
       );
       setPaymentModes(updatedPaymentModes);
     }
-  }, [extraDiscount, patientDueAmount, dataSource]);
+  }, [extraDiscount, dataSource]);
 
   useEffect(() => {
     if (isEditingName && nameAutoCompleteRef.current) {
@@ -288,10 +314,17 @@ const CreateBill = ({
 
   const getBillPrintSettings = async () => {
     const printSettingsResponse = await fetchPrintSetting(
-      isReceptionist ? urlParams.get("um_id") : ""
+      isReceptionist ? urlParams.get("um_id") : userId
     );
     if (printSettingsResponse) {
       dispatch(setBillPrintSettings(printSettingsResponse));
+    }
+  };
+
+  const getIpdBillPrintSettings = async () => {
+    const printSettingsResponse = await fetchPrintSetting(userId, "ipdBill");
+    if (printSettingsResponse) {
+      dispatch(setIpdBillPrintSettings(printSettingsResponse));
     }
   };
 
@@ -361,16 +394,30 @@ const CreateBill = ({
   useEffect(() => {
     if (advancedSettings && Object.keys(advancedSettings)?.length) {
       setIncludeInRx(advancedSettings.defaultRxFlag);
-      setAddBillTo3C(advancedSettings.defaultForm3cFlag);
+      setAddBillTo3C(
+        isIpdBill
+          ? advancedSettings?.ipdSetting?.defaultForm3cFlag
+          : advancedSettings?.defaultForm3cFlag
+      );
       setPaymentModes([
         {
-          paymentMode: advancedSettings.defaultPaymentMode,
+          paymentMode: isIpdBill
+            ? advancedSettings?.ipdSetting?.defaultPaymentMode
+            : advancedSettings?.defaultPaymentMode,
           amount: undefined,
           refId: "",
         },
       ]);
     }
   }, [advancedSettings]);
+
+  useEffect(() => {
+    if (editBillData?.paymentModes) {
+      setTimeout(() => {
+        setPaymentModes(editBillData?.paymentModes);
+      }, 100);
+    }
+  }, []);
 
   useEffect(() => {
     const timeOutId = setTimeout(() => {
@@ -438,6 +485,25 @@ const CreateBill = ({
     );
   };
 
+  // Helper function to parse itemDate in multiple formats
+  const parseItemDate = (dateValue) => {
+    if (!dateValue) return null;
+    if (dayjs.isDayjs(dateValue)) return dateValue;
+    if (typeof dateValue !== "string") return null;
+
+    // Try parsing different date formats
+    const formats = ["DD-MM-YYYY", "YYYY-MM-DD", "DD MMM YYYY"];
+    for (const format of formats) {
+      const parsed = dayjs(dateValue, format, true);
+      if (parsed.isValid()) {
+        return parsed;
+      }
+    }
+    // Fallback to default parsing
+    const fallback = dayjs(dateValue);
+    return fallback.isValid() ? fallback : null;
+  };
+
   const handleAddRow = (updatedData) => {
     const newRow = {
       masterId: "",
@@ -449,6 +515,7 @@ const CreateBill = ({
       gst: "",
       totalAmount: "",
       createdBy: "",
+      itemDate: dayjs().format("YYYY-MM-DD"),
     };
     setDataSource([...updatedData, newRow]);
     setSearchQuery("");
@@ -520,7 +587,7 @@ const CreateBill = ({
     {
       title: "ITEMS",
       dataIndex: "name",
-      width: "26%",
+      width: isIpdBill ? "23%" : "26%",
       render: (_, record, index) => (
         <>
           <AutoComplete
@@ -558,10 +625,40 @@ const CreateBill = ({
         </>
       ),
     },
+    isIpdBill && {
+      title: "DATE",
+      dataIndex: "itemDate",
+      width: "16%",
+      render: (_, record, index) => (
+        <div>
+          <DatePicker
+            placeholder="Select Date"
+            onChange={(date) => {
+              handleInputChange(
+                date ? date.format("DD-MM-YYYY") : "",
+                index,
+                "itemDate"
+              );
+            }}
+            format={{
+              format: "DD-MM-YYYY",
+              type: "mask",
+            }}
+            value={parseItemDate(record.itemDate)}
+            style={{
+              border: "none",
+            }}
+            disabledDate={(current) => current && current > dayjs()}
+            allowClear={false}
+            {...(isMobile && { suffixIcon: null })}
+          />
+        </div>
+      ),
+    },
     {
       title: "QTY",
       dataIndex: "quantity",
-      width: "8%",
+      width: isIpdBill ? "6%" : "9%",
       render: (_, record, index) => (
         <Input
           value={record.quantity}
@@ -580,7 +677,7 @@ const CreateBill = ({
     {
       title: "PRICE PER UNIT",
       dataIndex: "amount",
-      width: "14%",
+      width: isIpdBill ? "13%" : "14%",
       render: (_, record, index) => (
         <Input
           value={record.amount}
@@ -600,7 +697,7 @@ const CreateBill = ({
     {
       title: "DISCOUNT",
       dataIndex: "discount",
-      width: "22%",
+      width: isIpdBill ? "18%" : "22%",
       render: (_, record, index) => (
         <>
           <Input
@@ -666,7 +763,7 @@ const CreateBill = ({
     {
       title: "GST (%)",
       dataIndex: "gst",
-      width: "11%",
+      width: isIpdBill ? "10%" : "11%",
       render: (_, record, index) => (
         <Input
           value={record.gst}
@@ -714,7 +811,7 @@ const CreateBill = ({
     {
       title: "ACTION",
       dataIndex: "action",
-      width: "6%",
+      width: isIpdBill ? "2%" : "5%",
       render: (_, record, index) => (
         <Button
           className={`btn btn-delete-prescription p-0 ${
@@ -726,7 +823,7 @@ const CreateBill = ({
         </Button>
       ),
     },
-  ];
+  ]?.filter((item) => !!item);
 
   const handleModeChange = (value, index, type) => {
     const updatedModes = [...paymentModes];
@@ -817,10 +914,19 @@ const CreateBill = ({
         receptionistName: receptionistName,
       });
     }
-    const updatedDataSource = dataSource.filter((item) => {
-      const { masterId, name, quantity, amount, totalAmount } = item;
-      return masterId && name && quantity && amount && totalAmount;
-    });
+    const updatedDataSource = dataSource
+      .filter((item) => {
+        const { masterId, name, quantity, amount, totalAmount } = item;
+        return masterId && name && quantity && amount && totalAmount;
+      })
+      ?.map((item) => {
+        return {
+          ...item,
+          itemDate: item.itemDate
+            ? dayjs(item.itemDate).format("YYYY-MM-DD")
+            : null,
+        };
+      });
     // const updatedPaymentModes = paymentModes?.filter(
     //   (item) => item.paymentMode && item.amount > 0
     // );
@@ -829,7 +935,9 @@ const CreateBill = ({
     //   return;
     // }
     const patientUniqueId =
-      patientData?.patient_unique_id || patientDetails?.patientUniqueId;
+      patientData?.patient_unique_id ||
+      patientDetails?.patientUniqueId ||
+      editBillData?.patientId;
     const payload = {
       patientId: patientUniqueId,
       doctorId: isReceptionist
@@ -850,10 +958,16 @@ const CreateBill = ({
       isForm3C: shouldAddBillTo3C,
       date: moment().format("YYYY-MM-DD"),
       notes: patientBillNotes,
-      dueFromPreviousBill: patientDueAmount,
+      // dueFromPreviousBill: patientDueAmount,
       appointmentId: pam_id || patientData?.pam_id,
+      admissionId: admissionId,
+      id: editBillData?.id,
     };
-    const createRes = await createBill(payload);
+    const createRes = await createBill(
+      payload,
+      isIpdBill ? "ipd" : "",
+      editBillData?.id
+    );
     if (createRes?.id) {
       message.open({
         key: MESSAGE_KEY,
@@ -861,16 +975,21 @@ const CreateBill = ({
         className: "message-appointment",
         content: (
           <div className="d-flex align-items-center">
-            <img src={visitEnd} className="me-3" />
+            <img src={visitEnd} className="me-3" alt="visit-end" />
             <div>
               <div className="title-common text-start fontroboto">
                 {`${
-                  patientData?.pm_fullname || patientDetails?.patientName
-                }'s new bill saved successfully`}
+                  patientData?.pm_fullname ||
+                  patientDetails?.patientName ||
+                  editBillData?.patient?.name
+                }'s ${
+                  editBillData?.id ? "bill updated" : "new bill saved"
+                } successfully`}
               </div>
             </div>
             <img
               src={imgCloseVisit}
+              alt="close"
               className="ms-3"
               onClick={() => message.destroy()}
             />
@@ -890,13 +1009,17 @@ const CreateBill = ({
       }
       setBillData(createRes);
       if (type === "exit") {
+        // For IPD billing, call onBillCreated callback if provided
+        if (onBillCreated && isIpdBill) {
+          onBillCreated(createRes);
+        }
         handleCreateBillDrawer();
       } else if (type === "preview") {
         handleDrawerPreviewBill();
       } else {
         const blob = await pdf(
           <ViewBillPdf
-            printSettings={billPrintSettings}
+            printSettings={isIpdBill ? ipdBillPrintSettings : billPrintSettings}
             patientData={
               patientData && Object.keys(patientData).length > 0
                 ? patientData
@@ -917,7 +1040,11 @@ const CreateBill = ({
             profile={profile}
             billData={createRes}
             gstIn={advancedSettings?.GSTIN}
-            showCreatedBy={advancedSettings?.enableCreatedByInRx}
+            showCreatedBy={
+              isIpdBill
+                ? advancedSettings?.ipdSetting?.enableCreatedByInRx
+                : advancedSettings?.enableCreatedByInRx
+            }
           />
         ).toBlob();
         printContent(blob, createRes.patientId, setStartLoader);
@@ -978,6 +1105,10 @@ const CreateBill = ({
     },
     [setSearchQueryMobile]
   );
+
+  useEffect(() => {
+    handleAddRow(dataSource);
+  }, []);
 
   useEffect(() => {
     const data = [];
@@ -1212,7 +1343,7 @@ const CreateBill = ({
               >
                 <div className="border-end h-100 text-center">
                   <div
-                    onClick={handleCreateBillDrawer}
+                    onClick={(e) => handleCreateBillDrawer(e, true)}
                     className="btn-headerback align-items-center d-flex h-100 justify-content-around cursor-pointer"
                   >
                     <i className="icon-right" />
@@ -1257,7 +1388,9 @@ const CreateBill = ({
                     }
                   />
                 </div>
-                <span className="title-digitise-card">Create Bill</span>
+                <span className="title-digitise-card">
+                  {editBillData ? "Edit" : "Create"} Bill
+                </span>
                 {((patientData && Object.keys(patientData).length !== 0) ||
                   (patientDetails &&
                     Object.keys(patientDetails)?.length !== 0)) && (
@@ -1285,7 +1418,7 @@ const CreateBill = ({
                         </span>
                       </button>
                     </div>
-                    {Number(patientDueAmount) > 0 && (
+                    {/* {Number(patientDueAmount) > 0 && (
                       <div className="billing-dashboard-wraper">
                         <div
                           className={`total-due-container ${
@@ -1298,7 +1431,7 @@ const CreateBill = ({
                           </span>
                         </div>
                       </div>
-                    )}
+                    )} */}
                   </>
                 )}
               </div>
@@ -1310,53 +1443,68 @@ const CreateBill = ({
                 }`}
               >
                 <div>
-                  <Checkbox
-                    className="me-2"
-                    checked={shouldAddBillTo3C}
-                    onChange={(e) => {
-                      const clinic = getClinic();
-                      trackEvent("TP_Billing_AddBilltoForm3C", {
-                        patientName: patientDetails?.patientName || "",
-                        patientId: patientDetails?.patientUniqueId || "",
-                        doctorSpeciality: profile?.dp_name,
-                        doctorId: profile?.doctor_unique_id,
-                        doctorContact: profile?.um_contact,
-                        city: clinic?.hm_city,
-                        pincode: clinic?.hm_pincode,
-                        subscriptionStatus: planDetails?.currentPlanStatus,
-                        receptionistId: receptionistId,
-                        receptionistName: receptionistName,
-                      });
-                      setAddBillTo3C(e.target.checked);
-                    }}
-                  />
+                  <Tooltip
+                    title={
+                      editBillData?.isForm3C
+                        ? "This bill is already added to Form 3C, so this option cannot be changed."
+                        : ""
+                    }
+                  >
+                    <span>
+                      <Checkbox
+                        className={`me-2 ${
+                          editBillData?.isForm3C ? "disabled pe-none" : ""
+                        }`}
+                        checked={shouldAddBillTo3C}
+                        onChange={(e) => {
+                          const clinic = getClinic();
+                          trackEvent("TP_Billing_AddBilltoForm3C", {
+                            patientName: patientDetails?.patientName || "",
+                            patientId: patientDetails?.patientUniqueId || "",
+                            doctorSpeciality: profile?.dp_name,
+                            doctorId: profile?.doctor_unique_id,
+                            doctorContact: profile?.um_contact,
+                            city: clinic?.hm_city,
+                            pincode: clinic?.hm_pincode,
+                            subscriptionStatus: planDetails?.currentPlanStatus,
+                            receptionistId: receptionistId,
+                            receptionistName: receptionistName,
+                          });
+                          setAddBillTo3C(e.target.checked);
+                        }}
+                      />
+                    </span>
+                  </Tooltip>
                   Add bill for Form 3C
                 </div>
-                {!isDashboard && (
-                  <div>
-                    <Checkbox
-                      className="me-2"
-                      checked={includeInRx}
-                      onChange={(e) => {
-                        const clinic = getClinic();
-                        trackEvent("TP_Billing_IncludeinRx", {
-                          patientName: patientDetails?.patientName || "",
-                          patientId: patientDetails?.patientUniqueId || "",
-                          doctorSpeciality: profile?.dp_name,
-                          doctorId: profile?.doctor_unique_id,
-                          doctorContact: profile?.um_contact,
-                          city: clinic?.hm_city,
-                          pincode: clinic?.hm_pincode,
-                          subscriptionStatus: planDetails?.currentPlanStatus,
-                          receptionistId: receptionistId,
-                          receptionistName: receptionistName,
-                        });
-                        setIncludeInRx(e.target.checked);
-                      }}
-                    />
-                    Include in RX
-                  </div>
-                )}
+                {!isDashboard &&
+                  (editBillData?.appointmentId ||
+                    pam_id ||
+                    patientData?.pam_id) && (
+                    <div>
+                      <Checkbox
+                        className="me-2"
+                        checked={includeInRx}
+                        onChange={(e) => {
+                          const clinic = getClinic();
+                          trackEvent("TP_Billing_IncludeinRx", {
+                            patientName: patientDetails?.patientName || "",
+                            patientId: patientDetails?.patientUniqueId || "",
+                            doctorSpeciality: profile?.dp_name,
+                            doctorId: profile?.doctor_unique_id,
+                            doctorContact: profile?.um_contact,
+                            city: clinic?.hm_city,
+                            pincode: clinic?.hm_pincode,
+                            subscriptionStatus: planDetails?.currentPlanStatus,
+                            receptionistId: receptionistId,
+                            receptionistName: receptionistName,
+                          });
+                          setIncludeInRx(e.target.checked);
+                        }}
+                      />
+                      Include in RX
+                    </div>
+                  )}
 
                 {!isReceptionist && (
                   <div className="d-sm-flex d-block">
@@ -1384,7 +1532,26 @@ const CreateBill = ({
                   </div>
                 )}
 
-                {isRxPage ? (
+                {isIpdBill ? (
+                  <Button
+                    type="button"
+                    className={`btn btn-primary3 btn-41 me-20 ${
+                      isMobile ? "" : "px-4"
+                    }`}
+                    onClick={() => {
+                      handleCreateBill("exit");
+                    }}
+                    disabled={
+                      disableSaveBtn ||
+                      (!patientData?.patient_unique_id &&
+                        !patientDetails?.patientUniqueId &&
+                        !editBillData?.patientId)
+                      //    || Number(payableAmount) === 0
+                    }
+                  >
+                    Save
+                  </Button>
+                ) : isRxPage ? (
                   <>
                     <Button
                       type="button"
@@ -1397,7 +1564,8 @@ const CreateBill = ({
                       disabled={
                         disableSaveBtn ||
                         (!patientData?.patient_unique_id &&
-                          !patientDetails?.patientUniqueId)
+                          !patientDetails?.patientUniqueId &&
+                          !editBillData?.patientId)
                         //    || Number(payableAmount) === 0
                       }
                     >
@@ -1412,7 +1580,8 @@ const CreateBill = ({
                       disabled={
                         disableSaveBtn ||
                         (!patientData?.patient_unique_id &&
-                          !patientDetails?.patientUniqueId)
+                          !patientDetails?.patientUniqueId &&
+                          !editBillData?.patientId)
                         //    || Number(payableAmount) === 0
                       }
                     >
@@ -1432,7 +1601,8 @@ const CreateBill = ({
                       disabled={
                         disableSaveBtn ||
                         (!patientData?.patient_unique_id &&
-                          !patientDetails?.patientUniqueId) ||
+                          !patientDetails?.patientUniqueId &&
+                          !editBillData?.patientId) ||
                         // Number(payableAmount) === 0 ||
                         (isReceptionist &&
                           doctorsList?.length > 1 &&
@@ -1452,7 +1622,8 @@ const CreateBill = ({
                       disabled={
                         disableSaveBtn ||
                         (!patientData?.patient_unique_id &&
-                          !patientDetails?.patientUniqueId) ||
+                          !patientDetails?.patientUniqueId &&
+                          !editBillData?.patientId) ||
                         // Number(payableAmount) === 0 ||
                         (isReceptionist &&
                           doctorsList?.length > 1 &&
@@ -1473,8 +1644,8 @@ const CreateBill = ({
           <Col
             className="h-100"
             style={{
-              flex: "0 0 70%",
-              maxWidth: "70%",
+              flex: isIpdBill ? "0 0 76%" : "0 0 70%",
+              maxWidth: isIpdBill ? "76%" : "70%",
               overflowY: "auto",
               height: "100%",
               paddingRight: 0,
@@ -1488,7 +1659,9 @@ const CreateBill = ({
                     <span className="lab-params-warning">*</span>{" "}
                   </div>
                   {isEditingName &&
-                  (!patientData || Object.keys(patientData).length === 0) ? (
+                  (!patientData || Object.keys(patientData).length === 0) &&
+                  (!patientDetails ||
+                    Object.keys(patientDetails).length === 0) ? (
                     <AutoComplete
                       ref={nameAutoCompleteRef} // Attach ref for name AutoComplete
                       value={searchQueryName}
@@ -1527,7 +1700,9 @@ const CreateBill = ({
                   ) : (
                     <div
                       className={`d-flex align-items-center flex-wrap border border-radius-10 cursor-pointer w-100 ${
-                        patientData?.patient_unique_id && "pe-none disabled"
+                        (patientData?.patient_unique_id ||
+                          editBillData?.patientId) &&
+                        "pe-none disabled"
                       }`}
                       onClick={() => {
                         setIsEditingName(true);
@@ -1538,20 +1713,24 @@ const CreateBill = ({
                         <i className="icon-patients backbar me-2"></i>{" "}
                         <span className="patientInfo">
                           {patientDetails?.patientName ||
-                            patientData?.pm_fullname}
+                            patientData?.pm_fullname ||
+                            editBillData?.patient?.name}
                         </span>
                       </div>
                       <div className="list-patientName d-flex align-items-center me-4">
                         <i className="icon-phone backbar me-2"></i>
                         <span className="patientInfo">
                           {patientDetails?.mobileNumber ||
-                            patientData?.pm_contact_no}
+                            patientData?.pm_contact_no ||
+                            editBillData?.patient?.phone}
                         </span>
                       </div>
                       <div className="list-patientName d-flex align-items-center me-4">
                         <i className="icon-Id backbar me-2"></i>
                         <span className="patientInfo">
-                          {patientDetails?.pmPid || patientData?.pm_pid}
+                          {patientDetails?.pmPid ||
+                            patientData?.pm_pid ||
+                            editBillData?.patient?.id}
                         </span>
                       </div>
                     </div>
@@ -1573,13 +1752,19 @@ const CreateBill = ({
                   <div style={{ paddingBottom: "5px" }}>
                     Doctor Name <span className="lab-params-warning">*</span>
                   </div>
-                  {!isReceptionist || doctorsList.length === 1 ? (
+                  {!isReceptionist ||
+                  doctorsList.length === 1 ||
+                  editBillData?.doctorId ? (
                     <Input
                       className="input-create-bill"
                       value={
                         doctorsList.length === 1
                           ? doctorsList[0].label
+                          : editDoctorFromList?.label
+                          ? editDoctorFromList?.label
                           : profile?.um_name
+                          ? profile?.um_name
+                          : ""
                       }
                       style={{ height: 38, width: "12rem" }}
                       onInput={(e) => {
@@ -1600,6 +1785,11 @@ const CreateBill = ({
                 </div>
               </div>
               <Divider />
+              {/* <BillTemplate
+                setDataSource={setDataSource}
+                dataSource={dataSource}
+                totalBillAmount={totalBillAmount}
+              /> */}
               <Table
                 dataSource={dataSource}
                 columns={columns}
@@ -1614,8 +1804,8 @@ const CreateBill = ({
           <Col
             className="h-100 py-4"
             style={{
-              flex: "0 0 30%",
-              maxWidth: "30%",
+              flex: isIpdBill ? "0 0 24%" : "0 0 30%",
+              maxWidth: isIpdBill ? "24%" : "30%",
               overflowY: "auto",
               height: "100%",
               backgroundColor: "rgba(241, 241, 245, 0.5)",
@@ -1672,7 +1862,7 @@ const CreateBill = ({
                               onChange={(value) =>
                                 handleModeChange(value, index, "paymentMode")
                               }
-                              className="payment-mode"
+                              className={`${isIpdBill && isMobile ? "payment-mode-ipd" : "payment-mode"}`}
                               dropdownStyle={{ width: 180 }}
                               options={filteredOptions}
                             />
@@ -1708,9 +1898,13 @@ const CreateBill = ({
                                     const clinic = getClinic();
                                     trackEvent("TP_Billing_UPIRefID", {
                                       patientName:
-                                        patientDetails?.patientName || "",
+                                        patientDetails?.patientName ||
+                                        editBillData?.patient?.name ||
+                                        "",
                                       patientId:
-                                        patientDetails?.patientUniqueId || "",
+                                        patientDetails?.patientUniqueId ||
+                                        editBillData?.patientId ||
+                                        "",
                                       doctorId: profile?.doctor_unique_id,
                                       doctorContact: profile?.um_contact,
                                       city: clinic?.hm_city,
@@ -1835,8 +2029,7 @@ const CreateBill = ({
                               (sum, service) =>
                                 sum + (Number(service.totalAmount) || 0),
                               0
-                            ) -
-                              (Number(patientDueAmount) || 0))
+                            ))
                       ) {
                         setExtraDiscount(value);
                       }
@@ -1888,14 +2081,14 @@ const CreateBill = ({
                   </div>
                 </div>
               </div>
-              {patientDueAmount > 0 && (
+              {/* {patientDueAmount > 0 && (
                 <div className="d-flex justify-content-between">
                   <span>Due from Previous bill:</span>
                   <span className="text-scheduled">
                     ₹{patientDueAmount.toFixed(2)}
                   </span>
                 </div>
-              )}
+              )} */}
               <Divider style={{ margin: 0 }} />
               <div className="d-flex justify-content-between">
                 <span style={{ fontWeight: 600 }}>Total Payable Amount:</span>
@@ -2019,8 +2212,9 @@ const CreateBill = ({
             handleCreateBillDrawer={handleCreateBillDrawer}
             patientData={patientData}
             billData={billData}
-            isPreviewFromTable={isPreviewFromTable}
+            isPreviewFromTable={isPreviewFromTable || editBillData}
             totalAdvanceBalance={patientWalletBalance}
+            handleEditBillDrawer={handleDrawerPreviewBill}
           />
         </Drawer>
       )}
@@ -2040,6 +2234,7 @@ const CreateBill = ({
             }
             updateTotalAdvanceBalance={setTotalAdvanceBalance}
             isReceptionistDashboard={isReceptionist}
+            billData={editBillData}
           />
         </Drawer>
       )}

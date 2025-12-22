@@ -12,6 +12,7 @@ const OpdBill = () => {
   const patientId = urlParams.get("patientId") || "";
   const doctorId = urlParams.get("doctorId") || "";
   const token = urlParams.get("token") || "";
+  const admissionId = urlParams.get("admissionId") || "";
 
   const isDepositReceipt = !!receiptNumber;
 
@@ -56,7 +57,8 @@ const OpdBill = () => {
         billNumber,
         patientId,
         doctorId,
-        token
+        token,
+        admissionId,
       );
 
       if (billDetailsRes && Object.keys(billDetailsRes).length > 0) {

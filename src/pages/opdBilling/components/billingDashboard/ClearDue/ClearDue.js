@@ -1,29 +1,10 @@
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  useContext,
-  useMemo,
-  useRef,
-} from "react";
-import {
-  Button,
-  Card,
-  DatePicker,
-  Input,
-  Select,
-  Table,
-  Tooltip,
-  AutoComplete,
-  message,
-} from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import React, { useState, useEffect, useRef } from "react";
+import { Button, Card, Input, Select, Table, message } from "antd";
 import moment from "moment";
-import dayjs from "dayjs";
-import "./RefundBill.scss";
+import "./ClearDue.scss";
 
-import { useSelector, useDispatch } from "react-redux";
-import { processBillRefund } from "../../../service";
+import { useSelector } from "react-redux";
+import { processClearDue } from "../../../service";
 import imgCloseVisit from "../../../../../assets/images/close-visit.svg";
 import visitEnd from "../../../../../assets/images/end-visit.svg";
 import { MESSAGE_KEY } from "../../../../../utils/constants";
@@ -39,42 +20,62 @@ import {
   trackEvent,
 } from "../../../../../utils/utils";
 
-const dateFormat = "YYYY-MM-DD";
-const showDateFormat = "DD MMM, YY";
 const { TextArea } = Input;
 const MAX_REMARKS_LENGTH = 400;
 
-function RefundBill({
-  handleRefundBillDrawer,
+function ClearDue({
+  handleClearDueDrawer,
   billData,
   handleMessageForm3c,
   getPatientBills,
-  onRefundSuccess,
+  onClearDueSuccess,
   patientAdvanceData,
-  billType,
+  admissionId,
 }) {
-  const totalPaidAmount = calculateTotalPaidAmount(billData);
-  const scrollContainerRef = useRef(null);
-  const inputRef = useRef([]);
-  const dispatch = useDispatch();
-  const [dateString, setDateString] = useState(null);
   const [shouldShowRefIdPopup, setShowRefIdPopup] = useState(-1);
-  const [totalRefundAmount, setTotalRefundAmount] = useState(0);
+  const [totalClearDueAmount, setTotalClearDueAmount] = useState(0);
   const [paymentModes, setPaymentModes] = useState([
-    { paymentMode: "Cash", amount: totalPaidAmount, refId: "" },
+    { paymentMode: "Cash", amount: billData?.dueAmount || "", refId: "" },
   ]);
+  const [remarks, setRemarks] = useState("");
   const [isPaymentModeItemMissing, setPaymentModeItemMissing] = useState(false);
-  const usedPaymentModes = paymentModes.map((p) => p.paymentMode);
+  const [isAmountExceeding, setIsAmountExceeding] = useState(false);
   const paymentMethodsRef = useRef(null);
   const { planDetails } = useSelector((state) => state.subscription);
   const { profile } = useSelector((state) => state.doctors);
 
+  const usedPaymentModes = paymentModes.map((p) => p.paymentMode);
   const filteredOptions = PaymentOptions.filter(
     (option) => !usedPaymentModes.includes(option.value)
   );
   const urlParams = new URLSearchParams(window.location.search);
   const isReceptionist = urlParams.has("receptionist");
-  const [remarks, setRemarks] = useState("");
+
+  // Calculate total clear due amount whenever paymentModes change
+  useEffect(() => {
+    const total = paymentModes.reduce(
+      (sum, item) => sum + (parseFloat(item.amount) || 0),
+      0
+    );
+    setTotalClearDueAmount(total);
+
+    // Validate if amount exceeds due amount
+    const dueAmount = parseFloat(billData?.dueAmount) || 0;
+    setIsAmountExceeding(total > dueAmount);
+  }, [paymentModes, billData?.dueAmount]);
+
+  // Reset state when billData changes
+  useEffect(() => {
+    if (billData?.dueAmount) {
+      setPaymentModes([
+        { paymentMode: "Cash", amount: billData.dueAmount, refId: "" },
+      ]);
+      setRemarks("");
+      setTotalClearDueAmount(0);
+      setIsAmountExceeding(false);
+      setPaymentModeItemMissing(false);
+    }
+  }, [billData]);
 
   const handleModeChange = (value, index, type) => {
     const updatedModes = [...paymentModes];
@@ -87,19 +88,21 @@ function RefundBill({
       const updatedModes = [...paymentModes];
       updatedModes[index].amount = onlyDecimalFormat(value);
       setPaymentModes(updatedModes);
+      if (isPaymentModeItemMissing) {
+        setPaymentModeItemMissing(false);
+      }
     }
   };
 
-  // Calculate total refund whenever paymentModes change
-  useEffect(() => {
-    const total = paymentModes.reduce(
-      (sum, item) => sum + (parseFloat(item.amount) || 0),
-      0
-    );
-    setTotalRefundAmount(total);
-  }, [paymentModes]);
+  const handleRemarksChange = (e) => {
+    const value = e.target.value;
+    if (value.length <= MAX_REMARKS_LENGTH) {
+      setRemarks(value);
+    }
+  };
 
-  const handleRefundBill = async () => {
+  const handleClearDue = async () => {
+    // Validate payment modes
     const updatedPaymentModes = paymentModes?.filter(
       (item) => item.paymentMode && item.amount > 0
     );
@@ -108,14 +111,46 @@ function RefundBill({
       return;
     }
 
+    // Validate amount doesn't exceed due amount
+    const dueAmount = parseFloat(billData?.dueAmount) || 0;
+    if (totalClearDueAmount > dueAmount) {
+      setIsAmountExceeding(true);
+      message.error("Clear due amount cannot exceed the due amount");
+      return;
+    }
+
+    if (totalClearDueAmount <= 0) {
+      message.error("Please enter a valid amount to clear due");
+      return;
+    }
+
     try {
       const payload = {
-        billId: billData.id,
-        paymentModes: [...paymentModes],
-        notes: remarks?.trim() || "",
+        admissionId: admissionId,
+        patientId: billData?.patientId,
+        billNumber: billData?.billNumber,
+        paidDue: {
+          date: moment().format("YYYY-MM-DD"),
+          paidAmount: totalClearDueAmount,
+          paymentModes: paymentModes.map((mode) => ({
+            paymentMode: mode.paymentMode,
+            amount: parseFloat(mode.amount) || 0,
+            refId: mode.refId || "",
+          })),
+        },
       };
-      const response = await processBillRefund(payload, billType);
-      if (response.status === 204) {
+
+      // Add remarks if provided
+      if (remarks.trim()) {
+        payload.paidDue.notes = remarks.trim();
+      }
+
+      const response = await processClearDue(
+        payload,
+        admissionId ? "ipd" : "opd"
+      );
+
+      if (response.id || response.status === 200) {
         const isAdvanceDeposit = !!paymentModes?.find(
           (item) => item.paymentMode === "Advance Deposit"
         );
@@ -130,7 +165,9 @@ function RefundBill({
             <div className="d-flex align-items-center">
               <img src={visitEnd} className="me-3" alt="visit-end" />
               <div>
-                <div className="title-common text-start fontroboto">{`${totalRefundAmount} is refunded`}</div>
+                <div className="title-common text-start fontroboto">
+                  {`₹${totalClearDueAmount} Due Cleared Successfully`}
+                </div>
               </div>
               <img
                 src={imgCloseVisit}
@@ -142,15 +179,15 @@ function RefundBill({
           ),
           duration: 5,
         });
-        handleRefundBillDrawer();
+        handleClearDueDrawer();
         getPatientBills && getPatientBills();
         handleMessageForm3c && handleMessageForm3c();
-        onRefundSuccess && onRefundSuccess();
+        onClearDueSuccess && onClearDueSuccess();
       } else {
-        throw new Error(response.error || "Failed to refund the bill.");
+        throw new Error(response.error || "Failed to clear due amount.");
       }
     } catch (error) {
-      message.error(error.message || "Failed to refund the bill");
+      message.error(error.message || "Failed to clear due amount");
     }
   };
 
@@ -191,20 +228,13 @@ function RefundBill({
     setPaymentModes(updatedModes);
   };
 
-  const handleRemarksChange = (e) => {
-    const value = e.target.value;
-    if (value.length <= MAX_REMARKS_LENGTH) {
-      setRemarks(value);
-    }
-  };
-
   const columns = [
     {
       title: "BILL NO & DATE",
       dataIndex: "bill_num_date",
       key: "bill_num_date",
       render: (text, record) => (
-        <div className="cursor-pointer" onClick={async () => {}}>
+        <div className="cursor-pointer">
           <div className="fs-14 fw-semibold theme-color">
             {record?.billNumber}
           </div>
@@ -220,7 +250,7 @@ function RefundBill({
       key: "patient_details",
       ellipsis: true,
       render: (text, record) => (
-        <div className="cursor-pointer" onClick={async () => {}}>
+        <div className="cursor-pointer">
           <div className="fs-14 patient-name-cell">{record?.patient?.name}</div>
           <div className="fs-14 fw-normal text-truncate-twolines">
             {record?.patient?.phone}
@@ -229,88 +259,64 @@ function RefundBill({
       ),
     },
     {
-      title: "TOTAL AMOUNT",
-      dataIndex: "total_amount",
-      key: "total_amount",
+      title: "TOTAL",
+      dataIndex: "total",
+      key: "total",
       ellipsis: true,
-      onFilter: (value, record) => record.send_on.startsWith(value),
-      render: (text, record) => <div> {record?.payableAmount} </div>,
+      render: (text, record) => <div>₹{record?.payableAmount}</div>,
     },
     {
-      title: "PAID AMOUNT",
-      dataIndex: "paid_Amount",
-      key: "paid_Amount",
+      title: "PAID",
+      dataIndex: "paid",
+      key: "paid",
       ellipsis: true,
       render: (text, record) => {
-        return <div>{totalPaidAmount.toFixed(2)}</div>;
+        const totalPaidAmount = calculateTotalPaidAmount(record);
+        return <div>₹{totalPaidAmount.toFixed(2)}</div>;
       },
     },
     {
-      title: "STATUS",
-      dataIndex: "status",
-      key: "status",
-      render: (text, record) => {
-        // Determine the class name and display value based on the status
-        const getStatusDetails = (status) => {
-          switch (status?.toLowerCase()) {
-            case "fullypaid":
-              return {
-                className: "status-paid-fully",
-                displayText: "Paid Fully",
-              };
-            case "due":
-              return {
-                className: "status-due",
-                displayText: `Due: ₹${record?.dueAmount}`,
-              };
-            case "carriedforward":
-              return {
-                className: "status-refunded",
-                displayText: `Due ₹${record?.dueAmount}`,
-              };
-            default:
-              return {
-                className: "due",
-                displayText: `Due: ₹${record?.dueAmount}`,
-              };
-          }
-        };
-
-        // Get status details
-        const { className, displayText } = getStatusDetails(
-          record?.paymentStatus
-        );
-
-        return <div className={className}>{displayText}</div>;
-      },
+      title: "DUE",
+      dataIndex: "due",
+      key: "due",
+      ellipsis: true,
+      render: (text, record) => <div>₹{record?.dueAmount}</div>,
+    },
+    {
+      title: "REFUND",
+      dataIndex: "refund",
+      key: "refund",
+      ellipsis: true,
+      render: (text, record) => (
+        <div>{record?.refundedAmount ? `₹${record.refundedAmount}` : "-"}</div>
+      ),
     },
   ];
 
+  const dueAmount = parseFloat(billData?.dueAmount) || 0;
+  const isFormValid =
+    totalClearDueAmount > 0 &&
+    totalClearDueAmount <= dueAmount &&
+    !isPaymentModeItemMissing &&
+    paymentModes.every((mode) => mode.paymentMode && mode.amount > 0);
+
   return (
     <>
-      <Card bordered={false} className="search-modalCard refund-bill-wrapper">
+      <Card bordered={false} className="search-modalCard clear-due-wrapper">
         <div className="modalCard-header h-60 align-items-center justify-content-between d-flex">
           <div className="align-items-center d-flex">
             <Button
               type="text"
               className="btn btn-delete-prescription px-3 focus-none h-100"
-              onClick={handleRefundBillDrawer}
+              onClick={handleClearDueDrawer}
             >
               <i
                 className="icon-Cross fs-3"
                 style={{ color: isReceptionist ? "rgb(113, 79, 255)" : "" }}
               ></i>
             </Button>
-            <div className="modal-title">Refund Bill</div>
+            <div className="modal-title">Clear Due</div>
           </div>
-          <Button
-            className={`btn btn-41 px-4 me-20 ${
-              isReceptionist ? "receptionist-btn" : "btn-primary3"
-            }`}
-            onClick={handleRefundBill}
-          >
-            Refund
-          </Button>
         </div>
         <div
           className="billing-table-wrapper align-items-center d-flex justify-content-between mt-4 table-wrapper"
@@ -331,7 +337,7 @@ function RefundBill({
           <div className="d-flex gap-2 mx-4 my-2 p-2">
             <div style={{ padding: "16px 0px 0px 0px", width: "100%" }}>
               <div className="text-lg font-medium mb-2">
-                Paid Amount <span className="color-red">*</span>
+                Enter Due Amount <span className="color-red">*</span>
               </div>
               <div ref={paymentMethodsRef}>
                 {paymentModes.map((payment, index) => (
@@ -357,14 +363,14 @@ function RefundBill({
                             className="d-flex w-100"
                             style={{
                               border:
-                                totalRefundAmount !== totalPaidAmount ||
+                                isAmountExceeding ||
                                 (isPaymentModeItemMissing &&
                                   (payment?.amount === 0 ||
                                     payment?.amount === ""))
                                   ? "solid 1px red"
                                   : "",
                               borderRadius:
-                                totalRefundAmount !== totalPaidAmount ||
+                                isAmountExceeding ||
                                 (isPaymentModeItemMissing &&
                                   (payment?.amount === 0 ||
                                     payment?.amount === ""))
@@ -388,9 +394,6 @@ function RefundBill({
                               value={payment.amount}
                               onChange={(e) => {
                                 handleAmountChange(e.target.value, index);
-                                if (isPaymentModeItemMissing) {
-                                  setPaymentModeItemMissing(false);
-                                }
                               }}
                               className="payment-input w-100"
                             />
@@ -452,14 +455,12 @@ function RefundBill({
                     </div>
                   </div>
                 ))}
-                {totalRefundAmount !== totalPaidAmount && (
+                {isAmountExceeding && (
                   <div className="d-flex align-items-start gap-2">
                     <span className="icon-info fs-18 mt-1 bdg-danger" />
                     <span className="bdg-danger">
-                      Refund amount should be{" "}
-                      <b style={{ fontWeight: 600 }}>₹{totalPaidAmount}</b>
-                      {` (Amount less or greater than the bill amount are not
-                      allowed)`}
+                      Clear due amount cannot exceed{" "}
+                      <b style={{ fontWeight: 600 }}>₹{dueAmount}</b>
                     </span>
                   </div>
                 )}
@@ -481,13 +482,13 @@ function RefundBill({
             <div className="w-100 position-relative">
               <TextArea
                 className="h-100 align-self-center"
-                placeholder="Add Notes(optional)"
+                placeholder="Add Remarks (optional)"
                 value={remarks}
+                onChange={handleRemarksChange}
                 autoSize={{
                   minRows: 1,
                   maxRows: 2,
                 }}
-                onChange={handleRemarksChange}
               />
               <div
                 className="position-absolute"
@@ -504,21 +505,14 @@ function RefundBill({
           </div>
         </div>
 
-        <div className="mx-4 my-2 p-2 refund-info h-50">
-          <span className="color-red fw-semibold">
-            {totalRefundAmount ? totalRefundAmount : 0}
-          </span>
-          &nbsp;will be Refunded to the patient
-        </div>
-
         <button
-          className={`btn-refund-bill mx-4 p-2 h-50 ${
+          className={`btn-clear-due mx-4 p-2 h-50 ${
             isReceptionist ? "receptionist-btn" : ""
           }`}
-          onClick={handleRefundBill}
-          disabled={totalRefundAmount !== totalPaidAmount}
+          onClick={handleClearDue}
+          disabled={!isFormValid}
         >
-          Refund the Bill
+          Clear Due ₹{totalClearDueAmount ? totalClearDueAmount : 0}
         </button>
 
         {shouldShowRefIdPopup !== null && shouldShowRefIdPopup >= 0 && (
@@ -534,4 +528,4 @@ function RefundBill({
   );
 }
 
-export default React.memo(RefundBill);
+export default React.memo(ClearDue);

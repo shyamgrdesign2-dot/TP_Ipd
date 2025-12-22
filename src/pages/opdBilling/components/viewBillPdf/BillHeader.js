@@ -3,6 +3,7 @@ import {
   billDataShow,
   getBillInfoTitleToShow,
   patientDataShow,
+  patientIpdDataShow,
 } from "./helper";
 import { PX_TO_PT, styles } from "./constants";
 
@@ -13,6 +14,7 @@ const BillHeader = ({
   billData,
   profile,
   gstIn,
+  isIpdBill,
 }) => {
   const { headerFooter, pageFormat } = printSettings || {};
   const { header, otherSettings, patientInfo, billInfo } = headerFooter || {};
@@ -251,7 +253,7 @@ const BillHeader = ({
                       },
                     ]}
                   >
-                    {patientDataShow(item.id, patientData, billData, profile)}
+                    {isIpdBill ? patientIpdDataShow(item.id, patientData, billData, profile) : patientDataShow(item.id, patientData, billData, profile)}
                   </Text>
                 </View>
               );

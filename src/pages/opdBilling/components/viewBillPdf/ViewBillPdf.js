@@ -127,6 +127,7 @@ const ViewBillPdf = ({
   gstIn,
   showCreatedBy,
 }) => {
+  const isIpdBill = !!billData?.admissionId;
   const [fileWatermark, setFileWatermark] = useState(null);
   const paddingStyles = calculatePadding(printSettings?.headerFooter);
 
@@ -152,6 +153,7 @@ const ViewBillPdf = ({
             billData={billData}
             profile={profile}
             gstIn={gstIn}
+            isIpdBill={isIpdBill}
           />
 
           {isDepositReceipt ? (
@@ -165,6 +167,7 @@ const ViewBillPdf = ({
               pageFormat={printSettings?.pageFormat}
               billData={billData}
               totalAdvanceBalance={totalAdvanceBalance}
+              isIpdBill={isIpdBill}
             />
           )}
           <BillOtherSettings printSettings={printSettings} profile={profile} />

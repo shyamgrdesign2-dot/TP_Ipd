@@ -116,7 +116,7 @@ function AddAdvance({
   const urlParams = new URLSearchParams(window.location.search);
   const isReceptionist = urlParams.has("receptionist");
   const receptionistId = urlParams.get("receptionistId");
-  const receptionistName = urlParams.get("receptionistName");
+  const receptionistName = urlParams.get("receptionistName")
 
   useEffect(() => {
     setAdvanceModes([
@@ -913,7 +913,8 @@ function AddAdvance({
         advanceModes.every((mode) => mode.paymentMode && mode.amount > 0) &&
         (patientData?.pm_fullname ||
           patientData?.patientName ||
-          patientDetails?.patientName)
+          patientDetails?.patientName ||
+          patientData?.name)
       );
       // ) && (depositDate || patientData?.apDate) &&
     } else {
@@ -923,7 +924,8 @@ function AddAdvance({
         refundModes.every((mode) => mode.paymentMode && mode.amount > 0) &&
         (patientData?.pm_fullname ||
           patientData?.patientName ||
-          patientDetails?.patientName)
+          patientDetails?.patientName ||
+          patientData?.name)
       );
       //   (depositDate || patientData?.apDate) &&
     }
@@ -1041,7 +1043,8 @@ function AddAdvance({
                         >
                           {patientData?.pm_fullname ||
                             patientData?.patientName ||
-                            patientDetails?.patientName}
+                            patientDetails?.patientName ||
+                            patientData?.name}
                         </span>
                       </div>
                       <div className="list-patientName d-flex align-items-center me-4 my-1">
@@ -1049,7 +1052,8 @@ function AddAdvance({
                         <span className="patientInfo">
                           {patientData?.pm_contact_no ||
                             patientData?.mobileNumber ||
-                            patientDetails?.mobileNumber}
+                            patientDetails?.mobileNumber ||
+                            patientData?.phone}
                         </span>
                       </div>
                       <div className="list-patientName d-flex align-items-center me-4 my-1">
@@ -1057,7 +1061,8 @@ function AddAdvance({
                         <span className="patientInfo">
                           {patientData?.pm_pid ||
                             patientData?.pmPid ||
-                            patientDetails?.patientId}
+                            patientDetails?.patientId ||
+                            patientData?.patientUniqueId}
                         </span>
                       </div>
                     </div>

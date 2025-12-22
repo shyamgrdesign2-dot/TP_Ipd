@@ -19,7 +19,7 @@ import BillHeaderFooterLayout from "./BillHeaderFooterLayout";
 import ViewBillPdf from "../viewBillPdf/ViewBillPdf";
 import { deletePrintSetting, updatePrintSetting } from "../../service";
 import { useSelector } from "react-redux";
-import { setBillPrintSettings } from "../../../../redux/billingSlice";
+import { setBillPrintSettings, setIpdBillPrintSettings } from "../../../../redux/billingSlice";
 import { useDispatch } from "react-redux";
 const worker = require("pdfjs-dist/build/pdf.worker.min.js");
 pdfjs.GlobalWorkerOptions.workerSrc = worker;
@@ -30,12 +30,13 @@ const ConfigureBillSettings = ({
   billData,
   isDepositReceipt,
   totalAdvanceBalance,
+  isIpdBill,
 }) => {
   const dispatch = useDispatch();
   const { defaultPrintSettings, profile } = useSelector(
     (state) => state.doctors
   );
-  const { billPrintSettings, advancedSettings } = useSelector(
+  const { billPrintSettings, advancedSettings, ipdBillPrintSettings } = useSelector(
     (state) => state.billing
   );
   const TabsPrintSetting = [
@@ -186,8 +187,10 @@ const ConfigureBillSettings = ({
   }, [divRef]);
 
   useEffect(() => {
-    if (billPrintSettings && Object.keys(billPrintSettings)?.length > 0) {
+    if (billPrintSettings && Object.keys(billPrintSettings)?.length > 0 && !isIpdBill) {
       setPrintSettings(billPrintSettings);
+    } else if (ipdBillPrintSettings && Object.keys(ipdBillPrintSettings)?.length > 0 && isIpdBill) {
+      setPrintSettings(ipdBillPrintSettings);
     }
   }, []);
 
@@ -237,7 +240,7 @@ const ConfigureBillSettings = ({
   };
 
   const handleDefaultSettings = async () => {
-    await deletePrintSetting();
+    await deletePrintSetting(isIpdBill ? "ipdBill" : "");
     showHideBackModal(null);
   };
 
@@ -268,10 +271,13 @@ const ConfigureBillSettings = ({
     } else {
       formData.append("deleteSignature", true);
     }
+    if (isIpdBill) {
+      formData.append("billType", "ipdBill");
+    }
 
     const updatePrintSettingRes = await updatePrintSetting(formData);
     if (updatePrintSettingRes?.status === 200) {
-      dispatch(setBillPrintSettings(printSettings));
+      dispatch(isIpdBill ? setIpdBillPrintSettings(printSettings) : setBillPrintSettings(printSettings));
       message.open({
         key: MESSAGE_KEY,
         type: "",
@@ -286,6 +292,7 @@ const ConfigureBillSettings = ({
             </div>
             <img
               src={imgCloseVisit}
+              alt="close"
               className="ms-3"
               onClick={() => message.destroy()}
             />
@@ -421,6 +428,7 @@ const ConfigureBillSettings = ({
             src={imgCloseVisit}
             className="ms-3"
             onClick={() => message.destroy()}
+            alt="close"
           />
         </div>
       ),
@@ -534,7 +542,7 @@ const ConfigureBillSettings = ({
                   onChange={onTabChange}
                   className="print-tabs"
                 />
-                {printSettingsDifferFromRx &&
+                {!isIpdBill && printSettingsDifferFromRx &&
                   Object.keys(printSettingsDifferFromRx)?.length > 0 && (
                     <Button
                       type="button"

@@ -317,10 +317,10 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
     setIsFileTypeError(null);
   };
 
-  const getAllDocumentCategories = async () => {
+  const getAllDocumentCategories = useCallback(async () => {
     const response = await fetchAllDocumentCategories();
     dispatch(setUploadDocCategories(response));
-  };
+  }, [dispatch]);
 
   const handleFileUpload = (event, record) => {
     const files = event.target.files;
@@ -378,19 +378,34 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
     }
   };
 
+  const hasFetchedBillPrintSettings = useRef(false);
+
+  const getAdvanceSettings = useCallback(async () => {
+    const response = await fetchAdvanceSetting();
+    if (response) dispatch(setAdvancedSettings(response));
+  }, [dispatch]);
+
+  const getBillPrintSettings = useCallback(async () => {
+    const response = await fetchPrintSetting(isReceptionist ? urlParams.get("um_id") : userId);
+    if (response) dispatch(setBillPrintSettings(response));
+  }, [dispatch, isReceptionist, urlParams]);
+
   useEffect(() => {
-    if (uploadDocCategories.length === 0 && !isReceptionist) {
-      getAllDocumentCategories();
-    }
-    if (
-      advancedSettings &&
-      Object.keys(advancedSettings).length === 0 &&
-      isOpdBillingAccessable
-    ) {
+    if (!uploadDocCategories.length && !isReceptionist) getAllDocumentCategories();
+  }, [uploadDocCategories.length, isReceptionist, getAllDocumentCategories]);
+
+  useEffect(() => {
+    if (advancedSettings && !Object.keys(advancedSettings).length && isOpdBillingAccessable) {
       getAdvanceSettings();
     }
-    getBillPrintSettings();
-  }, [isOpdBillingAccessable]);
+  }, [isOpdBillingAccessable, advancedSettings, getAdvanceSettings]);
+
+  useEffect(() => {
+    if (!hasFetchedBillPrintSettings.current) {
+      hasFetchedBillPrintSettings.current = true;
+      getBillPrintSettings();
+    }
+  }, [getBillPrintSettings]);
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
@@ -424,22 +439,6 @@ function AppointmentData({ locationPath, appointmentAgentsData }) {
       }
     }
   }, []);
-
-  const getAdvanceSettings = async () => {
-    const advanceSettingsResponse = await fetchAdvanceSetting();
-    if (advanceSettingsResponse) {
-      dispatch(setAdvancedSettings(advanceSettingsResponse));
-    }
-  };
-
-  const getBillPrintSettings = async () => {
-    const printSettingsResponse = await fetchPrintSetting(
-      isReceptionist ? urlParams.get("um_id") : ""
-    );
-    if (printSettingsResponse) {
-      dispatch(setBillPrintSettings(printSettingsResponse));
-    }
-  };
 
   const fetchPendingDigitisationRx = async () => {
     try {
