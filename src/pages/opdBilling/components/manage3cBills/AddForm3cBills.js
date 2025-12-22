@@ -396,7 +396,7 @@ function AddForm3cBills({ handleAddForm3cDrawer, setForm3cData, onSuccess, isIpd
       const payload = {
         billIds: [...selectedRowKeys],
       };
-      const response = await addBillsToForm3C(payload);
+      const response = await addBillsToForm3C(payload, isIpd ? "ipd" : "opd");
 
       if (response.status === 200 || response.status === 204) {
         // Update the count in parent

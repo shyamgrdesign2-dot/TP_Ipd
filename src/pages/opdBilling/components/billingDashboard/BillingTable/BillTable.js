@@ -110,7 +110,7 @@ const BillTable = ({
       } else if (status === 3) {
         try {
           const payload = { billIds: [record.id] }; // Adjust payload as needed
-          const response = await addBillsToForm3C(payload);
+          const response = await addBillsToForm3C(payload, fromPath === "ipdDashboard" ? "ipd" : "opd");
           if (response.status === 204) {
             message.open({
               key: MESSAGE_KEY,
