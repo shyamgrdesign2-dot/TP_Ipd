@@ -861,6 +861,7 @@ const AdmissionBilling = ({
               addAdvanceDrawer={() => {}}
               showHideSubModal={() => {}}
               fromPath="ipdDashboard"
+              source="ipdBillingHistory"
               ipdAdmissionId={admissionId}
               billData={billData}
               setBillData={setBillData}

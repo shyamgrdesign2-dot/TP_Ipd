@@ -53,7 +53,8 @@ const BillTable = ({
   billData,
   setBillData,
   selectedCard,
-  fromPath
+  fromPath,
+  source
 }) => {
   const { profile, servicesList } = useSelector((state) => state.doctors);
   const { planDetails } = useSelector((state) => state.subscription);
@@ -399,7 +400,7 @@ const BillTable = ({
             >
               <i className="icon-Print"></i>
             </button>
-           { fromPath !== "ipdDashboard" && 
+           { source !== "ipdBillingHistory" && 
             <Tooltip
               title={
                 isEditDisabled
