@@ -19,6 +19,7 @@ import {
   createShortLink,
   generateBillToken,
   sendWhatsAppMessage,
+  addBillsToForm3C,
 } from "../../opdBilling/service";
 import { setIpdBillPrintSettings } from "../../../redux/billingSlice";
 import {
@@ -33,13 +34,15 @@ import {
   getClinic,
   trackEvent,
 } from "../../../utils/utils";
-import { PERSISTANT_STORAGE_KEY_BILL_TOKEN } from "../../../utils/constants";
+import { MESSAGE_KEY, PERSISTANT_STORAGE_KEY_BILL_TOKEN } from "../../../utils/constants";
 import { useLocalStorage } from "../../../utils/localStorage";
 import config from "../../../config";
 import { WhatsAppOpdBillTemplateId } from "../../opdBilling/utils/constants";
 import { message } from "antd";
 import "./styles.scss";
 import emptyFileIcon from "../../../assets/images/empty-file.svg";
+import imgCloseVisit from "../../../assets/images/close-visit.svg";
+import visitEnd from "../../../assets/images/end-visit.svg";
 
 const AdmissionBilling = ({
   patientDetails,
@@ -435,8 +438,41 @@ const AdmissionBilling = ({
     setRefundBillDrawer(!refundBillDrawer);
   };
 
-  const handleAddForm3cDrawer = () => {
-    setAddForm3cDrawer(!addForm3cDrawer);
+  const handleAddForm3cDrawer = async (billData) => {
+    // setAddForm3cDrawer(!addForm3cDrawer);
+    try {
+      const payload = { billIds: [billData.id] }; // Adjust payload as needed
+      const response = await addBillsToForm3C(payload, "ipd");
+      if (response.status === 204) {
+        message.open({
+          key: MESSAGE_KEY,
+          type: "",
+          className: "message-appointment",
+          content: (
+            <div className="d-flex align-items-center">
+              <img src={visitEnd} className="me-3" alt="visit-end" />
+              <div>
+                <div className="title-common text-start fontroboto">{`${billData.billNumber} Added to Form 3C`}</div>
+                {/* <div className='fontroboto text-start fw-normal mt-1'>View completed visits in finished tab.</div> */}
+              </div>
+              <img
+                src={imgCloseVisit}
+                alt="close"
+                className="ms-3"
+                onClick={() => message.destroy()}
+              />
+            </div>
+          ),
+          duration: 5,
+        });
+
+        handleMessageForm3c();
+      } else {
+        console.error("Failed to add bill to Form 3C");
+      }
+    } catch (error) {
+      console.error("Error in adding bill to Form 3C:", error);
+    }
   };
 
   const handleAddAdvanceDrawer = () => {
@@ -506,11 +542,13 @@ const AdmissionBilling = ({
     }
 
     // Add Bill to Form 3C
+    if (!billData?.isForm3C) {
     items.push({
       key: "add-form3c",
-      label: "Add Bill to Form 3C",
-      onClick: () => setAddForm3cDrawer(true),
-    });
+        label: "Add Bill to Form 3C",
+        onClick: () => handleAddForm3cDrawer(billData),
+      });
+    }
 
     return items;
   }, [billData]);
@@ -788,7 +826,7 @@ const AdmissionBilling = ({
       )}
 
       {/* Add Form 3C Drawer */}
-      {addForm3cDrawer && (
+      {/* {addForm3cDrawer && (
         <Drawer
           closeIcon={false}
           placement="right"
@@ -804,7 +842,7 @@ const AdmissionBilling = ({
             isIpd
           />
         </Drawer>
-      )}
+      )} */}
 
       {/* Add Advance Drawer */}
       {addAdvanceDrawer && (
