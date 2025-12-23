@@ -739,6 +739,7 @@ const AdmissionBilling = ({
           onSettings={handleDrawerConfigureSettings}
           onDownload={handleDownloadClick}
           onSendToWhatsapp={handleSendToWhatsapp}
+          showIPDBillingHistory={true}
           showMoreActions={moreActionsMenuItems.length > 0}
           moreActionsMenuItems={moreActionsMenuItems}
           isEditDisabled={isEditDisabled}
