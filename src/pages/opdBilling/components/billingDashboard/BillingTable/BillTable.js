@@ -581,6 +581,8 @@ const BillTable = ({
               isPatientScreen ? totalAdvanceBalance : patientWalletBalance
             }
             handleEditBillDrawer={handleEditBillDrawer}
+            isPreviewForm3c={isPreviewForm3c}
+            source={source}
           />
         </Drawer>
       )}

@@ -141,8 +141,6 @@ const IPDPatientDetails = () => {
   const [user_id, setUserId] = useState(null);
   const [totalAdvanceBalance, setTotalAdvanceBalance] = useState(null);
   const [shouldOpenAddAdvance, setShouldOpenAddAdvance] = useState(false);
-  const [pastBillingHistoryDrawer, setPastBillingHistoryDrawer] =
-    useState(false);
 
   const dispatch = useDispatch();
 
@@ -1134,8 +1132,6 @@ const IPDPatientDetails = () => {
             onTotalAdvanceBalanceChange={setTotalAdvanceBalance}
             shouldOpenAddAdvance={shouldOpenAddAdvance}
             onAddAdvanceDrawerOpened={() => setShouldOpenAddAdvance(false)}
-            pastBillingHistoryDrawer={pastBillingHistoryDrawer}
-            setPastBillingHistoryDrawer={setPastBillingHistoryDrawer}
           />
         );
       default:
@@ -1169,8 +1165,8 @@ const IPDPatientDetails = () => {
           totalAdvanceBalance={totalAdvanceBalance}
           onTotalAdvanceBalanceChange={setTotalAdvanceBalance}
           onAddAdvanceClick={() => setShouldOpenAddAdvance(true)}
-          onPastBillingHistoryClick={() => setPastBillingHistoryDrawer(true)}
           currentAdmissionId={patientDetails?.admissionId}
+          patientDetails={patientDetails}
         />
       );
     }

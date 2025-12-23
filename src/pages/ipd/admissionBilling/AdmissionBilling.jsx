@@ -39,7 +39,6 @@ import config from "../../../config";
 import { WhatsAppOpdBillTemplateId } from "../../opdBilling/utils/constants";
 import { message } from "antd";
 import "./styles.scss";
-import TableBillingDashboard from "../../opdBilling/components/billingDashboard/TableBillingDashboard";
 import emptyFileIcon from "../../../assets/images/empty-file.svg";
 
 const AdmissionBilling = ({
@@ -51,8 +50,6 @@ const AdmissionBilling = ({
   onTotalAdvanceBalanceChange,
   shouldOpenAddAdvance,
   onAddAdvanceDrawerOpened,
-  pastBillingHistoryDrawer,
-  setPastBillingHistoryDrawer,
 }) => {
   const dispatch = useDispatch();
   const divRef = useRef(null);
@@ -91,7 +88,6 @@ const AdmissionBilling = ({
   const [addForm3cDrawer, setAddForm3cDrawer] = useState(false);
   const [, setForm3cData] = useState(0);
   const [addAdvanceDrawer, setAddAdvanceDrawer] = useState(false);
-  const billingTableRef = useRef(null);
   const totalPaidAmount = calculateTotalPaidAmount(billData);
   
   // Check if edit button should be disabled
@@ -836,40 +832,6 @@ const AdmissionBilling = ({
         </Drawer>
       )}
 
-      {pastBillingHistoryDrawer && (
-        <Drawer
-          placement="right"
-          onClose={() => setPastBillingHistoryDrawer(false)}
-          open={pastBillingHistoryDrawer}
-          width="1000px"
-          push={false}
-          title="Past IPD Billing History"
-          className="ipd-patient-billing-history-drawer"
-        >
-          <div
-            style={{
-              marginTop: "24px",
-            }}
-          >
-            <TableBillingDashboard
-              ref={billingTableRef}
-              onTabChange={() => {}}
-              patientData={transformedPatientData}
-              handleTotalAdvanceUpdate={() => {}}
-              totalAdvanceBalance={totalAdvanceBalance}
-              createBillDrawer={createBillDrawer}
-              setCreateBillDrawer={setCreateBillDrawer}
-              addAdvanceDrawer={() => {}}
-              showHideSubModal={() => {}}
-              fromPath="ipdDashboard"
-              source="ipdBillingHistory"
-              ipdAdmissionId={admissionId}
-              billData={billData}
-              setBillData={setBillData}
-            />
-          </div>
-        </Drawer>
-      )}
     </div>
   );
 };

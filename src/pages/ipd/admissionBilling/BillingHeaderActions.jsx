@@ -4,7 +4,9 @@ import React, {
   useCallback,
   useImperativeHandle,
   forwardRef,
+  useRef,
 } from "react";
+import { Drawer } from "antd";
 import addCircleIcon from "../../../assets/images/add-circle.svg";
 import "./styles.scss";
 import {
@@ -12,6 +14,7 @@ import {
   fetchBillsByPatient,
 } from "../../opdBilling/service";
 import { useSelector } from "react-redux";
+import TableBillingDashboard from "../../opdBilling/components/billingDashboard/TableBillingDashboard";
 
 const BillingHeaderActions = forwardRef(
   (
@@ -20,8 +23,8 @@ const BillingHeaderActions = forwardRef(
       totalAdvanceBalance: propTotalAdvanceBalance,
       onTotalAdvanceBalanceChange,
       onAddAdvanceClick,
-      onPastBillingHistoryClick,
       currentAdmissionId,
+      patientDetails,
     },
     ref
   ) => {
@@ -30,6 +33,9 @@ const BillingHeaderActions = forwardRef(
     );
     const [isLoadingBalance, setIsLoadingBalance] = useState(false);
     const [hasPastBills, setHasPastBills] = useState(false);
+    const [pastBillingHistoryDrawer, setPastBillingHistoryDrawer] = useState(false);
+    const [selectedBillData, setSelectedBillData] = useState(null);
+    const billingTableRef = useRef(null);
     const { doctorList } = useSelector((state) => state.bulkMessages);
     const { userId } = useSelector((state) => state.doctors);
 
@@ -170,38 +176,77 @@ const BillingHeaderActions = forwardRef(
       }
     }, [currentAdmissionId, checkPastBills]);
 
+    const handlePastBillingHistoryClick = () => {
+      setPastBillingHistoryDrawer(true);
+    };
+
     return (
-      <div className="billing-content-header">
-        <div className="billing-header-center">
-          <div className="advance-balance-container">
-            <span className="advance-balance-label">Advance Balance:</span>
-            <span className="advance-balance-value">
-              {isLoadingBalance ? (
-                <span style={{ opacity: 0.6 }}>Loading...</span>
-              ) : (
-                `₹${totalAdvanceBalance || "0"}`
-              )}
-            </span>
-            <button className="add-advance-btn" onClick={onAddAdvanceClick}>
-              <img src={addCircleIcon} alt="add" />
-            </button>
+      <>
+        <div className="billing-content-header">
+          <div className="billing-header-center">
+            <div className="advance-balance-container">
+              <span className="advance-balance-label">Advance Balance:</span>
+              <span className="advance-balance-value">
+                {isLoadingBalance ? (
+                  <span style={{ opacity: 0.6 }}>Loading...</span>
+                ) : (
+                  `₹${totalAdvanceBalance || "0"}`
+                )}
+              </span>
+              <button className="add-advance-btn" onClick={onAddAdvanceClick}>
+                <img src={addCircleIcon} alt="add" />
+              </button>
+            </div>
           </div>
+          {hasPastBills && (
+            <div className="billing-header-right">
+              <button
+                className="past-billing-history-btn"
+                onClick={handlePastBillingHistoryClick}
+              >
+                <span>Past IPD Billing History</span>
+                <i
+                  className="icon-right"
+                  style={{ transform: "rotate(180deg)" }}
+                ></i>
+              </button>
+            </div>
+          )}
         </div>
-        {hasPastBills && (
-          <div className="billing-header-right">
-            <button
-              className="past-billing-history-btn"
-              onClick={onPastBillingHistoryClick}
-            >
-              <span>Past IPD Billing History</span>
-              <i
-                className="icon-right"
-                style={{ transform: "rotate(180deg)" }}
-              ></i>
-            </button>
-          </div>
+
+        {/* Past Billing History Drawer */}
+        {pastBillingHistoryDrawer && (
+          <Drawer
+            placement="right"
+            onClose={() => setPastBillingHistoryDrawer(false)}
+            open={pastBillingHistoryDrawer}
+            width="1000px"
+            push={false}
+            title="Past IPD Billing History"
+            className="ipd-patient-billing-history-drawer"
+          >
+            <div style={{ marginTop: "24px" }}>
+              <TableBillingDashboard
+                ref={billingTableRef}
+                onTabChange={() => {}}
+                patientData={patientData}
+                handleTotalAdvanceUpdate={() => {}}
+                totalAdvanceBalance={totalAdvanceBalance}
+                createBillDrawer={false}
+                setCreateBillDrawer={() => {}}
+                addAdvanceDrawer={() => {}}
+                showHideSubModal={() => {}}
+                fromPath="ipdDashboard"
+                source="ipdBillingHistory"
+                ipdAdmissionId={currentAdmissionId}
+                patientDetails={patientDetails}
+                billData={selectedBillData}
+                setBillData={setSelectedBillData}
+              />
+            </div>
+          </Drawer>
         )}
-      </div>
+      </>
     );
   }
 );
