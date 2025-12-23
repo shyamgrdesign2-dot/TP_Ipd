@@ -138,7 +138,9 @@ const PreviewBill = ({
   useEffect(() => {
     const settings = isIpdBill ? ipdBillPrintSettings : billPrintSettings;
 
-    if (settings && Object.keys(settings).length > 0) {
+    if (settings && Object.keys(settings).length > 0 && isIpdBill && billDetails?.admission) {
+      makePDFUrl();
+    } else if (settings && Object.keys(settings).length > 0 && !isIpdBill) {
       makePDFUrl();
     }
   }, [billPrintSettings, ipdBillPrintSettings, billDetails]);
