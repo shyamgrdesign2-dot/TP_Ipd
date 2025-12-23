@@ -394,12 +394,8 @@ const CreateBill = ({
 
   useEffect(() => {
     if (advancedSettings && Object.keys(advancedSettings)?.length) {
-      setIncludeInRx(advancedSettings.defaultRxFlag);
-      setAddBillTo3C(
-        isIpdBill
-          ? advancedSettings?.ipdSetting?.defaultForm3cFlag
-          : advancedSettings?.defaultForm3cFlag
-      );
+      setIncludeInRx( editBillData?.includeInRx || advancedSettings.defaultRxFlag);
+      setAddBillTo3C( editBillData?.isForm3C ? editBillData?.isForm3C : isIpdBill ? advancedSettings?.ipdSetting?.defaultForm3cFlag : advancedSettings?.defaultForm3cFlag);
       setPaymentModes([
         {
           paymentMode: isIpdBill
@@ -410,7 +406,7 @@ const CreateBill = ({
         },
       ]);
     }
-  }, [advancedSettings]);
+  }, [advancedSettings, editBillData]);
 
   useEffect(() => {
     if (editBillData?.paymentModes) {
