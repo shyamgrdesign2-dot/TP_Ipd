@@ -94,6 +94,7 @@ const CreateBill = ({
   editBillData,
   admissionId,
   onBillCreated,
+  setEditedBillData,
 }) => {
   const isIpdBill = !!admissionId;
   const { state } = useLocation();
@@ -1058,13 +1059,18 @@ const CreateBill = ({
         setPatientWalletBalance(walletBalance);
       }
       setBillData(createRes);
+      if (setEditedBillData) {
+        setEditedBillData(createRes);
+      }
       if (type === "exit") {
         // For IPD billing, call onBillCreated callback if provided
         if (onBillCreated && isIpdBill) {
           onBillCreated(createRes);
         }
-        handleCreateBillDrawer();
+        handleCreateBillDrawer(createRes, true);
       } else if (type === "preview") {
+        // Use createRes directly to ensure latest data is passed
+        setBillData(createRes);
         handleDrawerPreviewBill();
       } else {
         const blob = await pdf(
@@ -1582,7 +1588,7 @@ const CreateBill = ({
                   </div>
                 )}
 
-                {isIpdBill ? (
+                {isIpdBill || editBillData ? (
                   <Button
                     type="button"
                     className={`btn btn-primary3 btn-41 me-20 ${

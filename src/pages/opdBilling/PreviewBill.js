@@ -143,7 +143,18 @@ const PreviewBill = ({
     } else if (settings && Object.keys(settings).length > 0 && !isIpdBill) {
       makePDFUrl();
     }
-  }, [billPrintSettings, ipdBillPrintSettings, billDetails]);
+  }, [billPrintSettings, ipdBillPrintSettings, billDetails, advancedSettings, totalAdvanceBalance]);
+
+  useEffect(() => {
+    if (billData && Object.keys(billData).length > 0) {
+      setBillDetails(billData);
+      // Reset PDF generation key to force regeneration
+      pdfGenerationKeyRef.current = null;
+      setPdfUrl(null);
+      setPrintBlob(null);
+      setNumPages(undefined);
+    }
+  }, [billData]);
 
   useEffect(() => {
     if (
@@ -535,6 +546,7 @@ const PreviewBill = ({
                 <div ref={divRef} className="printheight">
                   <div className="position-relative h-100">
                     <Document
+                      key={`${billDetails?.billNumber || billDetails?.id || 'new'}-${JSON.stringify(billDetails?.billItems || [])}-${billDetails?.payableAmount || 0}`}
                       loading={
                         <Spin
                           style={{
