@@ -45,6 +45,7 @@ import dischargeSummarySlice from "./ipd/dischargeSummarySlice";
 import ipdCustomModulesSlice from "./ipd/customModuleSlice";
 import ipdTemplatesSlice from "./ipd/tempaltesSlice";
 import wardAndBedManagementSlice from "./ipd/wardAndBedManagementSlice";
+import billingPackageSlice from "./billingPackageSlice";
 
 const persistConfig = {
   key: "root",
@@ -95,6 +96,7 @@ const rootReducer = combineReducers({
   ipdCustomModules: ipdCustomModulesSlice,
   ipdTemplates: ipdTemplatesSlice,
   wardAndBedManagement: wardAndBedManagementSlice,
+  billingPackage: billingPackageSlice,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
