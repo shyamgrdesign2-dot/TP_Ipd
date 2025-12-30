@@ -158,9 +158,8 @@ const BillTemplate = ({ setDataSource, dataSource, totalBillAmount }) => {
         type: item.type,
         createdBy: item.createdBy,
       }));
-      // Filter out empty rows (last row might be the input row)
       const filteredDataSource = dataSource.filter(
-        (item) => item.masterId && item.name && item.amount
+        (item) => item.masterId && item.name && (item.amount === 0 || item.amount)
       );
       // Add package items to the filtered dataSource
       // Then append one empty row at the end (like when manually adding items)
@@ -608,7 +607,7 @@ const BillTemplate = ({ setDataSource, dataSource, totalBillAmount }) => {
           <button
             onClick={showHideClearData}
             className="btn btn-text clear-text d-flex align-items-center"
-            disabled={totalBillAmount > 0 ? false : true}
+            disabled={dataSource?.some((item) => item?.masterId || item?.name) ? false : true}
           >
             <i className="icon-eraser1 me-2"></i> <span>Clear</span>
           </button>

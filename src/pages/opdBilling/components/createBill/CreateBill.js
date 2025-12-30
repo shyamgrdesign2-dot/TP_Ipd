@@ -549,27 +549,77 @@ const CreateBill = ({
         index: index,
       });
     } else if (option) {
-      const updatedData = dataSource.map((row, idx) =>
-        index === idx
-          ? {
-              ...row,
-              masterId: selectedData.id,
-              quantity: 1,
-              name: selectedData.name,
-              amount: selectedData.price,
-              discount: selectedData.discount,
-              discountType: selectedData.discountType,
-              type: selectedData.type,
-              gst: selectedData.gst,
-              totalAmount: selectedData.totalAmount,
-              createdBy: selectedData.createdBy,
-            }
-          : row
-      );
-      setDataSource(updatedData);
-      setSearchQuery(selectedData.name);
-      if (index === dataSource.length - 1) {
-        handleAddRow(updatedData);
+      const packageItems = selectedData?.items || selectedData?.packageItems || [];
+      
+      if (packageItems.length > 0) {
+        const newItems = packageItems.map((item) => ({
+          masterId: item.id || "",
+          quantity: item.quantity || 1,
+          name: item.name || "",
+          amount: item.price || item.amount || 0,
+          discount: item.discount || "",
+          discountType: item.discountType || "",
+          type: item.type || "",
+          gst: item.gst || "",
+          totalAmount: item.totalAmount || "",
+          createdBy: item.createdBy || "",
+          itemDate: isIpdBill ? dayjs().format("YYYY-MM-DD") : undefined,
+        }));
+        
+        const currentRow = dataSource[index];
+        const isEmptyRow = !currentRow?.masterId && !currentRow?.name;
+        
+        let updatedData;
+        if (isEmptyRow && index === dataSource.length - 1) {
+          updatedData = [
+            ...dataSource.slice(0, index),
+            ...newItems,
+            {
+              masterId: "",
+              name: "",
+              quantity: "",
+              amount: "",
+              discount: "",
+              discountType: "",
+              gst: "",
+              totalAmount: "",
+              createdBy: "",
+              itemDate: dayjs().format("YYYY-MM-DD"),
+            },
+          ];
+        } else {
+          updatedData = [
+            ...dataSource.slice(0, index + 1),
+            ...newItems,
+            ...dataSource.slice(index + 1),
+          ];
+        }
+        
+        setDataSource(updatedData);
+        setSearchQuery("");
+      } else {
+        const updatedData = dataSource.map((row, idx) =>
+          index === idx
+            ? {
+                ...row,
+                masterId: selectedData.id,
+                quantity: 1,
+                name: selectedData.name,
+                amount: selectedData.price,
+                discount: selectedData.discount,
+                discountType: selectedData.discountType,
+                type: selectedData.type,
+                gst: selectedData.gst,
+                totalAmount: selectedData.totalAmount,
+                createdBy: selectedData.createdBy,
+              }
+            : row
+        );
+        setDataSource(updatedData);
+        setSearchQuery(selectedData.name);
+        if (index === dataSource.length - 1) {
+          handleAddRow(updatedData);
+        }
       }
     } else {
       console.log("directly add the entry to the table");
