@@ -157,6 +157,7 @@ const BillTemplate = ({ setDataSource, dataSource, totalBillAmount }) => {
         totalAmount: item.totalAmount || item.price || 0,
         type: item.type,
         createdBy: item.createdBy,
+        itemDate: new Date().toISOString().split('T')[0],
       }));
       const filteredDataSource = dataSource.filter(
         (item) => item.masterId && item.name && (item.amount === 0 || item.amount)
