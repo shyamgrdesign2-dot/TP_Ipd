@@ -117,7 +117,7 @@ IPDSnapRxDigitization.digitize = function ({
       ...(fileUploadToken ? { Authorization: `Bearer ${fileUploadToken}` } : {}),
     },
     ipdSnapRxGetFiles: true,
-    timeout: 120000,
+    timeout: 600000,
   };
 
   return api.post(
