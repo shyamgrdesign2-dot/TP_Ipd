@@ -323,7 +323,7 @@ const RecordCard = ({
       } else if (tokenData.clinic_id == 10739) {//Anand Hospital
         window.open(`http://10.10.11.108:6162/Launch_Viewer.asp?Username=hisuser&Password=hisuser&patientid=${mrnNo}`);
       } else {//Ahmedabad Hospital
-        window.open(`http://10.11.100.106:6162/Launch_Viewer.asp?Username=hisuser&Password=hisuser&patientid=${mrnNo}`);
+        window.open(`https://10.11.100.106/PACSAPI/Launch_Viewer?Username=hisuser&Password=hisuser&patientid=${mrnNo}`);
       }
     } else {
       setShowPreview(true);
