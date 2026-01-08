@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import moment from "moment";
 import "./ActivityLogs.scss";
 
 const ActivityLogs = ({ logs = [] }) => {
@@ -23,8 +24,18 @@ const ActivityLogs = ({ logs = [] }) => {
 
   const formatDateTime = (datetime) => {
     if (!datetime) return { date: "-", time: "" };
-    const [date, ...timeParts] = datetime.split(" ");
-    return { date, time: timeParts.join(" ") };
+
+    const parsed = moment.utc(datetime, "DD-MM-YYYY hh:mm A", true);
+    if (!parsed.isValid()) {
+      const [date, ...timeParts] = datetime.split(" ");
+      return { date, time: timeParts.join(" ") };
+    }
+
+    const ist = parsed.utcOffset(330);
+    return {
+      date: ist.format("DD-MM-YYYY"),
+      time: ist.format("hh:mm A"),
+    };
   };
 
   return (

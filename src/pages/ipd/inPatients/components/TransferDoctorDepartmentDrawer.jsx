@@ -105,7 +105,7 @@ const TransferDoctorDepartmentDrawer = ({
             "Unable to transfer doctor/department"
         );
       } else {
-        message.success("Patient’s Ward & Bed Transferred Successfully");
+        message.success("Patient's admitting doctor/department changed successfully");
         const selectedDepartment = departments.find(
           (d) =>
             d?.departmentId?.toString() === selectedDepartmentId?.toString()
