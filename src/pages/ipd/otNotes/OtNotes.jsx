@@ -317,7 +317,17 @@ const OtNotes = (props) => {
       if (updatedNotes?.surgeryTeam) {
         const st = updatedNotes.surgeryTeam;
         Object.entries(st).forEach(([roleId, value]) => {
-          dispatch(setSurgeryTeam({ roleId, value }));
+          let updatedValue = value;
+          if (
+            roleId === "anaesthesiologist" &&
+            Array.isArray(value) &&
+            value.length > 0 &&
+            typeof value[0] === "object" &&
+            value[0].name
+          ) {
+            updatedValue = value[0].name;
+          }
+          dispatch(setSurgeryTeam({ roleId, value: updatedValue }));
         });
       }
 

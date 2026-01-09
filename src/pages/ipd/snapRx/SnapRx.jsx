@@ -74,6 +74,7 @@ function SnapRxContent({
   const { userId } = useSelector((state) => state.doctors);
   const uploadWrittenRxRef = useRef(null);
   const timerForLoadingRef = useRef(null);
+  const isGeneratingTokenRef = useRef(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
@@ -149,16 +150,21 @@ function SnapRxContent({
       }
     }
 
+    if (isGeneratingTokenRef.current) return;
+
     dispatch(setFileUploadToken(null));
     dispatch(setFileUploadSessionId(null));
+    isGeneratingTokenRef.current = true;
     dispatch(
       generateFileUploadToken({
         patientId,
         admissionId,
         schemaKey,
       })
-    );
-  }, [dispatch, fileUploadToken, patientDetails, schemaKey]);
+    ).finally(() => {
+      isGeneratingTokenRef.current = false;
+    });
+  }, [fileUploadToken, patientDetails, schemaKey]);
 
   useEffect(() => {
     return () => {

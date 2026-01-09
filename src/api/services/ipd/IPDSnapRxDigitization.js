@@ -24,6 +24,10 @@ IPDSnapRxDigitization.generateFileUploadToken = function ({
   if (schemaKey) query.push(`form=${schemaKey}`);
   const authToken = getAuthToken();
 
+  if (!authToken) {
+    return Promise.resolve({ token: null });
+  }
+
   return api.get(
     `/ai/smart-rx/snap-rx/generate-file-upload-token?${query.join("&")}`,
     {

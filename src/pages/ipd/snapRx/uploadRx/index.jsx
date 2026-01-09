@@ -20,8 +20,6 @@ import {
   setFileUploadToken,
 } from "../../../../redux/ipd/ipdSnapRxDigitizationSlice";
 import UploadSuccess from "./uploadSuccess";
-import { useLocalStorage } from "../../../../utils/localStorage";
-import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../../../../utils/constants";
 import { trackEvent } from "../../../../utils/utils";
 import { EVENTS } from "../../../../utils/events";
 import FullPageLoader from "../../../vaccination/components/Loader";
@@ -66,9 +64,6 @@ const UploadRx = () => {
   const bottomSheetRef = useRef(null);
   const imageUploadRef = useRef(null);
   const [data, setData] = useState({});
-  const [getToken, setToken] = useLocalStorage(
-    PERSISTANT_STORAGE_KEY_AUTH_TOKEN
-  );
   const dispatch = useDispatch();
 
   const uploadedFilesFromStore = useMemo(() => {
@@ -106,7 +101,6 @@ const UploadRx = () => {
         schemaKey
       } = data;
       if (authToken) {
-        setToken(authToken);
         dispatch(setFileUploadToken(authToken));
         if (sessionId) {
           dispatch(setFileUploadSessionId(sessionId));
