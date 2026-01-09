@@ -34,6 +34,7 @@ import PreviewDrawer from "./components/PreviewDrawer";
 import { clearExpiredTokensFromStorage } from "../../../utils/utils";
 import { SNAP_RX_TOKENS_STORAGE_KEY } from "../../../utils/constants";
 import { useAssessmentDataStore } from "../../../hooks/useAssessmentDataStore";
+import GenRXLoaders from "../../../components/GenRxLoaders";
 const UPLOADED_FILES_DOMAIN = "iscribe.blob.core.windows.net";
 
 const getTokenKey = (patientId, admissionId, schemaKey) =>
@@ -42,7 +43,13 @@ const getTokenKey = (patientId, admissionId, schemaKey) =>
 const getLegacyTokenKey = (patientId, admissionId) =>
   `fileUploadToken_${patientId}_${admissionId}`;
 
-function SnapRxContent({ previousOutput, handleClose, schemaKey = "ASSESSMENTS", onSuccess }) {
+function SnapRxContent({
+  previousOutput,
+  handleClose,
+  schemaKey = "ASSESSMENTS",
+  onSuccess,
+  onDigitizingChange,
+}) {
   const { addDataToStore } = useAssessmentDataStore();
   const { state } = useLocation();
   const { patientDetails } = state || {};
@@ -158,6 +165,30 @@ function SnapRxContent({ previousOutput, handleClose, schemaKey = "ASSESSMENTS",
       dispatch(setFileUploadToken(null));
     };
   }, []);
+
+  useEffect(() => {
+    if (onDigitizingChange) {
+      onDigitizingChange(isDigitizing);
+    }
+  }, [isDigitizing, onDigitizingChange]);
+
+  useEffect(() => {
+    return () => {
+      if (onDigitizingChange) {
+        onDigitizingChange(false);
+      }
+    };
+  }, [onDigitizingChange]);
+
+  useEffect(() => {
+    if (!isDigitizing) return;
+    const handlePopState = () => {
+      window.history.pushState(null, "", window.location.href);
+    };
+    window.history.pushState(null, "", window.location.href);
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [isDigitizing]);
 
   const fetchUploadedFiles = async (
     createEditSnapRx = false,
@@ -641,6 +672,22 @@ function SnapRxContent({ previousOutput, handleClose, schemaKey = "ASSESSMENTS",
           display: isPreviewOpen ? "none" : "block",
         }}
       >
+        {isDigitizing ? (
+          <div className="snaprx-digitizing-overlay" role="status" aria-live="polite">
+            <div className="snaprx-digitizing-center">
+              <GenRXLoaders
+                isProcessing={true}
+                isSnapRx={true}
+                showStepText={false}
+                showProgress={false}
+                containerStyle={{ height: "220px", width: "240px", padding: "16px" }}
+              />
+              <div className="snaprx-digitizing-text">
+                Extracting your input data...
+              </div>
+            </div>
+          </div>
+        ) : null}
         {/* <Header
           loader={isUploading}
           onClear={handleClearFiles}
@@ -693,7 +740,7 @@ function SnapRxContent({ previousOutput, handleClose, schemaKey = "ASSESSMENTS",
                   type="primary"
                   className="extract-btn"
                   onClick={handleExtract}
-                  loading={isDigitizing}
+                  disabled={isDigitizing}
                 >
                   Extract & Autofill Details
                 </Button>
@@ -746,7 +793,13 @@ function SnapRxContent({ previousOutput, handleClose, schemaKey = "ASSESSMENTS",
 }
 
 // Main component with session provider
-export default function IPDSnapRx({ previousOutput, handleClose, schemaKey, onSuccess }) {
+export default function IPDSnapRx({
+  previousOutput,
+  handleClose,
+  schemaKey,
+  onSuccess,
+  onDigitizingChange,
+}) {
   return (
     <IPDSnapRxSessionProvider>
       <SnapRxContent
@@ -754,6 +807,7 @@ export default function IPDSnapRx({ previousOutput, handleClose, schemaKey, onSu
         handleClose={handleClose}
         schemaKey={schemaKey}
         onSuccess={onSuccess}
+        onDigitizingChange={onDigitizingChange}
       />
     </IPDSnapRxSessionProvider>
   );

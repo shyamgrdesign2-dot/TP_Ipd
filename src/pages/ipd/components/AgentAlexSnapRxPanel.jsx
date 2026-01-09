@@ -13,6 +13,7 @@ import { SNAP_RX_TOKENS_STORAGE_KEY } from "../../../utils/constants";
 
 const AgentAlexSnapRxPanel = ({ onClose, previousOutput, schemaKey, onSuccess }) => {
   const dispatch = useDispatch();
+  const [isDigitizing, setIsDigitizing] = React.useState(false);
 
   const handleClose = () => {
     // localStorage.removeItem(SNAP_RX_TOKENS_STORAGE_KEY);
@@ -44,6 +45,7 @@ const AgentAlexSnapRxPanel = ({ onClose, previousOutput, schemaKey, onSuccess })
         <button
           className="agent-alex-voice-close-button"
           onClick={handleClose}
+          disabled={isDigitizing}
           aria-label="Close Agent Alex panel"
         >
           <img src={closeSquare} alt="Close" />
@@ -64,6 +66,7 @@ const AgentAlexSnapRxPanel = ({ onClose, previousOutput, schemaKey, onSuccess })
               handleClose={handleClose}
               schemaKey={schemaKey}
               onSuccess={onSuccess}
+              onDigitizingChange={setIsDigitizing}
             />
           </div>
     </div>

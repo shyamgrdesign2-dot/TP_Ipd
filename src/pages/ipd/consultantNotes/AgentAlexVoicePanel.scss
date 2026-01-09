@@ -394,6 +394,11 @@
   pointer-events: none;
 }
 
+.agent-alex-voice-close-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .agent-alex-snaprx-panel {
   width: 880px;
   max-width: 92vw;
