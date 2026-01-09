@@ -281,7 +281,7 @@ const CreateBill = ({
       patientDetails?.patientUniqueId ||
       editBillData?.patient?.patientId;
     if (patientUniqueId) {
-      // getPatientDueAmount(patientUniqueId);
+      getPatientDueAmount(patientUniqueId);
       getPatientWalletBalance(patientUniqueId);
       patientAdvanceData(patientUniqueId);
     }
@@ -1470,7 +1470,7 @@ const CreateBill = ({
                         </span>
                       </button>
                     </div>
-                    {/* {Number(patientDueAmount) > 0 && (
+                    {Number(patientDueAmount) > 0 && (
                       <div className="billing-dashboard-wraper">
                         <div
                           className={`total-due-container ${
@@ -1483,7 +1483,7 @@ const CreateBill = ({
                           </span>
                         </div>
                       </div>
-                    )} */}
+                    )}
                   </>
                 )}
               </div>
