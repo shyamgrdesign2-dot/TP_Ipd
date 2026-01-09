@@ -56,6 +56,7 @@ const DischargeConfirmationModal = forwardRef(
 
     const dischargeTypeOptions = [
       { value: "Normal", label: <div>Normal</div> },
+      { value: "Daycare", label: <div>Daycare</div> },
       { value: "LAMA", label: <div>LAMA</div> },
       { value: "Death", label: <div>Death</div> },
     ];

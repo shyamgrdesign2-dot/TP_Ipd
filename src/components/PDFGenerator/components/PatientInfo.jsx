@@ -211,6 +211,9 @@ const PatientInfo = ({
   const dischargeStaticHeader =
     !patientData?.dischargeType || patientData?.dischargeType === "Normal"
       ? "Normal Discharge Summary"
+      : patientData?.dischargeType === "Daycare" ||
+        patientData?.dischargeType === "daycare"
+      ? "Daycare Summary"
       : patientData?.dischargeType === "LAMA"
       ? "Leaving Against Medical Advice (LAMA) Summary"
       : patientData?.dischargeType === "Death"
