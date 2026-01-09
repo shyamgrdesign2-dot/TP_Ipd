@@ -385,7 +385,7 @@ const AssessmentsForm = (props) => {
           admissionId: patientDetails?.admissionId,
         })
       ).then((res) => {
-        addDataToStore(res.payload.assessment);
+        addDataToStore(res?.payload?.assessment);
         navigate(`/ipd/patient-details`, {
           state: {
             ...state,
