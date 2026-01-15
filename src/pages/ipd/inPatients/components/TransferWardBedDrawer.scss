@@ -1,0 +1,219 @@
+.transfer-ward-bed-drawer {
+  .ant-drawer-body {
+    padding: 0;
+  }
+
+  .drawer-header {
+    position: sticky;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-bottom: 1px solid #ededed;
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      .back-icon {
+        transform: rotate(180deg);
+        cursor: pointer;
+        font-size: 16px;
+        color: #454551 !important;
+      }
+
+      .header-title {
+        font-size: 20px;
+        font-weight: 500;
+        color: #232347 !important;
+      }
+    }
+
+    .ant-btn-primary {
+      min-width: 96px;
+      height: 40px;
+      border-radius: 10px;
+      background: #635bff;
+      border-color: #635bff;
+
+      &:disabled {
+        background: #e6e6f2;
+        border-color: #e6e6f2;
+        color: #9e9eae !important;
+      }
+    }
+  }
+
+  .drawer-body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .current-info {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+
+    .info-block {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+
+      .label {
+        margin: 0;
+        color: #5d5d6f !important;
+        font-size: 13px;
+      }
+
+      .value-box {
+        border: 1px solid #e6e6f2;
+        background: #f7f7fb;
+        border-radius: 10px;
+        padding: 10px 12px;
+        font-size: 16px;
+        font-weight: 500;
+        color: #454551 !important;
+      }
+    }
+  }
+
+  .transfer-separator {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 4px 0 6px;
+    color: #9e9eae !important;
+    font-size: 13px;
+    font-weight: 500;
+
+    &::before,
+    &::after {
+      content: "";
+      height: 1px;
+      flex: 1;
+      background: #e6e6f2;
+    }
+  }
+
+  .field-block {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .label {
+      margin: 0;
+      color: #454551 !important;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .ward-select {
+      .ant-select-selector {
+        border-radius: 10px;
+        padding: 8px 12px;
+        height: 44px;
+      }
+    }
+  }
+
+  .beds-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+
+    .label {
+      margin: 0;
+      color: #454551 !important;
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .bed-tags {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .tag {
+        border-radius: 999px;
+        border: none;
+        padding: 3px 10px;
+        font-size: 12px;
+        font-weight: 500;
+
+        &.available {
+          background: #e6f4ea;
+          color: #3d8c40 !important;
+        }
+        &.occupied {
+          background: #fff4e5;
+          color: #ed8a00 !important;
+        }
+        &.blocked {
+          background: #ffeaea;
+          color: #fc5a5a !important;
+        }
+      }
+    }
+  }
+
+  .bed-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+    background: rgba(237, 223, 247, 0.2);
+    padding: 16px;
+    border-radius: 14px;
+  }
+
+  .bed-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid #ededf5;
+    border-radius: 12px;
+    padding: 12px;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &.selected {
+      border-color: #635bff;
+      box-shadow: 0 2px 10px rgba(99, 91, 255, 0.15);
+      background: #f5f3ff;
+    }
+
+    &.occupied,
+    &.blocked,
+    &.current {
+      cursor: not-allowed;
+      opacity: 0.6;
+      background: #f7f7fb;
+    }
+
+    .ant-radio-wrapper {
+      margin: 0;
+    }
+
+    .bed-name {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #232347 !important;
+
+      .bed-subtext {
+        color: #9e9eae !important;
+        font-weight: 500;
+        font-size: 12px;
+      }
+    }
+  }
+}

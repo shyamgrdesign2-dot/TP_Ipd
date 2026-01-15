@@ -71,6 +71,19 @@ export const fetchFilters = createAsyncThunk(
   }
 );
 
+export const fetchActivityLogs = createAsyncThunk(
+  "ipd/fetchActivityLogs",
+  async ({ admissionId }, { rejectWithValue }) => {
+    try {
+      const response = await IpdService.getActivityLogs(admissionId);
+      return response;
+    } catch (error) {
+      console.log("API failed for activity logs", error);
+      return rejectWithValue(error?.response?.data || "Failed to fetch logs");
+    }
+  }
+);
+
 const initialState = {
   patients: {
     data: [],
@@ -82,6 +95,11 @@ const initialState = {
   filters: {
     ward: [],
     doctor: [],
+    loading: false,
+    error: null,
+  },
+  activityLogs: {
+    data: [],
     loading: false,
     error: null,
   },
@@ -117,6 +135,23 @@ const inPatientsSlice = createSlice({
       state.patients.total = 0;
       state.patients.hasMore = true;
       state.filterParams.page = 1;
+    },
+    updatePatientInList: (state, action) => {
+      const { patientId, updates = {}, patientDataUpdates = {} } =
+        action.payload || {};
+      const idx = state.patients.data.findIndex((p) => p.id === patientId);
+      if (idx !== -1) {
+        const existing = state.patients.data[idx] || {};
+        const updatedPatientData = {
+          ...(existing.patientData || {}),
+          ...patientDataUpdates,
+        };
+        state.patients.data[idx] = {
+          ...existing,
+          ...updates,
+          patientData: updatedPatientData,
+        };
+      }
     },
   },
   extraReducers: (builder) => {
@@ -171,11 +206,26 @@ const inPatientsSlice = createSlice({
       .addCase(fetchFilters.rejected, (state, action) => {
         state.filters.loading = false;
         state.filters.error = action.payload || "Failed to fetch filters";
+      })
+
+      // Handle fetchActivityLogs
+      .addCase(fetchActivityLogs.pending, (state) => {
+        state.activityLogs.loading = true;
+        state.activityLogs.error = null;
+      })
+      .addCase(fetchActivityLogs.fulfilled, (state, action) => {
+        state.activityLogs.data = action.payload || [];
+        state.activityLogs.loading = false;
+      })
+      .addCase(fetchActivityLogs.rejected, (state, action) => {
+        state.activityLogs.loading = false;
+        state.activityLogs.error = action.payload || "Failed to fetch logs";
       });
   },
 });
 
 export const { setFilterParams, incrementPage, resetPatients } =
   inPatientsSlice.actions;
+export const { updatePatientInList } = inPatientsSlice.actions;
 
 export default inPatientsSlice.reducer;

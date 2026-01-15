@@ -11,6 +11,7 @@ import {
   markPatientAsDischarged,
   sendForDischargeApproval,
 } from "../../../../redux/ipd/ipdSlice";
+import { updatePatientInList } from "../../../../redux/ipd/inPatientsSlice";
 import { usePatientsData } from "../hooks/usePatientsData";
 import { getTokenData, isEmptyRichText, isZydus } from "../../../../utils/utils";
 import DischargeConfirmationModal from "../../dischargeSummary/components/DischargeConfirmationModal";
@@ -20,10 +21,22 @@ import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { GB_ZYDUS_USER } from "../../../../utils/constants";
 import { env } from "../../../../EnvironmentConfig";
 import AdmissionDetailsDrawer from "./AdmissionDetailsDrawer";
+import TransferWardBedDrawer from "./TransferWardBedDrawer";
+import TransferDoctorDepartmentDrawer from "./TransferDoctorDepartmentDrawer";
 
 const RichTextEditor = createRemoteComponent("RichTextEditor");
 
-const MoreActionsContent = ({ onCtaClick, record, title, onViewAdmissionDetails, isDischargedPatients, isDischarged }) => {
+const MoreActionsContent = ({
+  onCtaClick,
+  record,
+  title,
+  onViewAdmissionDetails,
+  onTransferWardBed,
+  onTransferDoctorDepartment,
+  isDischargedPatients,
+  isDischarged,
+  isInPatients,
+}) => {
   const handleViewAdmissionDetails = (e) => {
     e.stopPropagation();
     onViewAdmissionDetails?.(record);
@@ -34,6 +47,16 @@ const MoreActionsContent = ({ onCtaClick, record, title, onViewAdmissionDetails,
     onCtaClick?.(record);
   };
 
+  const handleTransferWardBed = (e) => {
+    e.stopPropagation();
+    onTransferWardBed?.(record);
+  };
+
+  const handleTransferDoctorDepartment = (e) => {
+    e.stopPropagation();
+    onTransferDoctorDepartment?.(record);
+  };
+
   return (
     <div className="more-actions-menu">
       <div
@@ -42,6 +65,24 @@ const MoreActionsContent = ({ onCtaClick, record, title, onViewAdmissionDetails,
       >
         <span className="more-actions-menu-text">View Admission Details</span>
       </div>
+      {isInPatients && !isDischargedPatients && !isDischarged && (
+        <div
+          onClick={handleTransferWardBed}
+          className="more-actions-menu-item cursor-pointer"
+        >
+          <span className="more-actions-menu-text">Transfer Ward/Bed</span>
+        </div>
+      )}
+      {isInPatients && !isDischargedPatients && !isDischarged && (
+        <div
+          onClick={handleTransferDoctorDepartment}
+          className="more-actions-menu-item cursor-pointer"
+        >
+          <span className="more-actions-menu-text">
+            Transfer Doctor/Department
+          </span>
+        </div>
+      )}
       {!isDischargedPatients && !isDischarged && title && (
         <div
           onClick={handleDischargeClick}
@@ -75,6 +116,10 @@ const PatientsTable = ({
   const [warningModalOpen, setWarningModalOpen] = useState(null);
   const [confirmPopupOpen, setConfirmPopupOpen] = useState(null);
   const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
+  const [transferDrawerOpen, setTransferDrawerOpen] = useState(false);
+  const [patientForTransfer, setPatientForTransfer] = useState(null);
+  const [doctorDeptDrawerOpen, setDoctorDeptDrawerOpen] = useState(false);
+  const [patientForDoctorDept, setPatientForDoctorDept] = useState(null);
 
   const izZydusUser =
     (getTokenData()?.hospital_business_id == env.zydus_business_id &&
@@ -132,6 +177,73 @@ const PatientsTable = ({
   const handleSendForDischargeApproval = (record) => {
     setWarningModalOpen(record);
     setApiToCall("sendForDischargeApproval");
+  };
+
+  const handleTransferWardBed = (record) => {
+    setOpenMoreActionsPopover(null);
+    setPatientForTransfer(record);
+    setTransferDrawerOpen(true);
+  };
+
+  const handleTransferDoctorDepartment = (record) => {
+    setOpenMoreActionsPopover(null);
+    setPatientForDoctorDept(record);
+    setDoctorDeptDrawerOpen(true);
+  };
+
+  const applyWardTransferLocally = (payload) => {
+    if (!payload?.patientId) return;
+    const patientData = patientForTransfer || {};
+    const updatedPatientData = {
+      ...patientData,
+      ward: {
+        ...(patientData?.ward || {}),
+        id: payload.wardId,
+        title: payload.wardName,
+      },
+      room: {
+        ...(patientData?.room || {}),
+        id: payload.roomId,
+        title: payload.roomName,
+      },
+    };
+
+    dispatch(
+      updatePatientInList({
+        patientId: payload.patientId,
+        updates: {
+          ward: payload.wardName || updatedPatientData?.ward?.title,
+          room: payload.roomName || updatedPatientData?.room?.title,
+          bedNumber: payload.roomName || updatedPatientData?.room?.title,
+        },
+        patientDataUpdates: updatedPatientData,
+      })
+    );
+  };
+
+  const applyDoctorTransferLocally = (payload) => {
+    if (!payload?.patientId) return;
+    const patientData = patientForDoctorDept || {};
+    const updatedPatientData = {
+      ...patientData,
+      doctor: {
+        ...(patientData?.doctor || {}),
+        id: payload.doctorId,
+        name: payload.doctorName,
+        speciality: payload.departmentName,
+      },
+      departmentName: payload.departmentName,
+    };
+
+    dispatch(
+      updatePatientInList({
+        patientId: payload.patientId,
+        updates: {
+          doctorName: payload.doctorName,
+        },
+        patientDataUpdates: updatedPatientData,
+      })
+    );
   };
 
   const sentForDischargeApproval = () => {
@@ -413,8 +525,11 @@ const PatientsTable = ({
                       setSelectedPatientForAdmissionDetails(patientData);
                       setAdmissionDetailsDrawerOpen(true);
                     }}
+                    onTransferWardBed={handleTransferWardBed}
+                    onTransferDoctorDepartment={handleTransferDoctorDepartment}
                     isDischargedPatients={isDischargedPatients}
                     isDischarged={record?.isDischarged}
+                    isInPatients={isInPatients}
                   />
                 }
                 trigger="click"
@@ -533,6 +648,24 @@ const PatientsTable = ({
           setSelectedPatientForAdmissionDetails(null);
         }}
         patientData={selectedPatientForAdmissionDetails}
+      />
+      <TransferWardBedDrawer
+        open={transferDrawerOpen}
+        onClose={() => {
+          setTransferDrawerOpen(false);
+          setPatientForTransfer(null);
+        }}
+        patientData={patientForTransfer}
+        onSuccess={applyWardTransferLocally}
+      />
+      <TransferDoctorDepartmentDrawer
+        open={doctorDeptDrawerOpen}
+        onClose={() => {
+          setDoctorDeptDrawerOpen(false);
+          setPatientForDoctorDept(null);
+        }}
+        patientData={patientForDoctorDept}
+        onSuccess={applyDoctorTransferLocally}
       />
     </div>
   );

@@ -1,10 +1,4 @@
-import React, {
-  Suspense,
-  useEffect,
-  useMemo,
-  useState,
-  useRef,
-} from "react";
+import React, { Suspense, useEffect, useMemo, useState, useRef } from "react";
 import { LoadingOutlined } from "@ant-design/icons";
 import { IPD } from "../../../utils/locale";
 import {
@@ -88,6 +82,8 @@ import AdmissionBilling from "../admissionBilling/AdmissionBilling";
 import BillingHeaderActions from "../admissionBilling/BillingHeaderActions";
 import { fetchAdvanceSetting } from "../../opdBilling/service";
 import { setAdvancedSettings } from "../../../redux/billingSlice";
+import { fetchActivityLogs } from "../../../redux/ipd/inPatientsSlice";
+import ActivityLogs from "./components/ActivityLogs";
 
 const PatientDetailsLayout = createRemoteComponent("PatientDetailsLayout");
 
@@ -122,6 +118,8 @@ const IPDPatientDetails = () => {
     (state) => state.dischargeSummary
   );
   const { printSettings } = useSelector((state) => state.printSettings);
+  const { activityLogs } = useSelector((state) => state.inPatients || {});
+  console.log('INTEL ==> activityLogs', activityLogs)
   const { frequencyList, timingList } = useSelector((state) => state.doctors);
   const [open, setOpen] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
@@ -446,6 +444,15 @@ const IPDPatientDetails = () => {
         });
     } else if (activeMenuItem === "opd") {
       setIsLoading(false);
+    } else if (activeMenuItem === "activityLogs") {
+      dispatch(fetchActivityLogs({ admissionId }))
+        .unwrap()
+        .catch(() => {
+          message.error("Failed to fetch activity logs");
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
     } else {
       setIsLoading(false);
     }
@@ -500,6 +507,8 @@ const IPDPatientDetails = () => {
       return true;
     } else if (activeMenuItem === "opd") {
       return true;
+    } else if (activeMenuItem === "activityLogs") {
+      return !isLoading || !!activityLogs?.data?.length;
     } else if (activeMenuItem === "billing") {
       return true;
     }
@@ -514,6 +523,8 @@ const IPDPatientDetails = () => {
     crossReferralData,
     medicalRecords,
     dischargeSummaryData,
+    activityLogs,
+    isLoading,
   ]);
 
   const onRequestClose = () => {
@@ -1122,6 +1133,8 @@ const IPDPatientDetails = () => {
           <PatientDetails isIPD={true} />
           // <div>hello</div>
         );
+      case "activityLogs":
+        return <ActivityLogs logs={activityLogs?.data || []} />;
       case "billing":
         return (
           <AdmissionBilling

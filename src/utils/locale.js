@@ -2758,6 +2758,11 @@ export const IPD = {
       ),
     },
     {
+      id: "activityLogs",
+      name: "Activity Logs",
+      icon: "activityLogIcon",
+    },
+    {
       id: "billing",
       name: "IPD Billing",
       icon: "billingsIcon",
