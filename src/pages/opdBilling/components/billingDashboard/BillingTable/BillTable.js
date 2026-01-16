@@ -54,7 +54,8 @@ const BillTable = ({
   setBillData,
   selectedCard,
   fromPath,
-  source
+  source,
+  isPreviewForm3c,
 }) => {
   const { profile, servicesList } = useSelector((state) => state.doctors);
   const { planDetails } = useSelector((state) => state.subscription);
