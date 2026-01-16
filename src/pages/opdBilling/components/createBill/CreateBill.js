@@ -488,8 +488,8 @@ const CreateBill = ({
     if (dayjs.isDayjs(dateValue)) return dateValue;
     if (typeof dateValue !== "string") return null;
 
-    // Try parsing different date formats
-    const formats = ["DD-MM-YYYY", "YYYY-MM-DD", "DD MMM YYYY"];
+    // Try parsing different date formats - prioritize YYYY-MM-DD since that's what we store
+    const formats = ["YYYY-MM-DD", "DD-MM-YYYY", "DD MMM YYYY", "DD/MM/YYYY"];
     for (const format of formats) {
       const parsed = dayjs(dateValue, format, true);
       if (parsed.isValid()) {
@@ -681,16 +681,11 @@ const CreateBill = ({
           <DatePicker
             placeholder="Select Date"
             onChange={(date) => {
-              handleInputChange(
-                date ? date.format("DD-MM-YYYY") : "",
-                index,
-                "itemDate"
-              );
+              // Ensure we always save in YYYY-MM-DD format
+              const formattedDate = date ? date.format("YYYY-MM-DD") : "";
+              handleInputChange(formattedDate, index, "itemDate");
             }}
-            format={{
-              format: "DD-MM-YYYY",
-              type: "mask",
-            }}
+            format="DD-MM-YYYY"
             value={parseItemDate(record.itemDate)}
             style={{
               border: "none",
