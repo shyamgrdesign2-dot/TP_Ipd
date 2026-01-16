@@ -44,6 +44,7 @@ const PreviewBill = ({
   getPatientBills,
   handleEditBillDrawer,
   isPreviewForm3c,
+  source
 }) => {
   const isIpdBill = !!billData?.admissionId;
   const [getBillToken, setBillToken] = useLocalStorage(
@@ -137,10 +138,23 @@ const PreviewBill = ({
   useEffect(() => {
     const settings = isIpdBill ? ipdBillPrintSettings : billPrintSettings;
 
-    if (settings && Object.keys(settings).length > 0) {
+    if (settings && Object.keys(settings).length > 0 && isIpdBill && billDetails?.admission) {
+      makePDFUrl();
+    } else if (settings && Object.keys(settings).length > 0 && !isIpdBill) {
       makePDFUrl();
     }
-  }, [billPrintSettings, ipdBillPrintSettings, billDetails]);
+  }, [billPrintSettings, ipdBillPrintSettings, billDetails, advancedSettings, totalAdvanceBalance]);
+
+  useEffect(() => {
+    if (billData && Object.keys(billData).length > 0) {
+      setBillDetails(billData);
+      // Reset PDF generation key to force regeneration
+      pdfGenerationKeyRef.current = null;
+      setPdfUrl(null);
+      setPrintBlob(null);
+      setNumPages(undefined);
+    }
+  }, [billData]);
 
   useEffect(() => {
     if (
@@ -470,7 +484,7 @@ const PreviewBill = ({
                       <i className="icon-right iconrotate180 ms-auto"></i>
                     </Button>
                   )}
-                {!isEditDisabled && !isDepositReceipt && !isPreviewForm3c && (
+                {!isEditDisabled && !isDepositReceipt && !isPreviewForm3c && source !== "ipdbillinghistory" && (
                   <Button
                     type="text"
                     className={`btn btnicon20 align-items-center d-flex btn-41 w-100 mb-3 ${
@@ -532,6 +546,7 @@ const PreviewBill = ({
                 <div ref={divRef} className="printheight">
                   <div className="position-relative h-100">
                     <Document
+                      key={`${billDetails?.billNumber || billDetails?.id || 'new'}-${JSON.stringify(billDetails?.billItems || [])}-${billDetails?.payableAmount || 0}`}
                       loading={
                         <Spin
                           style={{

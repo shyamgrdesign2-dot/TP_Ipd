@@ -94,6 +94,7 @@ const CreateBill = ({
   editBillData,
   admissionId,
   onBillCreated,
+  setEditedBillData,
 }) => {
   const isIpdBill = !!admissionId;
   const { state } = useLocation();
@@ -280,7 +281,7 @@ const CreateBill = ({
       patientDetails?.patientUniqueId ||
       editBillData?.patient?.patientId;
     if (patientUniqueId) {
-      // getPatientDueAmount(patientUniqueId);
+      getPatientDueAmount(patientUniqueId);
       getPatientWalletBalance(patientUniqueId);
       patientAdvanceData(patientUniqueId);
     }
@@ -393,12 +394,8 @@ const CreateBill = ({
 
   useEffect(() => {
     if (advancedSettings && Object.keys(advancedSettings)?.length) {
-      setIncludeInRx(advancedSettings.defaultRxFlag);
-      setAddBillTo3C(
-        isIpdBill
-          ? advancedSettings?.ipdSetting?.defaultForm3cFlag
-          : advancedSettings?.defaultForm3cFlag
-      );
+      setIncludeInRx( editBillData?.includeInRx || advancedSettings.defaultRxFlag);
+      setAddBillTo3C( editBillData?.isForm3C ? editBillData?.isForm3C : isIpdBill ? advancedSettings?.ipdSetting?.defaultForm3cFlag : advancedSettings?.defaultForm3cFlag);
       setPaymentModes([
         {
           paymentMode: isIpdBill
@@ -409,7 +406,7 @@ const CreateBill = ({
         },
       ]);
     }
-  }, [advancedSettings]);
+  }, [advancedSettings, editBillData]);
 
   useEffect(() => {
     if (editBillData?.paymentModes) {
@@ -491,8 +488,8 @@ const CreateBill = ({
     if (dayjs.isDayjs(dateValue)) return dateValue;
     if (typeof dateValue !== "string") return null;
 
-    // Try parsing different date formats
-    const formats = ["DD-MM-YYYY", "YYYY-MM-DD", "DD MMM YYYY"];
+    // Try parsing different date formats - prioritize YYYY-MM-DD since that's what we store
+    const formats = ["YYYY-MM-DD", "DD-MM-YYYY", "DD MMM YYYY", "DD/MM/YYYY"];
     for (const format of formats) {
       const parsed = dayjs(dateValue, format, true);
       if (parsed.isValid()) {
@@ -684,16 +681,11 @@ const CreateBill = ({
           <DatePicker
             placeholder="Select Date"
             onChange={(date) => {
-              handleInputChange(
-                date ? date.format("DD-MM-YYYY") : "",
-                index,
-                "itemDate"
-              );
+              // Ensure we always save in YYYY-MM-DD format
+              const formattedDate = date ? date.format("YYYY-MM-DD") : "";
+              handleInputChange(formattedDate, index, "itemDate");
             }}
-            format={{
-              format: "DD-MM-YYYY",
-              type: "mask",
-            }}
+            format="DD-MM-YYYY"
             value={parseItemDate(record.itemDate)}
             style={{
               border: "none",
@@ -1058,13 +1050,18 @@ const CreateBill = ({
         setPatientWalletBalance(walletBalance);
       }
       setBillData(createRes);
+      if (setEditedBillData) {
+        setEditedBillData(createRes);
+      }
       if (type === "exit") {
         // For IPD billing, call onBillCreated callback if provided
         if (onBillCreated && isIpdBill) {
           onBillCreated(createRes);
         }
-        handleCreateBillDrawer();
+        handleCreateBillDrawer(createRes, true);
       } else if (type === "preview") {
+        // Use createRes directly to ensure latest data is passed
+        setBillData(createRes);
         handleDrawerPreviewBill();
       } else {
         const blob = await pdf(
@@ -1468,7 +1465,7 @@ const CreateBill = ({
                         </span>
                       </button>
                     </div>
-                    {/* {Number(patientDueAmount) > 0 && (
+                    {Number(patientDueAmount) > 0 && (
                       <div className="billing-dashboard-wraper">
                         <div
                           className={`total-due-container ${
@@ -1481,7 +1478,7 @@ const CreateBill = ({
                           </span>
                         </div>
                       </div>
-                    )} */}
+                    )}
                   </>
                 )}
               </div>
@@ -1582,7 +1579,7 @@ const CreateBill = ({
                   </div>
                 )}
 
-                {isIpdBill ? (
+                {isIpdBill || editBillData ? (
                   <Button
                     type="button"
                     className={`btn btn-primary3 btn-41 me-20 ${

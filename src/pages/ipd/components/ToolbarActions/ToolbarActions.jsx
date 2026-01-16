@@ -9,6 +9,7 @@ export default function ToolbarActions({
   totalCount = 0,
   showSelectionCount = false,
   showAddToDischarge = false,
+  showIPDBillingHistory = false,
   onEdit = () => {},
   onAddToDischarge = () => {},
   onPrintPreview = () => {},
@@ -91,7 +92,7 @@ export default function ToolbarActions({
       type: BTN.SQUARE,
       onClick: onSendToWhatsapp,
       icon: defaultIcons.whatsappPrimaryIcon,
-      show: !showAddToDischarge,
+      show: showIPDBillingHistory,
     },
   ];
 
