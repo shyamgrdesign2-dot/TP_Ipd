@@ -112,12 +112,22 @@ const ChiefComplaint = (props) => {
     }
   };
 
+  const isPresentingComplaintsNormalFormat = (richText) => {
+    if (!Array.isArray(richText) || richText.length === 0) return false;
+    return richText.every(
+      (item) =>
+        item &&
+        typeof item === "object" &&
+        typeof item.symptom_name === "string" &&
+        item.symptom_name.trim().length > 0
+    );
+  };
   const isLastChiefComplaintPresent = useMemo(() => {
     return (
       (!Array.isArray(chiefComplaintFromLastPrescription) &&
         typeof chiefComplaintFromLastPrescription === "string" &&
         !!chiefComplaintFromLastPrescription) ||
-      !isEmptyRichText(chiefComplaintFromLastPrescription)
+      isPresentingComplaintsNormalFormat(chiefComplaintFromLastPrescription)
     );
   }, [chiefComplaint, chiefComplaintFromLastPrescription]);
   
