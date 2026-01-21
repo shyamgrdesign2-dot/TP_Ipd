@@ -155,7 +155,7 @@ const DiagnosisAndSurgery = ({
                     >
                       <View
                         style={{
-                          width: "80%",
+                          width: "60%",
                           padding: "8px",
                           borderRight: "1px solid #E0E0E0",
                         }}
@@ -174,6 +174,7 @@ const DiagnosisAndSurgery = ({
                         style={{
                           width: "20%",
                           padding: "8px 12px",
+                          borderRight: "1px solid #E0E0E0",
                         }}
                       >
                         <Text
@@ -184,6 +185,22 @@ const DiagnosisAndSurgery = ({
                           }}
                         >
                           ICD Code
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          width: "20%",
+                          padding: "8px 12px",
+                        }}
+                      >
+                        <Text
+                          style={{
+                            // fontSize: 10,
+                            fontWeight: 700,
+                            color: "#000000",
+                          }}
+                        >
+                          Notes
                         </Text>
                       </View>
                     </View>
@@ -205,7 +222,7 @@ const DiagnosisAndSurgery = ({
                       >
                         <View
                           style={{
-                            width: "80%",
+                            width: "60%",
                             padding: "4px 8px",
                             borderRight: "1px solid #E0E0E0",
                           }}
@@ -224,6 +241,7 @@ const DiagnosisAndSurgery = ({
                           style={{
                             width: "20%",
                             padding: "4px 8px",
+                            borderRight: "1px solid #E0E0E0",
                           }}
                         >
                           <Text
@@ -234,6 +252,22 @@ const DiagnosisAndSurgery = ({
                             }}
                           >
                             {dx.icd_code || "--"}
+                          </Text>
+                        </View>
+                        <View
+                          style={{
+                            width: "20%",
+                            padding: "4px 8px",
+                          }}
+                        >
+                          <Text
+                            style={{
+                              // fontSize: 10,
+                              fontWeight: 400,
+                              color: "#171725",
+                            }}
+                          >
+                            {dx.notes || "--"}
                           </Text>
                         </View>
                       </View>
@@ -303,7 +337,7 @@ const DiagnosisAndSurgery = ({
                     >
                       <View
                         style={{
-                          width: "80%",
+                          width: "60%",
                           padding: "8px 12px",
                           borderRight: "1px solid #E0E0E0",
                         }}
@@ -322,6 +356,7 @@ const DiagnosisAndSurgery = ({
                         style={{
                           width: "20%",
                           padding: "8px 12px",
+                          borderRight: "1px solid #E0E0E0",
                         }}
                       >
                         <Text
@@ -332,6 +367,22 @@ const DiagnosisAndSurgery = ({
                           }}
                         >
                           ICD Code
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          width: "20%",
+                          padding: "8px 12px",
+                        }}
+                      >
+                        <Text
+                          style={{
+                            // fontSize: 10,
+                            fontWeight: 700,
+                            color: "#000000",
+                          }}
+                        >
+                          Notes
                         </Text>
                       </View>
                     </View>
@@ -355,7 +406,7 @@ const DiagnosisAndSurgery = ({
                         >
                           <View
                             style={{
-                              width: "80%",
+                              width: "60%",
                               padding: "8px 12px",
                               borderRight: "1px solid #E0E0E0",
                             }}
@@ -374,6 +425,7 @@ const DiagnosisAndSurgery = ({
                             style={{
                               width: "20%",
                               padding: "8px 12px",
+                              borderRight: "1px solid #E0E0E0",
                             }}
                           >
                             <Text
@@ -384,6 +436,22 @@ const DiagnosisAndSurgery = ({
                               }}
                             >
                               {dx.icd_code || "--"}
+                            </Text>
+                          </View>
+                          <View
+                            style={{
+                              width: "20%",
+                              padding: "8px 12px",
+                            }}
+                          >
+                            <Text
+                              style={{
+                                // fontSize: 10,
+                                fontWeight: 400,
+                                color: "#171725",
+                              }}
+                            >
+                              {dx.notes || "--"}
                             </Text>
                           </View>
                         </View>

@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import { DatePicker, TimePicker, Select } from "antd";
 import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import DrawerWrapper from "../../components/DrawerWrapper/DrawerWrapper.jsx";
 import { createRemoteComponent } from "../../../../shared/remoteComponents.js";
 import { defaultIcons } from "../../../../assets/images/icons/index.js";
@@ -20,6 +21,8 @@ import { useVoiceAiRecordingComplete } from "../../../../hooks/useVoiceAiRecordi
 const RichTextEditWrapper = createRemoteComponent("RichTextEditWrapper");
 const dateDisplayFormat = "DD-MM-YYYY";
 const timeFormat = "hh:mm A";
+
+dayjs.extend(customParseFormat);
 
 const initialState = {
   dateOfDischarge: dayjs(),
@@ -123,6 +126,16 @@ const DischargeConfirmationModal = forwardRef(
       [formData.dischargeRemarks, handleFieldChange, submitVoiceAiRecording]
     );
 
+    const parseDateValue = (value, format) => {
+      if (!value) return null;
+      if (dayjs.isDayjs(value)) return value;
+      if (typeof value === "string") {
+        const parsedWithFormat = dayjs(value, format, true);
+        if (parsedWithFormat.isValid()) return parsedWithFormat;
+      }
+      return dayjs(value);
+    };
+
     return (
       <DrawerWrapper
         open={open}
@@ -149,9 +162,7 @@ const DischargeConfirmationModal = forwardRef(
                 className="w-100 popinput inputheight41"
                 format={dateDisplayFormat}
                 value={
-                  formData.dateOfDischarge
-                    ? dayjs(formData.dateOfDischarge, dateDisplayFormat)
-                    : null
+                  parseDateValue(formData.dateOfDischarge, dateDisplayFormat)
                 }
                 onChange={(date) =>
                   handleFieldChange(
@@ -178,9 +189,7 @@ const DischargeConfirmationModal = forwardRef(
                 format={timeFormat}
                 use12Hours
                 value={
-                  formData.timeOfDischarge
-                    ? dayjs(formData.timeOfDischarge, timeFormat)
-                    : null
+                  parseDateValue(formData.timeOfDischarge, timeFormat)
                 }
                 onChange={(time) =>
                   handleFieldChange(

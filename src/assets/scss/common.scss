@@ -443,14 +443,25 @@ body {
       font-weight: 500;
     }
     .ant-select-arrow .anticon {
+      position: relative;
+      svg {
+        display: inline-block;
+      }
+      &:after {
+        content: "\e914";
+        font-family: "icomoon", "Segoe UI Symbol", "Noto Sans Symbols2", sans-serif !important;
+        transform: rotate(-90deg);
+        font-size: 20px;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+      }
+    }
+    @at-root .icomoon-loaded .ant-select .ant-select-arrow .anticon {
       svg {
         display: none;
       }
       &:after {
-        content: "\e914";
-        font-family: "icomoon" !important;
-        transform: rotate(-90deg);
-        font-size: 20px;
+        opacity: 1;
       }
     }
     .ant-select-clear {

@@ -99,7 +99,7 @@ const IPDPatientDetails = () => {
   } = state || {};
 
   const patientId = patientDetails?.details?.id;
-  const { admissionId } = patientDetails;
+  const { admissionId } = patientDetails || {};
 
   const { hasAnyData: hasAnyAssessmentData } = useAssessmentSectionVisibility();
 
@@ -141,6 +141,12 @@ const IPDPatientDetails = () => {
   const [shouldOpenAddAdvance, setShouldOpenAddAdvance] = useState(false);
 
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (!patientDetails || !admissionId) {
+      navigate("/ipd/inPatients", { replace: true });
+    }
+  }, [patientDetails, admissionId]);
 
   useEffect(() => {
     const { user_id } = getTokenData();

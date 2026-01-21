@@ -9,11 +9,28 @@ import './index.css';
 import './assets/scss/app.scss';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import * as Sentry from "@sentry/react";
+import icomoonWoff from './assets/fonts/iconmoon/icomoon.woff';
 
 // Set global wallpaper path from public static assets to avoid bundling large media.
 if (typeof document !== 'undefined') {
   const cdssWallpaperUrl = `${process.env.PUBLIC_URL || ''}/static-media/cdss-wallpaper.gif`;
   document.documentElement.style.setProperty('--cdss-wallpaper-url', `url(${cdssWallpaperUrl})`);
+}
+
+// Proactively load icomoon so icon glyphs are available before UI renders.
+if (typeof document !== 'undefined' && 'fonts' in document && typeof FontFace !== 'undefined') {
+  const icomoonFace = new FontFace('icomoon', `url(${icomoonWoff}) format('woff')`, {
+    display: 'swap',
+  });
+  icomoonFace
+    .load()
+    .then((loadedFace) => {
+      document.fonts.add(loadedFace);
+      document.documentElement.classList.add('icomoon-loaded');
+    })
+    .catch(() => {
+      // Keep SVG fallback if font fails to load.
+    });
 }
 
 Sentry.init({

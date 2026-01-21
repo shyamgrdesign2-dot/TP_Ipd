@@ -482,7 +482,9 @@ const PatientsTable = ({
                 title: "Discharge Patient",
                 onCtaClick: handleMarkPatientAsDischarged,
               }
-          : isAdmittingDoctor && isDischargeQueue
+          :
+          //  isAdmittingDoctor && (TODO: INTEL - Commented for now, but might need it in future)
+          isDischargeQueue
           ? {
               title: "Discharge Patient",
               onCtaClick: handleMarkPatientAsDischarged,
