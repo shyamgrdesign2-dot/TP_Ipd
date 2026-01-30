@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
  * @param {Object} props.footerSettings - Footer configuration
  * @returns {JSX.Element} PDF Footer
  */
-const PDFFooter = ({ footerSettings, letterHeadFormat }) => {
+const PDFFooter = ({ footerSettings, letterHeadFormat, fixed = true }) => {
   if (!footerSettings) return null;
 
   const { title = "", fontSize = 10, footerImg = "" } = footerSettings;
@@ -42,7 +42,7 @@ const PDFFooter = ({ footerSettings, letterHeadFormat }) => {
 
   if (letterHeadFormat === LETTERHEAD_FORMATS.UPLOAD && footerImg) {
     return (
-      <View style={styles.footer} fixed>
+      <View style={styles.footer} fixed={fixed}>
         <Image src={footerImg} style={styles.logo} />
       </View>
     );
@@ -51,7 +51,7 @@ const PDFFooter = ({ footerSettings, letterHeadFormat }) => {
   return (
     <View
       style={[styles.footer, { borderTopWidth: 1, borderTopColor: "#000000" }]}
-      fixed
+      fixed={fixed}
     >
       <Text style={[styles.footerText, { fontSize }]}>{title}</Text>
     </View>

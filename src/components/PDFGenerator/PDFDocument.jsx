@@ -42,6 +42,7 @@ const PDFDocument = ({ settings, patientData, children, documentType, fullData }
     displayPatientInfo = {},
     letterHeadFormat = 0,
     margins: formatMargins = {},
+    showHeaderFooterPage = "all",
   } = headerFooter;
 
   // Get page dimensions
@@ -52,6 +53,10 @@ const PDFDocument = ({ settings, patientData, children, documentType, fullData }
   const currentMargins =
     formatMargins[letterHeadFormat] || footer.margins || {};
   const margins = getMargins(currentMargins);
+  const baseMargins = getMargins();
+  const isOwnLetterheadFirstPageOnly =
+    letterHeadFormat === 2 && showHeaderFooterPage === "first";
+  const firstPageExtraTop = Math.max(0, margins.top - baseMargins.top);
 
   // Create styles
   const commonStyles = createCommonStyles(fontSize, fontFamily);
@@ -59,7 +64,7 @@ const PDFDocument = ({ settings, patientData, children, documentType, fullData }
   const documentStyles = StyleSheet.create({
     page: {
       ...commonStyles.page,
-      paddingTop: margins.top,
+      paddingTop: isOwnLetterheadFirstPageOnly ? baseMargins.top : margins.top,
       paddingRight: margins.right,
       paddingBottom: margins.bottom,
       paddingLeft: margins.left,
@@ -70,15 +75,22 @@ const PDFDocument = ({ settings, patientData, children, documentType, fullData }
     },
   });
 
+  const shouldShowHeaderFooter = (pageNumber) =>
+    showHeaderFooterPage === "all" || pageNumber === 1;
+
   return (
     <Document>
       <Page size={pageSize} style={documentStyles.page}>
+        {isOwnLetterheadFirstPageOnly && firstPageExtraTop > 0 && (
+          <View style={{ height: firstPageExtraTop }} />
+        )}
         {/* Header */}
         <PDFHeader
           headerSettings={header}
           letterHeadFormat={letterHeadFormat}
           patientData={patientData}
           documentType={documentType}
+          fixed={showHeaderFooterPage === "all"}
         />
 
         {/* Patient Information */}
@@ -94,11 +106,19 @@ const PDFDocument = ({ settings, patientData, children, documentType, fullData }
         <View style={documentStyles.content}>{children}</View>
 
         {/* Footer */}
-        <PDFFooter
-          footerSettings={footer}
-          fontFamily={fontFamily}
-          letterHeadFormat={letterHeadFormat}
-          showPageNumbers={pageFormat?.pagination}
+        <View
+          fixed
+          render={({ pageNumber }) =>
+            shouldShowHeaderFooter(pageNumber) ? (
+              <PDFFooter
+                footerSettings={footer}
+                fontFamily={fontFamily}
+                letterHeadFormat={letterHeadFormat}
+                showPageNumbers={pageFormat?.pagination}
+                fixed={false}
+              />
+            ) : null
+          }
         />
 
         {pagination && <PageNumber />}

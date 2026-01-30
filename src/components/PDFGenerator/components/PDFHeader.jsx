@@ -68,7 +68,12 @@ const styles = StyleSheet.create({
  * @param {Object} props.headerSettings - Header configuration
  * @returns {JSX.Element} PDF Header
  */
-const PDFHeader = ({ headerSettings, letterHeadFormat, documentType }) => {
+const PDFHeader = ({
+  headerSettings,
+  letterHeadFormat,
+  documentType,
+  fixed = true,
+}) => {
   if (!headerSettings) return null;
 
   const {
@@ -85,7 +90,10 @@ const PDFHeader = ({ headerSettings, letterHeadFormat, documentType }) => {
   // For admission details, use simpler header without fixed positioning to prevent truncation
   if (documentType === "admissionDetails") {
     return (
-      <View style={{ marginBottom: 20, alignItems: "center" }}>
+      <View
+        style={{ marginBottom: 20, alignItems: "center" }}
+        fixed={fixed}
+      >
         {title && (
           <Text
             style={{
@@ -125,7 +133,7 @@ const PDFHeader = ({ headerSettings, letterHeadFormat, documentType }) => {
           styles.headerImgContainer,
           { marginBottom: letterHeadFormat !== 0 ? 15 : 0 },
         ]}
-        fixed
+        fixed={fixed}
       >
         <Image src={headerImg} alt="Header Image" />
       </View>
@@ -139,7 +147,7 @@ const PDFHeader = ({ headerSettings, letterHeadFormat, documentType }) => {
         styles.headerContainer,
         { justifyContent: showLogo && logo ? "flex-start" : "center" },
       ]}
-      fixed
+      fixed={fixed}
     >
       {/* Logo on left */}
       {logoPosition === "left" && <Logo />}
