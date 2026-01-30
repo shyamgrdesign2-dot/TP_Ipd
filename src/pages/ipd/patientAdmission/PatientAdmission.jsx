@@ -592,8 +592,31 @@ export default function PatientAdmission() {
         message.error("Patient is already admitted");
         return;
       }
-      await ApiIpdService.createAdmission(payload);
-      message.success("Admission created successfully");
+      const createResponse = await ApiIpdService.createAdmission(payload);
+      const responseMessage =
+        createResponse?.error?.message ||
+        createResponse?.data?.message ||
+        createResponse?.message;
+      const isErrorResponse =
+        Boolean(createResponse?.error) ||
+        (typeof createResponse?.status === "number" &&
+          createResponse.status >= 400) ||
+        (typeof createResponse?.statusCode === "number" &&
+          createResponse.statusCode >= 400) ||
+        createResponse?.success === false ||
+        (typeof responseMessage === "string" &&
+          /occupied|already|error|failed|unable|invalid|not\s+available/i.test(
+            responseMessage.toLowerCase()
+          ));
+
+      if (isErrorResponse) {
+        message.error(
+          responseMessage || "Unable to create admission. Please try again."
+        );
+        return;
+      }
+
+      message.success(responseMessage || "Admission created successfully");
       navigate(`/ipd/inPatients`, {
         replace: true,
       });
