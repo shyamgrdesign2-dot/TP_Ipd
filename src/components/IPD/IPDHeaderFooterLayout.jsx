@@ -1068,16 +1068,22 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
             <div className="my-4">
               <div className="my-2">Print Header &amp; Footer</div>
               <Radio.Group
-                value={currentSettings.showHeaderFooterPage || "all"}
+                value={currentSettings.printMode || "allPages"}
                 onChange={(e) =>
-                  updateHeaderFooter({ showHeaderFooterPage: e.target.value })
+                  updateHeaderFooter({ printMode: e.target.value })
                 }
                 style={{ width: "100%", display: "flex" }}
               >
-                <Radio.Button value="all" style={{ flex: 1, textAlign: "center" }}>
+                <Radio.Button
+                  value="allPages"
+                  style={{ flex: 1, textAlign: "center" }}
+                >
                   On All Pages
                 </Radio.Button>
-                <Radio.Button value="first" style={{ flex: 1, textAlign: "center" }}>
+                <Radio.Button
+                  value="firstPage"
+                  style={{ flex: 1, textAlign: "center" }}
+                >
                   Only on First Page
                 </Radio.Button>
               </Radio.Group>
