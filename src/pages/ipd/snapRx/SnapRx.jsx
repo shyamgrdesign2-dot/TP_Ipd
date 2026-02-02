@@ -75,6 +75,7 @@ function SnapRxContent({
   const uploadWrittenRxRef = useRef(null);
   const timerForLoadingRef = useRef(null);
   const isGeneratingTokenRef = useRef(false);
+  const schemaKeyRef = useRef(schemaKey);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
@@ -85,6 +86,7 @@ function SnapRxContent({
   const previewDrawerRef = useRef(null);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isWaitingForFiles, setIsWaitingForFiles] = useState(false);
+  const [tokenScopeKey, setTokenScopeKey] = useState(null);
   const { patient_data, send_path, caseManagerData, pam_id } = state || {};
   const tcmId = caseManagerData?.tcm_id || 0;
   const pamId = pam_id
@@ -105,17 +107,25 @@ function SnapRxContent({
   }, []);
 
   useEffect(() => {
+    schemaKeyRef.current = schemaKey;
+  }, [schemaKey]);
+
+  useEffect(() => {
     const patientId = patientDetails?.details?.id;
     const admissionId = patientDetails?.admissionId;
     if (!patientId || !admissionId) return;
 
+    setTokenScopeKey(null);
+
     const tokenKey = getTokenKey(patientId, admissionId, schemaKey);
     const legacyTokenKey = getLegacyTokenKey(patientId, admissionId);
+    const allowLegacyToken = (schemaKey || "ASSESSMENTS") === "ASSESSMENTS";
     const tokenDataString = localStorage.getItem(SNAP_RX_TOKENS_STORAGE_KEY);
     if (tokenDataString) {
       try {
         const parsed = JSON.parse(tokenDataString);
-        const storedToken = parsed[tokenKey] || parsed[legacyTokenKey];
+        const storedToken =
+          parsed[tokenKey] || (allowLegacyToken ? parsed[legacyTokenKey] : null);
         const ONE_DAY_MS = 24 * 60 * 60 * 1000;
         const isExpired =
           !storedToken?.timestamp ||
@@ -126,6 +136,7 @@ function SnapRxContent({
           if (storedToken.sessionId) {
             dispatch(setFileUploadSessionId(storedToken.sessionId));
           }
+          setTokenScopeKey(schemaKey);
           // migrate legacy key forward
           if (parsed[legacyTokenKey] && !parsed[tokenKey]) {
             delete parsed[legacyTokenKey];
@@ -139,7 +150,9 @@ function SnapRxContent({
         }
         if (isExpired) {
           if (parsed[tokenKey]) delete parsed[tokenKey];
-          if (parsed[legacyTokenKey]) delete parsed[legacyTokenKey];
+          if (allowLegacyToken && parsed[legacyTokenKey]) {
+            delete parsed[legacyTokenKey];
+          }
           localStorage.setItem(
             SNAP_RX_TOKENS_STORAGE_KEY,
             JSON.stringify(parsed)
@@ -155,16 +168,26 @@ function SnapRxContent({
     dispatch(setFileUploadToken(null));
     dispatch(setFileUploadSessionId(null));
     isGeneratingTokenRef.current = true;
+    const requestedSchemaKey = schemaKey;
     dispatch(
       generateFileUploadToken({
         patientId,
         admissionId,
-        schemaKey,
+        schemaKey: requestedSchemaKey,
       })
-    ).finally(() => {
-      isGeneratingTokenRef.current = false;
-    });
-  }, [fileUploadToken, patientDetails, schemaKey]);
+    )
+      .then((action) => {
+        if (
+          action?.meta?.requestStatus === "fulfilled" &&
+          schemaKeyRef.current === requestedSchemaKey
+        ) {
+          setTokenScopeKey(requestedSchemaKey);
+        }
+      })
+      .finally(() => {
+        isGeneratingTokenRef.current = false;
+      });
+  }, [patientDetails, schemaKey]);
 
   useEffect(() => {
     return () => {
@@ -238,10 +261,10 @@ function SnapRxContent({
   };
 
   useEffect(() => {
-    if (fileUploadToken) {
+    if (fileUploadToken && tokenScopeKey === schemaKey) {
       fetchUploadedFiles();
     }
-  }, [fileUploadToken, patientDetails, schemaKey]);
+  }, [fileUploadToken, tokenScopeKey, patientDetails, schemaKey, sessionId]);
 
   useEffect(() => {
     return () => {
