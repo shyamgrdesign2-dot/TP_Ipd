@@ -1,4 +1,4 @@
-import React, { Suspense, useCallback, useEffect, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { IPD } from "../../../utils/locale.js";
 import "../assessmentForm/styles.scss";
 import "./styles.scss";
@@ -49,6 +49,8 @@ const CrossReferral = (props) => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(true);
   const [showCustomisationDrawer, setShowCustomisationDrawer] = useState(false);
+  const [isMainCtaSubmitting, setIsMainCtaSubmitting] = useState(false);
+  const mainCtaLockRef = useRef(false);
   const [filledDate, setFilledDate] = useState(new Date());
   const [filledAtTime, setFilledAtTime] = useState(new Date());
   const [selectedTimePeriod, setSelectedTimePeriod] = useState("Morning");
@@ -269,6 +271,21 @@ const CrossReferral = (props) => {
     }
   };
 
+  const handleMainCtaClick = async (...args) => {
+    if (mainCtaLockRef.current) return;
+    mainCtaLockRef.current = true;
+    setIsMainCtaSubmitting(true);
+    try {
+      const result = onAddReferralClick?.(...args);
+      if (result && typeof result.then === "function") {
+        await result;
+      }
+    } finally {
+      mainCtaLockRef.current = false;
+      setIsMainCtaSubmitting(false);
+    }
+  };
+
   const handleTimePeriodChange = (value) => {
     setSelectedTimePeriod(value);
   };
@@ -405,8 +422,9 @@ const CrossReferral = (props) => {
                 key="crossReferral"
                 title={"Cross Referral"}
                 mainCta={{
-                  handler: onAddReferralClick,
-                  title: "Add Referral",
+                  handler: handleMainCtaClick,
+                  title: isMainCtaSubmitting ? "Saving..." : "Add Referral",
+                  disabled: isMainCtaSubmitting,
                 }}
                 items={modelData}
                 renderSection={renderSections}

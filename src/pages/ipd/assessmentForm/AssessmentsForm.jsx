@@ -1,4 +1,4 @@
-import React, { Suspense, useCallback, useEffect, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { IPD } from "../../../utils/locale";
 import "./styles.scss";
 import { Button, Drawer, message } from "antd";
@@ -71,6 +71,8 @@ const AssessmentsForm = (props) => {
   const [open, setOpen] = useState(true);
   const [showCustomisationDrawer, setShowCustomisationDrawer] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isMainCtaSubmitting, setIsMainCtaSubmitting] = useState(false);
+  const mainCtaLockRef = useRef(false);
   const { obstetricDetails: allObstetricDetails } = useSelector(
     (state) => state.obstetric
   );
@@ -364,6 +366,21 @@ const AssessmentsForm = (props) => {
     }
   };
 
+  const handleMainCtaClick = async (...args) => {
+    if (mainCtaLockRef.current) return;
+    mainCtaLockRef.current = true;
+    setIsMainCtaSubmitting(true);
+    try {
+      const result = onSaveAssessmentClick?.(...args);
+      if (result && typeof result.then === "function") {
+        await result;
+      }
+    } finally {
+      mainCtaLockRef.current = false;
+      setIsMainCtaSubmitting(false);
+    }
+  };
+
   const handleBackConfirmation = () => {
     if (!patientDetails?.details?.id && !patientDetails?.admissionId) {
       setIsBackModalOpen(false);
@@ -555,9 +572,9 @@ const AssessmentsForm = (props) => {
                 key="assessment"
                 title={"Admission Assessment"}
                 mainCta={{
-                  handler: onSaveAssessmentClick,
+                  handler: handleMainCtaClick,
                   title: isLoading ? "Saving..." : "Save",
-                  disabled: isLoading,
+                  disabled: isLoading || isMainCtaSubmitting,
                 }}
                 items={assessments}
                 renderSection={renderSections}

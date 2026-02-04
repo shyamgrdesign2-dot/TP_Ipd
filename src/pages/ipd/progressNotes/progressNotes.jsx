@@ -3,6 +3,7 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { IPD } from "../../../utils/locale";
@@ -78,6 +79,8 @@ const ProgressNotes = (props) => {
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const [open, setOpen] = useState(true);
   const [showCustomisationDrawer, setShowCustomisationDrawer] = useState(false);
+  const [isMainCtaSubmitting, setIsMainCtaSubmitting] = useState(false);
+  const mainCtaLockRef = useRef(false);
   const [filledDate, setFilledDate] = useState(new Date());
   const [filledAtTime, setFilledAtTime] = useState(new Date());
   const [shouldAutofill, setShouldAutofill] = useState(false);
@@ -431,6 +434,21 @@ const ProgressNotes = (props) => {
     }
   };
 
+  const handleMainCtaClick = async (...args) => {
+    if (mainCtaLockRef.current) return;
+    mainCtaLockRef.current = true;
+    setIsMainCtaSubmitting(true);
+    try {
+      const result = saveProgressNotes?.(...args);
+      if (result && typeof result.then === "function") {
+        await result;
+      }
+    } finally {
+      mainCtaLockRef.current = false;
+      setIsMainCtaSubmitting(false);
+    }
+  };
+
   const handleAutofillVitals = () => {
     if (progressNotes && progressNotes.length > 0) {
       const latestNote = progressNotes[progressNotes?.length - 1];
@@ -724,8 +742,8 @@ const ProgressNotes = (props) => {
               title={"Progress Notes"}
               mainCta={{
                 title: isUpdating ? "Saving..." : "Save",
-                handler: saveProgressNotes,
-                disabled: isUpdating || !isDataPresent,
+                handler: handleMainCtaClick,
+                disabled: isUpdating || isMainCtaSubmitting || !isDataPresent,
               }}
               items={modelData}
               renderSection={renderSections}

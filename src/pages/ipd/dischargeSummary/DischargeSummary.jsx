@@ -1,4 +1,4 @@
-import React, { Suspense, useCallback, useEffect, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { IPD } from "../../../utils/locale.js";
 import "../assessmentForm/styles.scss";
 import "./styles.scss";
@@ -81,6 +81,8 @@ const DischargeSummary = (props) => {
   const [open, setOpen] = useState(true);
   const [showCustomisationDrawer, setShowCustomisationDrawer] = useState(false);
   const [activeAssistantPanel, setActiveAssistantPanel] = useState(null);
+  const [isMainCtaSubmitting, setIsMainCtaSubmitting] = useState(false);
+  const mainCtaLockRef = useRef(false);
   const { customization = {} } = useSelector((state) => state.ipd);
   const assessmentData = useSelector((state) => state.assessment);
   const dischargeSummaryState = useSelector((state) => state.dischargeSummary);
@@ -499,6 +501,21 @@ const DischargeSummary = (props) => {
     }
   };
 
+  const handleMainCtaClick = async (...args) => {
+    if (mainCtaLockRef.current) return;
+    mainCtaLockRef.current = true;
+    setIsMainCtaSubmitting(true);
+    try {
+      const result = onSaveDischargeSummaryClick?.(...args);
+      if (result && typeof result.then === "function") {
+        await result;
+      }
+    } finally {
+      mainCtaLockRef.current = false;
+      setIsMainCtaSubmitting(false);
+    }
+  };
+
   const renderHeaderSection = () => {
     return (
       <div className="ipd-filled-by-card-container">
@@ -609,8 +626,9 @@ const DischargeSummary = (props) => {
                 key="dischargeSummary"
                 title={"Discharge Summary"}
                 mainCta={{
-                  handler: onSaveDischargeSummaryClick,
-                  title: "Save",
+                  handler: handleMainCtaClick,
+                  title: isMainCtaSubmitting ? "Saving..." : "Save",
+                  disabled: isMainCtaSubmitting,
                 }}
                 items={modelData}
                 renderSection={renderSections}

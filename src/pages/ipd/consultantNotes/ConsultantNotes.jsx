@@ -3,6 +3,7 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { IPD } from "../../../utils/locale";
@@ -109,6 +110,8 @@ const ConsultantNotes = (props) => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(true);
   const [showCustomisationDrawer, setShowCustomisationDrawer] = useState(false);
+  const [isMainCtaSubmitting, setIsMainCtaSubmitting] = useState(false);
+  const mainCtaLockRef = useRef(false);
   const [filledDate, setFilledDate] = useState(dayjs());
   const [filledAtTime, setFilledAtTime] = useState(dayjs());
   const [investigationData, setInvestigationData] = useState([]);
@@ -286,6 +289,21 @@ const ConsultantNotes = (props) => {
       });
     } catch (error) {
       console.error("Error saving consultant notes:", error);
+    }
+  };
+
+  const handleMainCtaClick = async (...args) => {
+    if (mainCtaLockRef.current) return;
+    mainCtaLockRef.current = true;
+    setIsMainCtaSubmitting(true);
+    try {
+      const result = saveConsultantNotes?.(...args);
+      if (result && typeof result.then === "function") {
+        await result;
+      }
+    } finally {
+      mainCtaLockRef.current = false;
+      setIsMainCtaSubmitting(false);
     }
   };
 
@@ -660,8 +678,8 @@ const ConsultantNotes = (props) => {
               onAutoFill={handleAutofillAll}
               mainCta={{
                 title: isUpdating ? "Saving..." : "Save",
-                handler: saveConsultantNotes,
-                disabled: isUpdating || !isDataPresent,
+                handler: handleMainCtaClick,
+                disabled: isUpdating || isMainCtaSubmitting || !isDataPresent,
               }}
               isAuxPanelOpen={showAgentAlex}
               auxPanel={<AgentAlex onClose={handleAgentAlexClose} />}

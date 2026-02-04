@@ -3,6 +3,7 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { IPD } from "../../../utils/locale.js";
@@ -65,6 +66,8 @@ const CrossReferralConsultantNotes = (props) => {
   const [open, setOpen] = useState(true);
   const [showCustomisationDrawer, setShowCustomisationDrawer] = useState(false);
   const [activeAssistantPanel, setActiveAssistantPanel] = useState(null);
+  const [isMainCtaSubmitting, setIsMainCtaSubmitting] = useState(false);
+  const mainCtaLockRef = useRef(false);
   const { customization = {} } = useSelector((state) => state.ipd);
   const crossReferralState = useSelector((state) => state.crossReferral);
   const { crossReferralFormDetails, selectedConsultantNoteId } = useSelector(
@@ -504,6 +507,21 @@ const CrossReferralConsultantNotes = (props) => {
     });
   };
 
+  const handleMainCtaClick = async (...args) => {
+    if (mainCtaLockRef.current) return;
+    mainCtaLockRef.current = true;
+    setIsMainCtaSubmitting(true);
+    try {
+      const result = onAddReferralClick?.(...args);
+      if (result && typeof result.then === "function") {
+        await result;
+      }
+    } finally {
+      mainCtaLockRef.current = false;
+      setIsMainCtaSubmitting(false);
+    }
+  };
+
   const handleAIRecordingCompleteAgent = useCallback(
     (payload, callback) =>
       submitVoiceAiRecording({
@@ -631,8 +649,9 @@ const CrossReferralConsultantNotes = (props) => {
                 key="crossReferral"
                 title={"Cross Referral"}
                 mainCta={{
-                  handler: onAddReferralClick,
+                  handler: handleMainCtaClick,
                   title: "Add Referral",
+                  disabled: isMainCtaSubmitting,
                 }}
                 items={modelData}
                 renderBottomSection={renderBottomSection}

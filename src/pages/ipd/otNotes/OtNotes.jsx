@@ -1,4 +1,4 @@
-import React, { Suspense, useCallback, useEffect, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { IPD } from "../../../utils/locale.js";
 import "../assessmentForm/styles.scss";
 import "./styles.scss";
@@ -71,6 +71,8 @@ const OtNotes = (props) => {
   const [open, setOpen] = useState(true);
   const [showCustomisationDrawer, setShowCustomisationDrawer] = useState(false);
   const [activeAssistantPanel, setActiveAssistantPanel] = useState(null);
+  const [isMainCtaSubmitting, setIsMainCtaSubmitting] = useState(false);
+  const mainCtaLockRef = useRef(false);
   const requiredSurgeryDetailsFields = [
     { key: "procedureName", label: "Surgery/Procedure Name" },
     { key: "surgeryDate", label: "Surgery Date" },
@@ -490,6 +492,21 @@ const OtNotes = (props) => {
     }
   };
 
+  const handleMainCtaClick = async (...args) => {
+    if (mainCtaLockRef.current) return;
+    mainCtaLockRef.current = true;
+    setIsMainCtaSubmitting(true);
+    try {
+      const result = onSaveOtNotesClick?.(...args);
+      if (result && typeof result.then === "function") {
+        await result;
+      }
+    } finally {
+      mainCtaLockRef.current = false;
+      setIsMainCtaSubmitting(false);
+    }
+  };
+
   const renderBottomSection = () => (
     <>
       {activeAssistantPanel && <div className="agent-alex-voice-overlay" />}
@@ -602,8 +619,9 @@ const OtNotes = (props) => {
                   key="otNotes"
                   title={"OT Notes"}
                   mainCta={{
-                    handler: onSaveOtNotesClick,
+                    handler: handleMainCtaClick,
                     title: "Save",
+                    disabled: isMainCtaSubmitting,
                   }}
                   showAutoFill={showAutoFillLocal && isNew}
                   autoFillTitle={autoFillTitleLocal}
