@@ -68,10 +68,26 @@ const FIELD_SCHEMA = [
     placeholder:"Search & select relation",
     options: ["Father", "Mother", "Spouse", "Sibling", "Friend", "Guardian", "Other"],
   },
+  {
+    id: "payer",
+    label: "Payer",
+    type: "select-static",
+    placeholder: "Select Payer",
+    options: ["Patient", "Government Scheme"],
+  },
+  {
+    id: "payerType",
+    label: "Payer Type",
+    type: "select-payer-type",
+    placeholder: "Select Payer Type",
+  },
   { id: "insuranceNumber", label: "Insurance Number", type: "input", placeholder:"Enter Insurance Number" },
   { id: "policyNumber", label: "Policy Number", type: "input", placeholder:"Enter Policy Number" },
   { id: "tpaNumber", label: "TPA Number", type: "input", placeholder:"Enter TPA Number" },
   { id: "preApprovalId", label: "Pre-Approval ID", type: "input", placeholder:"Enter Pre-Approval ID" },
+  { id: "abhaId", label: "ABHA ID", type: "input-readonly", placeholder: "" },
+  { id: "abhaRegistrationNumber", label: "ABHA Registration Number", type: "input-readonly", placeholder: "" },
+  { id: "pmjayId", label: "PMJAY ID", type: "input", placeholder: "Enter PMJAY ID" },
 ];
 
 const REQUIRED_FIELD_IDS = [
@@ -113,7 +129,14 @@ const SECTION_LAYOUT = [
     title: "Insurance Details",
     icon: dischargeSummaryIcons.assessmentPc,
     description: "Optional insurance & policy information.",
-    fieldIds: ["insuranceNumber", "policyNumber", "tpaNumber", "preApprovalId"],
+    fieldIds: ["payer", "payerType", "insuranceNumber", "policyNumber", "tpaNumber", "preApprovalId"],
+  },
+  {
+    key: "abha",
+    title: "ABHA Details",
+    icon: dischargeSummaryIcons.assessmentPc,
+    description: "ABHA and PMJAY information.",
+    fieldIds: ["abhaId", "abhaRegistrationNumber", "pmjayId"],
   },
 //   {
 //     key: "surgery-procedure",
@@ -166,6 +189,8 @@ function FieldRenderer({
   onWardBedClick,
   selectedWardBed,
   fieldError,
+  payerValue,
+  payerTypeValue,
 }) {
 //   const haveAMLC = useWatch({ control, name: "haveAMLC" });
 //   if (field.id === "mlcNumber" && haveAMLC !== "Yes") return null;
@@ -354,6 +379,58 @@ function FieldRenderer({
       );
     }
 
+    case "select-payer-type": {
+      const isPatient = payerValue === "Patient";
+      if (isPatient) {
+        return (
+          <Controller
+            name={field.id}
+            control={control}
+            render={({ field: rhf }) => (
+              <Input
+                value={rhf.value || "Self"}
+                disabled
+                readOnly
+                className="w-100"
+              />
+            )}
+          />
+        );
+      }
+      const govOptions = ["PMJAY", "ESI", "CGHS"];
+      return (
+        <Controller
+          name={field.id}
+          control={control}
+          render={({ field: rhf }) =>
+            renderSelect(
+              govOptions,
+              { ...rhf, value: rhf.value ?? undefined },
+              (x) => ({ value: x, label: x }),
+              { placeholder: field.placeholder || "Select Payer Type" }
+            )
+          }
+        />
+      );
+    }
+
+    case "input-readonly":
+      return (
+        <Controller
+          name={field.id}
+          control={control}
+          render={({ field: rhf }) => (
+            <Input
+              placeholder={field.placeholder || field.label}
+              value={rhf.value || ""}
+              disabled
+              readOnly
+              className="w-100"
+            />
+          )}
+        />
+      );
+
     case "date":
       return (
         <Controller
@@ -474,11 +551,18 @@ export default function CreateAdmission() {
       admittingDoctorId: undefined,
       attendingDoctor: undefined,
       contactNo: patientDetails?.contact,
+      payer: undefined,
+      payerType: undefined,
+      abhaId: "",
+      abhaRegistrationNumber: "",
+      pmjayId: "",
     },
   });
 
   const selectedDepartmentId = useWatch({ control, name: "departmentId" });
   const selectedWardBedValue = useWatch({ control, name: "wardBed" });
+  const payerValue = useWatch({ control, name: "payer" });
+  const payerTypeValue = useWatch({ control, name: "payerType" });
   const watchedValues = watch();
   
   // Parse wardBed value to get wardId and roomId
@@ -658,6 +742,11 @@ export default function CreateAdmission() {
       setValue("policyNumber", metadata?.policyno || "");
       setValue("tpaNumber", metadata?.tpano || "");
       setValue("preApprovalId", metadata?.preApprovalId || "");
+      setValue("payer", metadata?.payer || "");
+      setValue("payerType", metadata?.payerType || "");
+      setValue("abhaId", details?.abha_address || metadata?.abhaId || "");
+      setValue("abhaRegistrationNumber", details?.abha_number || metadata?.abhaRegistrationNumber || "");
+      setValue("pmjayId", details?.pmjay_id || metadata?.pmjayId || "");
 
       setIsEditingName(false); // Disable patient search in edit mode
     }
@@ -684,6 +773,34 @@ export default function CreateAdmission() {
   const handleDepartmentChange = () => {
     setValue("admittingDoctorId", undefined);
   };
+
+  const fetchAbhaDetailsAndSetForm = useCallback(
+    async (patientUniqueId) => {
+      if (!patientUniqueId) return;
+      try {
+        const data = await ApiIpdService.fetchAbhaDetails({
+          patientUniqueId: String(patientUniqueId),
+        });
+        const abhaAddress = data?.abha_address || "";
+        const abhaNumber = data?.abha_number || "";
+        setValue("abhaId", abhaAddress);
+        setValue("abhaRegistrationNumber", abhaNumber);
+      } catch (err) {
+        console.warn("ABHA details fetch failed:", err);
+        setValue("abhaId", "");
+        setValue("abhaRegistrationNumber", "");
+      }
+    },
+    [setValue]
+  );
+
+  useEffect(() => {
+    if (payerValue === "Patient") {
+      setValue("payerType", "Self");
+    } else if (payerValue === "Government Scheme") {
+      setValue("payerType", undefined);
+    }
+  }, [payerValue, setValue]);
 
   const handleWardBedConfirm = (wardId, roomId) => {
     const ward = wards.find((w) => w._id === wardId);
@@ -771,6 +888,9 @@ export default function CreateAdmission() {
             patientDetails?.bloodGroup ??
             patientData?.pm_blood_group ??
             "",
+          abha_number: formData.abhaRegistrationNumber || "",
+          abha_address: formData.abhaId || "",
+          pmjay_id: formData.pmjayId || "",
         },
         ward: {
           id: ward?._id || admissionData?.ward?.id || "",
@@ -815,6 +935,8 @@ export default function CreateAdmission() {
           policyno: formData.policyNumber || "",
           tpano: formData.tpaNumber || "",
           preApprovalId: formData.preApprovalId || "",
+          payer: formData.payer || "",
+          payerType: formData.payerType || "",
         },
       };
 
@@ -889,6 +1011,7 @@ export default function CreateAdmission() {
 
   const renderSectionFields = (fieldIds) =>
     fieldIds.map((fieldId) => {
+      if (fieldId === "pmjayId" && payerTypeValue !== "PMJAY") return null;
       const field = FIELD_SCHEMA.find((f) => f.id === fieldId);
       if (!field) return null;
       const fieldValue = watch(field.id);
@@ -925,6 +1048,8 @@ export default function CreateAdmission() {
               onWardBedClick={handleWardBedClick}
               selectedWardBed={selectedWardBed}
               fieldError={errors[field.id]}
+              payerValue={payerValue}
+              payerTypeValue={payerTypeValue}
             />
             {errors[field.id] && (
               <div className="field-error">{errors[field.id]?.message}</div>
@@ -1118,6 +1243,7 @@ export default function CreateAdmission() {
         setSearchQueryMobile("");
         setSearchQueryName("");
         setIsEditingName(false);
+        fetchAbhaDetailsAndSetForm(patient.patient_unique_id || patient.pm_pid);
       }
     } catch (error) {
       console.error("Error parsing patient data:", error);
@@ -1150,7 +1276,10 @@ export default function CreateAdmission() {
             patientId: parsedPatientData.pm_pid || parsedPatientData.patientId || "",
           });
           setIsEditingName(false);
-          
+          fetchAbhaDetailsAndSetForm(
+            parsedPatientData.patient_unique_id || parsedPatientData.pm_pid || parsedPatientData.id || parsedPatientData.patientId
+          );
+
           // Clean up URL after reading the data
           const newSearchParams = new URLSearchParams(searchParams);
           newSearchParams.delete('patientData');
@@ -1164,7 +1293,7 @@ export default function CreateAdmission() {
         message.error("Failed to load patient data from URL");
       }
     }
-  }, [searchParams, patient_data, isEditModeState, patientData, navigate, location.pathname]);
+  }, [searchParams, patient_data, isEditModeState, patientData, navigate, location.pathname, fetchAbhaDetailsAndSetForm]);
 
   // Handle return from AddNewPatient page with new patient data
   useEffect(() => {
@@ -1179,8 +1308,9 @@ export default function CreateAdmission() {
         patientId: patient_data.pm_pid,
       });
       setIsEditingName(false);
+      fetchAbhaDetailsAndSetForm(patient_data.patient_unique_id || patient_data.pm_pid);
     }
-  }, [patient_data, isEditModeState, patientData]);
+  }, [patient_data, isEditModeState, patientData, fetchAbhaDetailsAndSetForm]);
 
   return (
     <div className="create-admission-page-container">

@@ -183,6 +183,11 @@ const getFieldValue = (key, patientData) => {
     mrnNo: () => patientData.mrnNo || "",
     primaryConsultant: () => patientData.doctorName || "",
     admissionNo: () => patientData.admissionNo || "",
+    payer: () => patientData.payer || "",
+    payerType: () => patientData.payerType || "",
+    abhaId: () => patientData.abhaId || "",
+    abhaRegistrationNumber: () => patientData.abhaRegistrationNumber || "",
+    pmjayId: () => patientData.pmjayId || "",
   };
 
   const getter = fieldValueMap[key];
@@ -205,12 +210,19 @@ export const getVisiblePatientFields = (displayPatientInfo, patientData) => {
     .filter((field) => field.enabled !== false)
     .sort((a, b) => (a.order || 999) - (b.order || 999));
 
-  // Map to include values from patient data
-  const fieldsWithValues = sortedFields.map((field) => ({
-    key: field.id,
-    label: field.label,
-    value: getFieldValue(field.id, patientData),
-  }));
+  // Map to include values from patient data (support id/label and field/title for API compatibility)
+  const fieldsWithValues = sortedFields
+    .map((field) => {
+      const key = field.id ?? field.field;
+      if (key == null || key === "") return null;
+      const label = field.label ?? field.title ?? "";
+      return {
+        key,
+        label,
+        value: getFieldValue(key, patientData),
+      };
+    })
+    .filter(Boolean);
 
   return fieldsWithValues;
 };

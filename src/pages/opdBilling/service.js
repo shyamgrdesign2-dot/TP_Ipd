@@ -6,12 +6,16 @@ const baseUrl = { customBaseUrl: config.lab_params_api_url };
 export const fetchPrintSetting = async function (doctorId, billType) {
   let res = {};
   try {
-    res = await api.get(
-      `/api/v1/billing/printSetting?${doctorId ? `um_id=${doctorId}` : ""}${
-        billType ? `&billType=ipdBill` : ""
-      }`,
-      baseUrl
-    );
+    const params = new URLSearchParams();
+    if (doctorId != null && doctorId !== "") {
+      params.set("um_id", doctorId);
+    }
+    if (billType === "ipdBill") {
+      params.set("billType", "ipdBill");
+    }
+    const query = params.toString();
+    const url = `/api/v1/billing/printSetting${query ? `?${query}` : ""}`;
+    res = await api.get(url, baseUrl);
   } catch (e) {
     console.error("Error while fetching Print settings details: ", e);
   }
