@@ -81,6 +81,7 @@ const PatientInfo = ({
   patientInfoFontSize,
   documentType,
   fullData,
+  isIpdDynamicDischargeHeadingEnabled = false,
 }) => {
   // Hide patient info for admission details as it's included in the content sections
   if (documentType === "admissionDetails") {
@@ -223,7 +224,7 @@ const PatientInfo = ({
   return (
     <>
       {/* Fixed title on all pages */}
-      {documentType === "dischargeSummary" && !!dischargeStaticHeader ? (
+      {documentType === "dischargeSummary" && !!dischargeStaticHeader && !isIpdDynamicDischargeHeadingEnabled ? (
         <View
           style={{
             display: "flex",

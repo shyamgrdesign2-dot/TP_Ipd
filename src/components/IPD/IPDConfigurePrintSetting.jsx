@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { useLocation } from "react-router-dom";
 import { Col, Tabs, Row, Spin } from "antd";
 import { isMobile } from "react-device-detect";
@@ -18,6 +19,7 @@ import {
   TAB_FORMAT_STYLE,
   TAB_HEADER_FOOTER,
   TAB_PAGE_FORMAT,
+  GB_IPD_DYNAMIC_DISCHARGE_HEADING,
 } from "../../utils/constants";
 import { Document, Page } from "react-pdf";
 import { pdf } from "@react-pdf/renderer";
@@ -49,6 +51,9 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
   const previewJobRef = useRef(0);
   const previewDebounceRef = useRef(null);
   const pdfUrlRef = useRef(null);
+  const isIpdDynamicDischargeHeadingEnabled = useFeatureIsOn(
+    GB_IPD_DYNAMIC_DISCHARGE_HEADING
+  );
   const dispatch = useDispatch();
   const { draftSettings, fileStates, printSettings } = useSelector(
     (state) => state.printSettings
@@ -344,6 +349,10 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
             patientData={getPatientInformation(patientDetails)}
             frequencyList={frequencyList}
             timingList={timingList}
+            isIpdDynamicDischargeHeadingEnabled={
+              documentType === "dischargeSummary" &&
+              isIpdDynamicDischargeHeadingEnabled
+            }
           />
         ).toBlob();
 

@@ -4,7 +4,7 @@
  */
 
 import React from "react";
-import { Document, Page, View } from "@react-pdf/renderer";
+import { Document, Page, Text, View } from "@react-pdf/renderer";
 import { StyleSheet } from "@react-pdf/renderer";
 import { PAGE_SIZES } from "./constants";
 import { getMargins } from "./utils/pdfUtils";
@@ -23,7 +23,14 @@ import PageNumber from "./components/PageNumber";
  * @param {Array} props.children - Content sections
  * @returns {JSX.Element} PDF Document
  */
-const PDFDocument = ({ settings, patientData, children, documentType, fullData }) => {
+const PDFDocument = ({
+  settings,
+  patientData,
+  children,
+  documentType,
+  fullData,
+  isIpdDynamicDischargeHeadingEnabled = false,
+}) => {
   if (!settings) return null;
 
   const { pageFormat = {}, headerFooter = {} } = settings;
@@ -104,6 +111,7 @@ const PDFDocument = ({ settings, patientData, children, documentType, fullData }
           patientInfoFontSize={patientInfoFontSize}
           documentType={documentType}
           fullData={fullData}
+          isIpdDynamicDischargeHeadingEnabled={isIpdDynamicDischargeHeadingEnabled}
         />
 
         {/* Content */}

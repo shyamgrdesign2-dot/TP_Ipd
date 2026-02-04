@@ -9,6 +9,7 @@ import React, {
 } from "react";
 import { Document, Page } from "react-pdf";
 import { pdf } from "@react-pdf/renderer";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import "./styles.scss";
 import { PDFGenerator } from "../../../components/PDFGenerator";
 import {
@@ -21,8 +22,12 @@ import DischargeSummaryTracker from "./components/CollapsibleSummaryTracker/Disc
 import DischargeSummaryLoading from "./components/DischargeSummaryLoading/DischargeSummaryLoading";
 import { getPatientInformation } from "../../../utils/utils";
 import { useLocation } from "react-router-dom";
+import { GB_IPD_DYNAMIC_DISCHARGE_HEADING } from "../../../utils/constants";
 
 const DischargeSummaryReadonly = forwardRef((props, ref) => {
+  const isIpdDynamicDischargeHeadingEnabled = useFeatureIsOn(
+    GB_IPD_DYNAMIC_DISCHARGE_HEADING
+  );
   const divRef = useRef(null);
   const [divWidth, setDivWidth] = useState(0);
   const [numPages, setNumPages] = useState();
@@ -59,6 +64,9 @@ const DischargeSummaryReadonly = forwardRef((props, ref) => {
           patientData={getPatientInformation(patientDetails)}
           frequencyList={frequencyList}
           timingList={timingList}
+          isIpdDynamicDischargeHeadingEnabled={
+            isIpdDynamicDischargeHeadingEnabled
+          }
         />
       ).toBlob();
       setPdfUrl(URL.createObjectURL(blob));
