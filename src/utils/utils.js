@@ -1898,6 +1898,11 @@ export const convertPatientDataToIpdFormat = (patientInformation) => {
     admitSpeciality: patientInformation.primaryConsultant?.speciality || "",
     address: patientInformation.address || "",
     dateOfDischarge: patientInformation.dateOfDischarge || "",
+    payer: patientInformation.payer || "",
+    payerType: patientInformation.payerType || "",
+    abhaId: patientInformation.abhaId || "",
+    abhaRegistrationNumber: patientInformation.abhaRegistrationNumber || "",
+    pmjayId: patientInformation.pmjayId || "",
   };
 };
 
@@ -2206,26 +2211,33 @@ export function mapSectionsWithData(structure, apiResponse) {
 }
 
 export const getPatientInformation = (patientDetails) => {
+  const details = patientDetails?.details || {};
+  const metadata = patientDetails?.metadata || {};
   return {
-    patientName: patientDetails?.details?.name || "",
-    patientId: patientDetails?.details?.id || "",
-    age: patientDetails?.details?.age || "",
-    contactNumber: patientDetails?.details?.contact || "",
-    gender: patientDetails?.details?.gender || "",
+    patientName: details?.name || "",
+    patientId: details?.id || "",
+    age: details?.age || "",
+    contactNumber: details?.contact || "",
+    gender: details?.gender || "",
     admissionId: patientDetails?.admissionId || "",
     admissionDate: patientDetails?.admittedOn || "",
     wardBedNo:
       patientDetails?.ward?.title && patientDetails?.room?.title
         ? `${patientDetails?.ward?.title} - ${patientDetails?.room?.title}`
         : "",
-    address: patientDetails?.details?.address || "",
-    bloodGroup: patientDetails?.details?.bloodGroup || "",
+    address: details?.address || "",
+    bloodGroup: details?.bloodGroup || "",
     dischargeSummaryNo: patientDetails?.dischargeNo || "",
     dischargeType: patientDetails?.dischargeType || "",
     dischargedAt: patientDetails?.dischargedAt || "",
     doctorName: patientDetails?.doctor?.name || "",
     mrnNo: patientDetails?.mrno || "",
     admissionNo: patientDetails?.admissionNo || "",
+    payer: metadata?.payer || "",
+    payerType: metadata?.payerType || "",
+    abhaId: details?.abha_address || metadata?.abhaId || "",
+    abhaRegistrationNumber: details?.abha_number || metadata?.abhaRegistrationNumber || "",
+    pmjayId: details?.pmjay_id || metadata?.pmjayId || "",
   };
 };
 

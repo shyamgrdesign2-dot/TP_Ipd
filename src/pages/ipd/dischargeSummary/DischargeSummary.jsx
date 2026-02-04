@@ -20,9 +20,10 @@ import {
   resetDischargeSummaryData,
   resetDischargeSummaryForm,
   setSurgeriesPerformed,
-  updateDischargeSummaryData,
+  setDischargeSummaryDataViaPatch,
 } from "../../../redux/ipd/dischargeSummarySlice.js";
 import { addDischargeDataToStore } from "../../../utils/dischargeDataMapper.js";
+import { getPatientInformation } from "../../../utils/utils.js";
 import PatientInformation from "./components/PatientInformation.jsx";
 import DiagnosisAndSurgery from "./components/DiagnosisAndSurgery.jsx";
 import PatientHistory from "./components/PatientHistory.jsx";
@@ -90,6 +91,7 @@ const DischargeSummary = (props) => {
       ? dischargeSummary
       : IPD.DEFAULT_DISCHARGE_SUMMARY_FORM_STRUCTURE
   );
+
   const [showPhysicalExaminationDrawer, setShowPhysicalExaminationDrawer] =
     useState(false);
   const [showFunctionalAssessmentDrawer, setShowFunctionalAssessmentDrawer] =
@@ -195,6 +197,17 @@ const DischargeSummary = (props) => {
         }
       });
   }, []);
+
+  // Auto-fill patient info in discharge summary from admission/patient details (existing behaviour)
+  useEffect(() => {
+    if (!patientDetails || !dischargeSummaryState?.actualDischargeSummaryData) return;
+    const fromAdmission = getPatientInformation(patientDetails);
+    const current = dischargeSummaryState?.dischargeSummaryData?.patientInformation || {};
+    const merged = { ...current, ...fromAdmission };
+    if (JSON.stringify(merged) !== JSON.stringify(current)) {
+      dispatch(setDischargeSummaryDataViaPatch({ patientInformation: merged }));
+    }
+  }, [patientDetails, dischargeSummaryState?.actualDischargeSummaryData, dispatch]);
 
   useEffect(() => {
     if (patientDetails?.details?.id && patientDetails?.admissionId) {
@@ -516,8 +529,8 @@ const DischargeSummary = (props) => {
           !isEditable ? "ipd-assessments-readable-container" : ""
         }`}
       >
-        {dischargeSummary.length > 0
-          ? dischargeSummary.map((item) => {
+        {modelData?.length > 0
+          ? modelData.map((item) => {
               return renderSections(item);
             })
           : null}
@@ -573,7 +586,7 @@ const DischargeSummary = (props) => {
             }`}
             style={{ "--backgroundColor": isEditable ? "#fff" : "#FFFFFF80" }}
           >
-            {open && dischargeSummary && (
+            {open && modelData?.length > 0 && (
               <LayoutWithMenu
                 onCustomiseClick={() => setShowCustomisationDrawer(true)}
                 key="dischargeSummary"
@@ -582,7 +595,7 @@ const DischargeSummary = (props) => {
                   handler: onSaveDischargeSummaryClick,
                   title: "Save",
                 }}
-                items={dischargeSummary}
+                items={modelData}
                 renderSection={renderSections}
                 onRequestClose={() => {
                   setIsBackModalOpen(true);
