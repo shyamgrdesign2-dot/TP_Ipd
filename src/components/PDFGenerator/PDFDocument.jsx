@@ -86,9 +86,6 @@ const PDFDocument = ({
     },
   });
 
-  const shouldShowHeaderFooter = (pageNumber) =>
-    resolvedPrintMode === "allPages" || pageNumber === 1;
-
   return (
     <Document>
       <Page size={pageSize} style={documentStyles.page}>
@@ -121,7 +118,7 @@ const PDFDocument = ({
         <View
           fixed
           render={({ pageNumber }) =>
-            shouldShowHeaderFooter(pageNumber) ? (
+            ((pageNumber === 1 && resolvedPrintMode === "firstPage") || resolvedPrintMode === "allPages") ? (
               <PDFFooter
                 footerSettings={footer}
                 fontFamily={fontFamily}

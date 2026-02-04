@@ -330,6 +330,24 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
     setPrintBlob(blob);
   }
   const currentSettings = getCurrentModuleSettings();
+  const settingsWithFooterDimensions = React.useMemo(() => {
+    if (!currentSettings) return currentSettings;
+    const renderedFooterImageHeight = fileFooter?.renderedFooterImageHeight;
+    if (!renderedFooterImageHeight) return currentSettings;
+    const headerFooter = currentSettings.headerFooter || {};
+    const footerSettings = headerFooter.footer || {};
+    if (!footerSettings.footerImg) return currentSettings;
+    return {
+      ...currentSettings,
+      headerFooter: {
+        ...headerFooter,
+        footer: {
+          ...footerSettings,
+          renderedFooterImageHeight,
+        },
+      },
+    };
+  }, [currentSettings, fileFooter?.renderedFooterImageHeight, fileFooter?.showFile]);
 
   const makePDFUrl = useCallback(
     async (settings) => {
@@ -380,7 +398,7 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
   );
 
   useEffect(() => {
-    if (!currentSettings) {
+    if (!settingsWithFooterDimensions) {
       return;
     }
 
@@ -390,7 +408,7 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
 
     previewDebounceRef.current = setTimeout(() => {
       previewDebounceRef.current = null;
-      makePDFUrl(currentSettings);
+      makePDFUrl(settingsWithFooterDimensions);
     }, 400);
 
     return () => {
@@ -399,7 +417,7 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
         previewDebounceRef.current = null;
       }
     };
-  }, [currentSettings, makePDFUrl]);
+  }, [settingsWithFooterDimensions, makePDFUrl]);
 
   useEffect(() => {
     return () => {

@@ -9,7 +9,13 @@ import { LETTERHEAD_FORMATS } from "../constants";
 
 const styles = StyleSheet.create({
   footer: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: "100%",
     paddingTop: 8,
+    paddingBottom: 4,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -21,6 +27,7 @@ const styles = StyleSheet.create({
   },
 
   logo: {
+    width: "100%",
     objectFit: "cover",
   },
 });
@@ -34,7 +41,12 @@ const styles = StyleSheet.create({
 const PDFFooter = ({ footerSettings, letterHeadFormat, fixed = true }) => {
   if (!footerSettings) return null;
 
-  const { title = "", fontSize = 10, footerImg = "" } = footerSettings;
+  const {
+    title = "",
+    fontSize = 10,
+    footerImg = "",
+    renderedFooterImageHeight,
+  } = footerSettings;
 
   if (letterHeadFormat === LETTERHEAD_FORMATS.OWN) {
     return null;
@@ -43,7 +55,15 @@ const PDFFooter = ({ footerSettings, letterHeadFormat, fixed = true }) => {
   if (letterHeadFormat === LETTERHEAD_FORMATS.UPLOAD && footerImg) {
     return (
       <View style={styles.footer} fixed={fixed}>
-        <Image src={footerImg} style={styles.logo} />
+        <Image
+          src={footerImg}
+          style={[
+            styles.logo,
+            renderedFooterImageHeight
+              ? { height: renderedFooterImageHeight }
+              : null,
+          ]}
+        />
       </View>
     );
   }
