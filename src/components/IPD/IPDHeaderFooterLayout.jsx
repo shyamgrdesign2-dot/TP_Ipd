@@ -1065,29 +1065,6 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
 
         {headerFooterShowHide && (
           <div className="mt-4">
-            <div className="my-4">
-              <div className="my-2">Print Header &amp; Footer</div>
-              <Radio.Group
-                value={currentSettings.printMode || "allPages"}
-                onChange={(e) =>
-                  updateHeaderFooter({ printMode: e.target.value })
-                }
-                style={{ width: "100%", display: "flex" }}
-              >
-                <Radio.Button
-                  value="allPages"
-                  style={{ flex: 1, textAlign: "center" }}
-                >
-                  On All Pages
-                </Radio.Button>
-                <Radio.Button
-                  value="firstPage"
-                  style={{ flex: 1, textAlign: "center" }}
-                >
-                  Only on First Page
-                </Radio.Button>
-              </Radio.Group>
-            </div>
             <div className="mt-3">
               <Form.Item className="mb-0">
                 <label className="mb-1 title-common">

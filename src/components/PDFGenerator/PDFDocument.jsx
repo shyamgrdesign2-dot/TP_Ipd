@@ -42,8 +42,6 @@ const PDFDocument = ({ settings, patientData, children, documentType, fullData }
     displayPatientInfo = {},
     letterHeadFormat = 0,
     margins: formatMargins = {},
-    printMode = "allPages",
-    showHeaderFooterPage,
   } = headerFooter;
 
   // Get page dimensions
@@ -54,13 +52,6 @@ const PDFDocument = ({ settings, patientData, children, documentType, fullData }
   const currentMargins =
     formatMargins[letterHeadFormat] || footer.margins || {};
   const margins = getMargins(currentMargins);
-  const baseMargins = getMargins();
-  const resolvedPrintMode =
-    printMode ||
-    (showHeaderFooterPage === "first" ? "firstPage" : "allPages");
-  const isOwnLetterheadFirstPageOnly =
-    letterHeadFormat === 2 && resolvedPrintMode === "firstPage";
-  const firstPageExtraTop = Math.max(0, margins.top - baseMargins.top);
 
   // Create styles
   const commonStyles = createCommonStyles(fontSize, fontFamily);
@@ -79,9 +70,6 @@ const PDFDocument = ({ settings, patientData, children, documentType, fullData }
     },
   });
 
-  const shouldShowHeaderFooter = (pageNumber) =>
-    resolvedPrintMode === "allPages" || pageNumber === 1;
-
   return (
     <Document>
       <Page size={pageSize} style={documentStyles.page}>
@@ -91,7 +79,6 @@ const PDFDocument = ({ settings, patientData, children, documentType, fullData }
           letterHeadFormat={letterHeadFormat}
           patientData={patientData}
           documentType={documentType}
-          fixed={resolvedPrintMode === "allPages"}
         />
 
         {/* Patient Information */}
