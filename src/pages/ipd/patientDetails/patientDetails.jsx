@@ -1216,14 +1216,10 @@ const IPDPatientDetails = () => {
               admittedOn={patientData.admittedOn}
               showAbhaLogo={
                 !!String(
-                  patientDetails?.details?.abha_address ||
-                    patientDetails?.metadata?.abhaId ||
-                    ""
+                  patientDetails?.details?.abha_address || ""
                 ).trim() &&
                 !!String(
-                  patientDetails?.details?.abha_number ||
-                    patientDetails?.metadata?.abhaRegistrationNumber ||
-                    ""
+                  patientDetails?.details?.abha_number || ""
                 ).trim()
               }
               abhaLogoUrl={abhaLogo}
