@@ -21,11 +21,14 @@ import { useDebounce } from "../inPatients/hooks/useDebounce";
 import useWardBedReadOnly from "../../../hooks/useWardBedReadOnly";
 import "./WardAndBedManagement.scss";
 import { showSuccessToast } from "../../../utils/utils";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
+import { GB_IPD_ENABLE_WARD_BED_MANAGEMENT } from "../../../utils/constants";
 
 function WardAndBedManagement() {
   const dispatch = useDispatch();
-  const isReadOnly = useWardBedReadOnly();
-
+  const isWardBedManagementEnabled = useFeatureIsOn(GB_IPD_ENABLE_WARD_BED_MANAGEMENT);
+  const isWardBedReadOnly = useWardBedReadOnly();
+  const isReadOnly = !isWardBedManagementEnabled && isWardBedReadOnly;
   // Redux state
   const {
     wards: {

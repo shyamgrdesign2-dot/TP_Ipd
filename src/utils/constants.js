@@ -83,6 +83,7 @@ export const GB_ZYDUS_USER = "zydus-hospital-user";
 export const GB_PILLUP_MEDICINE = "pillup-medicine-switch";
 export const GB_APOLLO_DISABLE_FEATURE = "apollo-disable-feature";
 export const GB_IPD_DYNAMIC_DISCHARGE_HEADING = "ipd-dynamic-discharge-heading";
+export const GB_IPD_ENABLE_WARD_BED_MANAGEMENT = "ipd-enable-ward-management";
 
 export const GYNAECOLOGY = "Gynaecology";
 export const PAEDIATRICS = "Paediatrics";
