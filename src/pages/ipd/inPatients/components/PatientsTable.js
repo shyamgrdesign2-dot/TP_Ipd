@@ -300,10 +300,9 @@ const PatientsTable = ({
       className: "col-patient-details",
       render: (text, record) => {
         const details = record?.patientData?.details || {};
-        const metadata = record?.patientData?.metadata || {};
-        const abhaId = details?.abha_address || metadata?.abhaId || "";
+        const abhaId = details?.abha_address || "";
         const abhaRegistrationNumber =
-          details?.abha_number || metadata?.abhaRegistrationNumber || "";
+          details?.abha_number || "";
         const showAbhaLogo =
           !!String(abhaId).trim() && !!String(abhaRegistrationNumber).trim();
         return (
