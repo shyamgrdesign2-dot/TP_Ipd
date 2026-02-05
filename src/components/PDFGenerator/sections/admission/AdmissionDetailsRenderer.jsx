@@ -175,23 +175,25 @@ const renderWrappedFieldRow = (label, value) => {
  */
 const renderPatientDetails = (data) => {
   const patientInfo = data?.patientInformation || {};
-  
-  const patientName = patientInfo.prefix 
+
+  const patientName = patientInfo.prefix
     ? `${patientInfo.prefix} ${patientInfo.name || ""}`.trim()
     : patientInfo.name || "";
   
   const ageGender = [
     patientInfo.age ? `${patientInfo.age} Years` : "",
-    patientInfo.gender || ""
-  ].filter(Boolean).join(", ");
-  
+    patientInfo.gender || "",
+  ]
+    .filter(Boolean)
+    .join(", ");
+
   // Left column fields (excluding Patient Name which will be full width with wrap)
   const leftFields = [
     { label: "Patient Name", value: patientName || "-" },
     { label: "Age/Gender", value: ageGender || "-" },
     { label: "Contact No", value: patientInfo.contact || "-" },
   ];
-  
+
   // Right column fields
   const rightFields = [
     { label: "Patient ID", value: patientInfo.pmPid || "-" },
@@ -204,10 +206,14 @@ const renderPatientDetails = (data) => {
       <View style={styles.topBorder} />
       <View style={styles.twoColumnContainer}>
         <View style={styles.leftColumn}>
-          {leftFields.map((field) => renderWrappedFieldRow(field.label, field.value))}
+          {leftFields.map((field) =>
+            renderWrappedFieldRow(field.label, field.value)
+          )}
         </View>
         <View style={styles.rightColumn}>
-          {rightFields.map((field) => renderWrappedFieldRow(field.label, field.value))}
+          {rightFields.map((field) =>
+            renderWrappedFieldRow(field.label, field.value)
+          )}
         </View>
       </View>
       <View style={styles.topBorder} />
