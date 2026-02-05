@@ -9,7 +9,13 @@ import { LETTERHEAD_FORMATS } from "../constants";
 
 const styles = StyleSheet.create({
   footer: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: "100%",
     paddingTop: 8,
+    paddingBottom: 4,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -21,6 +27,7 @@ const styles = StyleSheet.create({
   },
 
   logo: {
+    width: "100%",
     objectFit: "cover",
   },
 });
@@ -31,10 +38,15 @@ const styles = StyleSheet.create({
  * @param {Object} props.footerSettings - Footer configuration
  * @returns {JSX.Element} PDF Footer
  */
-const PDFFooter = ({ footerSettings, letterHeadFormat }) => {
+const PDFFooter = ({ footerSettings, letterHeadFormat, fixed = true }) => {
   if (!footerSettings) return null;
 
-  const { title = "", fontSize = 10, footerImg = "" } = footerSettings;
+  const {
+    title = "",
+    fontSize = 10,
+    footerImg = "",
+    renderedFooterImageHeight,
+  } = footerSettings;
 
   if (letterHeadFormat === LETTERHEAD_FORMATS.OWN) {
     return null;
@@ -42,8 +54,16 @@ const PDFFooter = ({ footerSettings, letterHeadFormat }) => {
 
   if (letterHeadFormat === LETTERHEAD_FORMATS.UPLOAD && footerImg) {
     return (
-      <View style={styles.footer} fixed>
-        <Image src={footerImg} style={styles.logo} />
+      <View style={styles.footer} fixed={fixed}>
+        <Image
+          src={footerImg}
+          style={[
+            styles.logo,
+            renderedFooterImageHeight
+              ? { height: renderedFooterImageHeight }
+              : null,
+          ]}
+        />
       </View>
     );
   }
@@ -51,7 +71,7 @@ const PDFFooter = ({ footerSettings, letterHeadFormat }) => {
   return (
     <View
       style={[styles.footer, { borderTopWidth: 1, borderTopColor: "#000000" }]}
-      fixed
+      fixed={fixed}
     >
       <Text style={[styles.footerText, { fontSize }]}>{title}</Text>
     </View>

@@ -136,7 +136,7 @@ function IPDNavbar() {
         )}
       </NavLink>
 
-      <NavLink to="/ipd/billing-history" replace={true} end>
+      {!izZydusUser ? <NavLink to="/ipd/billing-history" replace={true} end>
         {({ isActive }) => (
           <>
             <img
@@ -149,7 +149,7 @@ function IPDNavbar() {
             </div>
           </>
         )}
-      </NavLink>
+      </NavLink> : null}
     </div>
   );
 }

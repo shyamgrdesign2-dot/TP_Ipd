@@ -1,3 +1,5 @@
+import { isZydus } from "./utils";
+
 const VITALS_CONFIG = {
   id: "vitals",
   title: "Vitals",
@@ -2829,7 +2831,7 @@ export const IPD = {
         </>
       ),
     },
-  ],
+  ].filter((item) => !(isZydus() && item.id === "billing")),
   VITALS: [
     {
       name: "pulse",

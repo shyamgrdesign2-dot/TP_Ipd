@@ -38,6 +38,7 @@ const PDFGenerator = ({
   patientData: patientDataFromProps,
   frequencyList,
   timingList,
+  isIpdDynamicDischargeHeadingEnabled = false,
 }) => {
   // Validate props
   if (!settings) {
@@ -120,6 +121,7 @@ const PDFGenerator = ({
       patientData={patientData} 
       documentType={documentType}
       fullData={data}
+      isIpdDynamicDischargeHeadingEnabled={isIpdDynamicDischargeHeadingEnabled}
     >
       {contentSections}
     </PDFDocument>

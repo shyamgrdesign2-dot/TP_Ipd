@@ -3,6 +3,7 @@ import { isMobile } from "react-device-detect";
 import React, { useEffect, useRef, useState } from "react";
 import { Document, Page } from "react-pdf";
 import { pdf } from "@react-pdf/renderer";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 
 import { Container, Navbar } from "react-bootstrap";
 import { PDFGenerator } from "../../../components/PDFGenerator";
@@ -19,8 +20,12 @@ import { getPrintSettings } from "../../../redux/ipd/printSettingsSlice";
 import PrintPreviewShimmer from "./components/PrintPreviewShimmer/PrintPreviewShimmer";
 import { getPatientInformation } from "../../../utils/utils";
 import usePrintPreviewSetup from "../../../hooks/usePrintPreviewSetup";
+import { GB_IPD_DYNAMIC_DISCHARGE_HEADING } from "../../../utils/constants";
 
 const PreviewDischargeSummary = () => {
+  const isIpdDynamicDischargeHeadingEnabled = useFeatureIsOn(
+    GB_IPD_DYNAMIC_DISCHARGE_HEADING
+  );
   const navigate = useNavigate();
   const divRef = useRef(null);
   const [divWidth, setDivWidth] = useState(0);
@@ -82,6 +87,9 @@ const PreviewDischargeSummary = () => {
           patientData={getPatientInformation(patientDetails)}
           frequencyList={frequencyList}
           timingList={timingList} 
+          isIpdDynamicDischargeHeadingEnabled={
+            isIpdDynamicDischargeHeadingEnabled
+          }
         />
       ).toBlob();
       setPdfUrl(URL.createObjectURL(blob));

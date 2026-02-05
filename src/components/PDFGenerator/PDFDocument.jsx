@@ -4,7 +4,7 @@
  */
 
 import React from "react";
-import { Document, Page, View } from "@react-pdf/renderer";
+import { Document, Page, Text, View } from "@react-pdf/renderer";
 import { StyleSheet } from "@react-pdf/renderer";
 import { PAGE_SIZES } from "./constants";
 import { getMargins } from "./utils/pdfUtils";
@@ -23,7 +23,14 @@ import PageNumber from "./components/PageNumber";
  * @param {Array} props.children - Content sections
  * @returns {JSX.Element} PDF Document
  */
-const PDFDocument = ({ settings, patientData, children, documentType, fullData }) => {
+const PDFDocument = ({
+  settings,
+  patientData,
+  children,
+  documentType,
+  fullData,
+  isIpdDynamicDischargeHeadingEnabled = false,
+}) => {
   if (!settings) return null;
 
   const { pageFormat = {}, headerFooter = {} } = settings;
@@ -68,7 +75,7 @@ const PDFDocument = ({ settings, patientData, children, documentType, fullData }
   const documentStyles = StyleSheet.create({
     page: {
       ...commonStyles.page,
-      paddingTop: margins.top,
+      paddingTop: isOwnLetterheadFirstPageOnly ? baseMargins.top : margins.top,
       paddingRight: margins.right,
       paddingBottom: margins.bottom,
       paddingLeft: margins.left,
@@ -79,12 +86,12 @@ const PDFDocument = ({ settings, patientData, children, documentType, fullData }
     },
   });
 
-  const shouldShowHeaderFooter = (pageNumber) =>
-    resolvedPrintMode === "allPages" || pageNumber === 1;
-
   return (
     <Document>
       <Page size={pageSize} style={documentStyles.page}>
+        {isOwnLetterheadFirstPageOnly && firstPageExtraTop > 0 && (
+          <View style={{ height: firstPageExtraTop }} />
+        )}
         {/* Header */}
         <PDFHeader
           headerSettings={header}
@@ -101,17 +108,26 @@ const PDFDocument = ({ settings, patientData, children, documentType, fullData }
           patientInfoFontSize={patientInfoFontSize}
           documentType={documentType}
           fullData={fullData}
+          isIpdDynamicDischargeHeadingEnabled={isIpdDynamicDischargeHeadingEnabled}
         />
 
         {/* Content */}
         <View style={documentStyles.content}>{children}</View>
 
         {/* Footer */}
-        <PDFFooter
-          footerSettings={footer}
-          fontFamily={fontFamily}
-          letterHeadFormat={letterHeadFormat}
-          showPageNumbers={pageFormat?.pagination}
+        <View
+          fixed
+          render={({ pageNumber }) =>
+            ((pageNumber === 1 && resolvedPrintMode === "firstPage") || resolvedPrintMode === "allPages") ? (
+              <PDFFooter
+                footerSettings={footer}
+                fontFamily={fontFamily}
+                letterHeadFormat={letterHeadFormat}
+                showPageNumbers={pageFormat?.pagination}
+                fixed={false}
+              />
+            ) : null
+          }
         />
 
         {pagination && <PageNumber />}
