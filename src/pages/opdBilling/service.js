@@ -491,7 +491,8 @@ export const updateAdvancedSettings = async function (payload) {
 export const fetchBillDetailsByBillNumber = async function (
   billNumber,
   admissionId = null,
-  billType = "opd"
+  billType = "opd",
+  cacheBust = false
 ) {
   let res = {};
   try {
@@ -501,6 +502,10 @@ export const fetchBillDetailsByBillNumber = async function (
 
     if (admissionId && billType === "ipd") {
       queryParams.admissionId = admissionId;
+    }
+
+    if (cacheBust) {
+      queryParams._t = Date.now();
     }
 
     const queryString = new URLSearchParams(queryParams).toString();
