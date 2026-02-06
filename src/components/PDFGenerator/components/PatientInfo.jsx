@@ -133,12 +133,10 @@ const PatientInfo = ({
             return (
               i % 2 === 0 && (
                 <Text key={`left-${i}`} style={[styles.fieldText]}>
-                  {item.label && !!item.value && (
+                  {item.label && (
                     <Text style={styles.label}>{item.label}:</Text>
                   )}
-                  {item.value && (
-                    <Text style={styles.value}> {item.value}</Text>
-                  )}
+                  <Text style={styles.value}> {item.value}</Text>
                 </Text>
               )
             );
@@ -164,12 +162,10 @@ const PatientInfo = ({
               return (
                 i % 2 === 0 && (
                   <Text key={`left-${i}`} style={[styles.fieldText]}>
-                    {item.label && !!item.value && (
+                    {item.label && (
                       <Text style={styles.label}>{item.label}:</Text>
                     )}
-                    {item.value && (
-                      <Text style={styles.value}> {item.value}</Text>
-                    )}
+                    <Text style={styles.value}> {item.value}</Text>
                   </Text>
                 )
               );

@@ -63,6 +63,13 @@ ApiIpdService.checkPatientAdmitted = function ({ patientId }) {
   );
 };
 
+ApiIpdService.fetchAbhaDetails = function ({ patientUniqueId }) {
+  return api.get(
+    `/patients/fetch-abha-details?patientUniqueId=${encodeURIComponent(patientUniqueId)}`,
+    baseUrl
+  );
+};
+
 ApiIpdService.markPatientAsDischarged = function ({
   admissionId,
   dateOfDischarge,

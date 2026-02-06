@@ -113,12 +113,20 @@ export const patientIpdDataShow = (id, patient_data, billData, profile) => {
     value = patient_data?.address ?? "-";
   } else if (id == 13) {
     value = billData?.admission?.metadata?.insuranceno ?? "-";
-  }
-  else if (id == 14) {
+  } else if (id == 14) {
     value = billData?.admission?.metadata?.policyno ?? "-";
-  }
-  else if (id == 15) {
+  } else if (id == 15) {
     value = billData?.admission?.metadata?.tpano ?? "-";
+  } else if (id == 16) {
+    value = billData?.admission?.metadata?.payer ?? "-";
+  } else if (id == 17) {
+    value = billData?.admission?.metadata?.payerType ?? "-";
+  } else if (id == 18) {
+    value = billData?.admission?.details?.abha_address ?? billData?.admission?.metadata?.abhaId ?? "-";
+  } else if (id == 19) {
+    value = billData?.admission?.details?.abha_number ?? billData?.admission?.metadata?.abhaRegistrationNumber ?? "-";
+  } else if (id == 20) {
+    value = billData?.admission?.details?.pmjay_id ?? billData?.admission?.metadata?.pmjayId ?? "-";
   }
   return value;
 };
