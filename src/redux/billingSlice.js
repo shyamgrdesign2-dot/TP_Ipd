@@ -17,7 +17,7 @@ const billingSlice = createSlice({
       state.billPrintSettings = action.payload;
     },
     setIpdBillPrintSettings: (state, action) => {
-      state.ipdBillPrintSettings = action.payload || {};
+      state.ipdBillPrintSettings = action.payload;
     },
     setAdvancedSettings: (state, action) => {
       state.advancedSettings = action.payload;

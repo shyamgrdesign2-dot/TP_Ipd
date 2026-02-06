@@ -175,25 +175,23 @@ const renderWrappedFieldRow = (label, value) => {
  */
 const renderPatientDetails = (data) => {
   const patientInfo = data?.patientInformation || {};
-
-  const patientName = patientInfo.prefix
+  
+  const patientName = patientInfo.prefix 
     ? `${patientInfo.prefix} ${patientInfo.name || ""}`.trim()
     : patientInfo.name || "";
   
   const ageGender = [
     patientInfo.age ? `${patientInfo.age} Years` : "",
-    patientInfo.gender || "",
-  ]
-    .filter(Boolean)
-    .join(", ");
-
+    patientInfo.gender || ""
+  ].filter(Boolean).join(", ");
+  
   // Left column fields (excluding Patient Name which will be full width with wrap)
   const leftFields = [
     { label: "Patient Name", value: patientName || "-" },
     { label: "Age/Gender", value: ageGender || "-" },
     { label: "Contact No", value: patientInfo.contact || "-" },
   ];
-
+  
   // Right column fields
   const rightFields = [
     { label: "Patient ID", value: patientInfo.pmPid || "-" },
@@ -206,14 +204,10 @@ const renderPatientDetails = (data) => {
       <View style={styles.topBorder} />
       <View style={styles.twoColumnContainer}>
         <View style={styles.leftColumn}>
-          {leftFields.map((field) =>
-            renderWrappedFieldRow(field.label, field.value)
-          )}
+          {leftFields.map((field) => renderWrappedFieldRow(field.label, field.value))}
         </View>
         <View style={styles.rightColumn}>
-          {rightFields.map((field) =>
-            renderWrappedFieldRow(field.label, field.value)
-          )}
+          {rightFields.map((field) => renderWrappedFieldRow(field.label, field.value))}
         </View>
       </View>
       <View style={styles.topBorder} />
@@ -314,67 +308,23 @@ const renderCareTakerDetails = (data) => {
 };
 
 /**
- * ABHA Details Section
- */
-const renderAbhaDetails = (data) => {
-  const abhaInfo = data?.abhaDetails || {};
-  if (
-    !abhaInfo.abhaId &&
-    !abhaInfo.abhaRegistrationNumber &&
-    !abhaInfo.pmjayId
-  ) {
-    return null;
-  }
-  const listItems = [];
-  if (abhaInfo.abhaId) {
-    listItems.push({ label: "ABHA ID", value: abhaInfo.abhaId });
-  }
-  if (abhaInfo.abhaRegistrationNumber) {
-    listItems.push({ label: "ABHA Registration Number", value: abhaInfo.abhaRegistrationNumber });
-  }
-  if (abhaInfo.pmjayId) {
-    listItems.push({ label: "PMJAY ID", value: abhaInfo.pmjayId });
-  }
-  return (
-    <View style={styles.sectionContainer}>
-      <Text style={styles.subsectionTitle}>ABHA Details</Text>
-      <View style={styles.subsectionContainer}>
-        <View style={styles.listContainer}>
-          {listItems.map((item, index) => (
-            <View key={index} style={styles.listItem}>
-              <Text style={styles.bullet}>•</Text>
-              <Text style={styles.listLabel}>{item.label}:</Text>
-              <Text style={styles.listValue}> {item.value}</Text>
-            </View>
-          ))}
-        </View>
-      </View>
-    </View>
-  );
-};
-
-/**
  * Insurance Details Section
  */
 const renderInsuranceDetails = (data) => {
   const insuranceInfo = data?.insuranceDetails || {};
+  
+  // Only render if at least one field has data
   if (
     !insuranceInfo.insuranceNumber &&
     !insuranceInfo.policyNumber &&
     !insuranceInfo.tpaNumber &&
-    !insuranceInfo.preApprovalId &&
-    !insuranceInfo.payer &&
-    !insuranceInfo.payerType
+    !insuranceInfo.preApprovalId
   ) {
     return null;
   }
+  
+  // Build list items array with label and value
   const listItems = [];
-  if (insuranceInfo.payer) {
-    listItems.push({ label: "Payer", value: insuranceInfo.payer });
-  }
-  if (insuranceInfo.payerType) {
-    listItems.push({ label: "Payer Type", value: insuranceInfo.payerType });
-  }
   if (insuranceInfo.insuranceNumber) {
     listItems.push({ label: "Insurance Number", value: insuranceInfo.insuranceNumber });
   }
@@ -387,9 +337,11 @@ const renderInsuranceDetails = (data) => {
   if (insuranceInfo.preApprovalId) {
     listItems.push({ label: "Pre-Approval ID", value: insuranceInfo.preApprovalId });
   }
+  
   return (
     <View style={styles.sectionContainer}>
       <Text style={styles.subsectionTitle}>Insurance Details</Text>
+      
       <View style={styles.subsectionContainer}>
         <View style={styles.listContainer}>
           {listItems.map((item, index) => (
@@ -421,12 +373,6 @@ export const renderAdmissionDetails = (data, formatSettings = [], fontSize = 10)
   const careTakerSection = renderCareTakerDetails(data);
   if (careTakerSection) {
     contentSections.push(careTakerSection);
-  }
-
-  // ABHA Details (only if data exists)
-  const abhaSection = renderAbhaDetails(data);
-  if (abhaSection) {
-    contentSections.push(abhaSection);
   }
 
   // Insurance Details (only if data exists)

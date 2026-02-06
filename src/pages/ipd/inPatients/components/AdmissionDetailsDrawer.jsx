@@ -83,13 +83,6 @@ const AdmissionDetailsDrawer = ({ open, onClose, patientData }) => {
         policyNumber: metadata?.policyno || "",
         tpaNumber: metadata?.tpano || "",
         preApprovalId: metadata?.preApprovalId || "",
-        payer: metadata?.payer || "",
-        payerType: metadata?.payerType || "",
-      },
-      abhaDetails: {
-        abhaId: details?.abha_address || metadata?.abhaId || "",
-        abhaRegistrationNumber: details?.abha_number || metadata?.abhaRegistrationNumber || "",
-        pmjayId: details?.pmjay_id || metadata?.pmjayId || "",
       },
     };
   }, [patientData]);

@@ -1949,36 +1949,6 @@ export const IPD = {
           title: "Address",
           enabled: true,
         },
-        {
-          id: "payer",
-          field: "payer",
-          title: "Payer",
-          enabled: true,
-        },
-        {
-          id: "payerType",
-          field: "payerType",
-          title: "Payer Type",
-          enabled: true,
-        },
-        {
-          id: "abhaId",
-          field: "abhaId",
-          title: "ABHA ID",
-          enabled: true,
-        },
-        {
-          id: "abhaRegistrationNumber",
-          field: "abhaRegistrationNumber",
-          title: "ABHA Registration Number",
-          enabled: true,
-        },
-        {
-          id: "pmjayId",
-          field: "pmjayId",
-          title: "PMJAY ID",
-          enabled: true,
-        },
       ],
     },
     {
