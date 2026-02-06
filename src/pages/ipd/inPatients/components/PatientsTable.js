@@ -23,7 +23,6 @@ import { env } from "../../../../EnvironmentConfig";
 import AdmissionDetailsDrawer from "./AdmissionDetailsDrawer";
 import TransferWardBedDrawer from "./TransferWardBedDrawer";
 import TransferDoctorDepartmentDrawer from "./TransferDoctorDepartmentDrawer";
-import abhaLogo from "../../../../assets/images/icons/abha.svg";
 
 const RichTextEditor = createRemoteComponent("RichTextEditor");
 
@@ -298,39 +297,23 @@ const PatientsTable = ({
       dataIndex: "patientName",
       key: "patientName",
       className: "col-patient-details",
-      render: (text, record) => {
-        const details = record?.patientData?.details || {};
-        const abhaId = details?.abha_address || "";
-        const abhaRegistrationNumber =
-          details?.abha_number || "";
-        const showAbhaLogo =
-          !!String(abhaId).trim() && !!String(abhaRegistrationNumber).trim();
-        return (
-          <div>
-            <span
-              className="text-primary cursor-pointer"
-              onClick={() => onViewDetails(record?.patientData)}
-            >
-              {record?.patientName}
-              {showAbhaLogo && (
-                <img
-                  src={abhaLogo}
-                  alt="ABHA"
-                  style={{
-                    height: 16,
-                    width: 16,
-                    marginLeft: 4,
-                    verticalAlign: "middle",
-                  }}
-                />
-              )}
-            </span>
-            <small>
-              {record?.gender}, {`${record?.age}y`}
-            </small>
-          </div>
-        );
-      },
+      render: (text, record) => (
+        <div>
+          <span
+            className="text-primary cursor-pointer"
+            onClick={() => onViewDetails(record?.patientData)}
+            // onClick={() => {
+            //   setSelectedPatientForAdmissionDetails(record?.patientData);
+            //   setAdmissionDetailsDrawerOpen(true);
+            // }}
+          >
+            {record?.patientName}
+          </span>
+          <small>
+            {record?.gender}, {`${record?.age}y`}
+          </small>
+        </div>
+      ),
     },
     {
       title: "Contact",
@@ -344,6 +327,18 @@ const PatientsTable = ({
         </div>
       ),
     },
+    // {
+    //   title: "Patient ID / Mrno",
+    //   dataIndex: "patientId",
+    //   key: "patientId",
+    //   className: "col-patient-details",
+    //   render: (text, record) => (
+    //     <div>
+    //       <div>{record?.patientId || ""}</div>
+    //       <small>{record?.mrno}</small>
+    //     </div>
+    //   ),
+    // },
     {
       title: isZydus() ? "Admission No / MRN No" : "Admission Id",
       dataIndex: "admissionNo",

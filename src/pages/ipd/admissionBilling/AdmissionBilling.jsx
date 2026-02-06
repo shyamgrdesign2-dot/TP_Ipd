@@ -115,11 +115,6 @@ const AdmissionBilling = ({
     address: patientDetails?.details?.address,
   };
 
-  const attachAdmission = React.useCallback(
-    (bill) => (bill ? { ...bill, admission: patientDetails } : bill),
-    [patientDetails]
-  );
-
   // Transform patient data for billing
   const transformedPatientData = React.useMemo(() => {
     if (patientDetails) {
@@ -130,6 +125,9 @@ const AdmissionBilling = ({
 
   // Check if bill exists for this admission and fetch advance balance
   useEffect(() => {
+    const attachAdmission = (bill) =>
+      bill ? { ...bill, admission: patientDetails } : bill;
+
     const checkBillExists = async () => {
       if (!admissionId) {
         setIsLoading(false);
@@ -323,7 +321,7 @@ const AdmissionBilling = ({
         console.error("Error fetching bill after creation:", error);
         // Fallback to the new bill data if refetch fails
         if (newBillData) {
-          setBillData(attachAdmission(newBillData));
+          setBillData(newBillData);
         }
       } finally {
         setIsLoading(false);

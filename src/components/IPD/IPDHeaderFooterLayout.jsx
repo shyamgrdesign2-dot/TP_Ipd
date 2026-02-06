@@ -617,13 +617,12 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
   const onRightMarginChange = onMarginChange("right", 10);
   const onBottomMarginChange = onMarginChange("bottom", 15);
 
-  const getFieldKey = (field) => field?.id ?? field?.field;
-
   const onChangePatientInfo = (checked, id) => {
     const currentFields = headerFooterSettings.displayPatientInfo?.fields || [];
 
+    // Update the enabled property for the specific field
     const updatedFields = currentFields.map((field) =>
-      getFieldKey(field) === id ? { ...field, enabled: checked } : field
+      field.id === id ? { ...field, enabled: checked } : field
     );
 
     updateHeaderFooter({
@@ -639,9 +638,9 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
 
     const currentFields = headerFooterSettings.displayPatientInfo?.fields || [];
     const activeIndex = currentFields.findIndex(
-      (field) => getFieldKey(field) === active.id
+      (field) => field.id === active.id
     );
-    const overIndex = currentFields.findIndex((field) => getFieldKey(field) === over.id);
+    const overIndex = currentFields.findIndex((field) => field.id === over.id);
 
     if (activeIndex !== -1 && overIndex !== -1) {
       // Create a new array with reordered fields
@@ -1698,7 +1697,7 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
                       <SortableContext
                         items={[...(displayPatientInfo.fields || [])]
                           .sort((a, b) => (a.order || 0) - (b.order || 0))
-                          .map((field) => getFieldKey(field))}
+                          .map((field) => field.id)}
                         strategy={verticalListSortingStrategy}
                       >
                         <table className="customize-table table-display-patient">
@@ -1707,8 +1706,8 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
                               .sort((a, b) => (a.order || 0) - (b.order || 0))
                               .map((field) => (
                                 <CustomRow
-                                  key={getFieldKey(field)}
-                                  data-row-key={getFieldKey(field)}
+                                  key={field.id}
+                                  data-row-key={field.id}
                                 >
                                   <td
                                     className="align-middle text-center"
@@ -1716,11 +1715,11 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
                                   >
                                     <DragHandle />
                                   </td>
-                                  <td>{field.label ?? field.title}</td>
+                                  <td>{field.label}</td>
                                   <td className="align-middle text-center">
                                     <Switch
                                       onChange={(checked) =>
-                                        onChangePatientInfo(checked, getFieldKey(field))
+                                        onChangePatientInfo(checked, field.id)
                                       }
                                       checked={field.enabled !== false}
                                     />

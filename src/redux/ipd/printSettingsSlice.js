@@ -282,7 +282,7 @@ const printSettingsSlice = createSlice({
     // Initialize draft settings for a module with current saved settings
     setDraftSettings: (state, action) => {
       const { moduleType, settings } = action.payload;
-      state.draftSettings[moduleType] = JSON.parse(JSON.stringify(settings || {}));
+      state.draftSettings[moduleType] = JSON.parse(JSON.stringify(settings));
     },
 
     // Update a specific setting in draft
@@ -484,9 +484,28 @@ const printSettingsSlice = createSlice({
       })
       .addCase(getPrintSettings.fulfilled, (state, action) => {
         state.loading = false;
-        const payload = action.payload || {};
-        state.printSettings = payload;
-        state.draftSettings = payload;
+        state.printSettings = {
+          ...action.payload,
+          // TODO: INTEL - REMOVE AFTER FIXING THE DEFAULT IN BACKEND
+          // otNotes: {
+          //   ...action.payload.otNotes,
+          //   formatStyle: IPD.DEFAULT_OT_NOTES_PRINT_FORMAT_STRUCTURE,
+          // },
+          // assessments: {
+          //   ...action.payload.assessments,
+          //   formatStyle:
+          //     IPD.DEFAULT_ADMISSION_ASSESSMENT_PRINT_FORMAT_STRUCTURE,
+          // },
+          // dischargeSummary: {
+          //   ...action.payload.dischargeSummary,
+          //   formatStyle: IPD.DEFAULT_DISCHARGE_SUMMARY_PRINT_FORMAT_STRUCTURE,
+          // },
+          // crossReferral: {
+          //   ...action.payload.crossReferral,
+          //   formatStyle: IPD.DEFAULT_CROSS_REFERRAL_PRINT_FORMAT_STRUCTURE,
+          // },
+        };
+        state.draftSettings = action.payload;
       })
       .addCase(getPrintSettings.rejected, (state, action) => {
         state.loading = false;
