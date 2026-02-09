@@ -99,11 +99,18 @@ export const useAssessmentDataStore = () => {
         );
         const updatedMedications = data?.basicInfo?.currentMedications?.map(
           (med) => {
-            return (
+            const groundingData =
               med?.grounding?.[0]?.structuralMedicationData || {
                 ...med?.grounding?.[0],
-              }
-            );
+              };
+            return {
+              ...groundingData,
+              unitPerDose: med?.unitPerDose,
+              schedule: med?.schedule,
+              frequency: med?.frequency,
+              duration: med?.duration,
+              notes: med?.notes,
+            };
           }
         );
         dispatch(
