@@ -3553,6 +3553,15 @@ export const IPD = {
     crossReferral: "crossReferral",
     dischargeSummary: "dischargeSummary",
   }),
+  // 5 new discharge summary patient info fields - API may not return these yet; add on frontend with enabled: false.
+  // order set high so they sort at the bottom in configure print settings.
+  DISCHARGE_SUMMARY_NEW_PATIENT_INFO_FIELDS: [
+    { id: "payer", field: "payer", title: "Payer", enabled: false, order: 100 },
+    { id: "payerType", field: "payerType", title: "Payer Type", enabled: false, order: 101 },
+    { id: "abhaId", field: "abhaId", title: "ABHA ID", enabled: false, order: 102 },
+    { id: "abhaRegistrationNumber", field: "abhaRegistrationNumber", title: "ABHA Registration Number", enabled: false, order: 103 },
+    { id: "pmjayId", field: "pmjayId", title: "PMJAY ID", enabled: false, order: 104 },
+  ],
 };
 
 export const CHRONOLOGY_LAST_PARAGRAPH = `During stay the patient was closely monitored for all vital parameters, intake output and was regularly investigated and managed medically. Patient was treated medically with Antibiotic, Antacid, Analgesic, IV Fluid and other support treatment. Patient's overall stay in Hospital was uneventful.

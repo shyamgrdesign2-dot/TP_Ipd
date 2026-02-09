@@ -1,16 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import ApiPrintSettings from "../../api/services/ipd/ApiPrintSettings";
 import { IPD } from "../../utils/locale";
-// import { IPD } from "../../utils/locale";
-
-// 5 new discharge summary patient info fields - API may not return these yet; add on frontend with enabled: false
-const DISCHARGE_SUMMARY_NEW_PATIENT_INFO_FIELDS = [
-  { id: "payer", field: "payer", title: "Payer", enabled: false, order: 16 },
-  { id: "payerType", field: "payerType", title: "Payer Type", enabled: false, order: 17 },
-  { id: "abhaId", field: "abhaId", title: "ABHA ID", enabled: false, order: 18 },
-  { id: "abhaRegistrationNumber", field: "abhaRegistrationNumber", title: "ABHA Registration Number", enabled: false, order: 19 },
-  { id: "pmjayId", field: "pmjayId", title: "PMJAY ID", enabled: false, order: 20 },
-];
 
 const enrichDischargeSummaryWithNewPatientInfoFields = (payload) => {
   if (!payload) return payload;
@@ -18,7 +8,7 @@ const enrichDischargeSummaryWithNewPatientInfoFields = (payload) => {
   if (!displayPatientInfo) return payload;
   const fields = Array.isArray(displayPatientInfo.fields) ? displayPatientInfo.fields : [];
   const existingIds = new Set(fields.map((f) => f.id));
-  const missingFields = DISCHARGE_SUMMARY_NEW_PATIENT_INFO_FIELDS.filter(
+  const missingFields = IPD.DISCHARGE_SUMMARY_NEW_PATIENT_INFO_FIELDS.filter(
     (f) => !existingIds.has(f.id)
   );
   if (missingFields.length === 0) return payload;
