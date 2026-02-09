@@ -226,11 +226,8 @@ const AdmissionBilling = ({
 
   // Fetch print settings if not available
   useEffect(() => {
-    if (
-      (ipdBillPrintSettings &&
-        Object.keys(ipdBillPrintSettings).length === 0) ||
-      !ipdBillPrintSettings
-    ) {
+    const isEmpty = !ipdBillPrintSettings || Object.keys(ipdBillPrintSettings).length === 0;
+    if (isEmpty) {
       getIpdBillPrintSettings();
     }
   }, [ipdBillPrintSettings, getIpdBillPrintSettings]);
@@ -255,11 +252,8 @@ const AdmissionBilling = ({
 
   // Fetch print settings if not available
   useEffect(() => {
-    if (
-      (ipdBillPrintSettings &&
-        Object.keys(ipdBillPrintSettings).length === 0) ||
-      !ipdBillPrintSettings
-    ) {
+    const isEmpty = !ipdBillPrintSettings || Object.keys(ipdBillPrintSettings).length === 0;
+    if (isEmpty) {
       getIpdBillPrintSettings();
     }
   }, [ipdBillPrintSettings, getIpdBillPrintSettings]);

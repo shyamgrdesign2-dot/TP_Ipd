@@ -25,6 +25,7 @@ const worker = require("pdfjs-dist/build/pdf.worker.min.js");
 pdfjs.GlobalWorkerOptions.workerSrc = worker;
 
 const ConfigureBillSettings = ({
+  showConfigureSettings,
   handleDrawerConfigureSettings,
   patientData,
   billData,
