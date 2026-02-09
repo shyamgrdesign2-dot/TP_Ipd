@@ -1,7 +1,32 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import ApiPrintSettings from "../../api/services/ipd/ApiPrintSettings";
 import { IPD } from "../../utils/locale";
-// import { IPD } from "../../utils/locale";
+
+const enrichDischargeSummaryWithNewPatientInfoFields = (payload) => {
+  if (!payload) return payload;
+  const displayPatientInfo = payload?.dischargeSummary?.headerFooter?.displayPatientInfo;
+  if (!displayPatientInfo) return payload;
+  const fields = Array.isArray(displayPatientInfo.fields) ? displayPatientInfo.fields : [];
+  const existingIds = new Set(fields.map((f) => f.id));
+  const missingFields = IPD.DISCHARGE_SUMMARY_NEW_PATIENT_INFO_FIELDS.filter(
+    (f) => !existingIds.has(f.id)
+  );
+  if (missingFields.length === 0) return payload;
+  const enrichedFields = [...fields, ...missingFields];
+  return {
+    ...payload,
+    dischargeSummary: {
+      ...payload.dischargeSummary,
+      headerFooter: {
+        ...payload.dischargeSummary.headerFooter,
+        displayPatientInfo: {
+          ...displayPatientInfo,
+          fields: enrichedFields,
+        },
+      },
+    },
+  };
+};
 
 export const initialState = {
   printSettings: {},
@@ -282,7 +307,7 @@ const printSettingsSlice = createSlice({
     // Initialize draft settings for a module with current saved settings
     setDraftSettings: (state, action) => {
       const { moduleType, settings } = action.payload;
-      state.draftSettings[moduleType] = JSON.parse(JSON.stringify(settings));
+      state.draftSettings[moduleType] = JSON.parse(JSON.stringify(settings || {}));
     },
 
     // Update a specific setting in draft
@@ -484,28 +509,10 @@ const printSettingsSlice = createSlice({
       })
       .addCase(getPrintSettings.fulfilled, (state, action) => {
         state.loading = false;
-        state.printSettings = {
-          ...action.payload,
-          // TODO: INTEL - REMOVE AFTER FIXING THE DEFAULT IN BACKEND
-          // otNotes: {
-          //   ...action.payload.otNotes,
-          //   formatStyle: IPD.DEFAULT_OT_NOTES_PRINT_FORMAT_STRUCTURE,
-          // },
-          // assessments: {
-          //   ...action.payload.assessments,
-          //   formatStyle:
-          //     IPD.DEFAULT_ADMISSION_ASSESSMENT_PRINT_FORMAT_STRUCTURE,
-          // },
-          // dischargeSummary: {
-          //   ...action.payload.dischargeSummary,
-          //   formatStyle: IPD.DEFAULT_DISCHARGE_SUMMARY_PRINT_FORMAT_STRUCTURE,
-          // },
-          // crossReferral: {
-          //   ...action.payload.crossReferral,
-          //   formatStyle: IPD.DEFAULT_CROSS_REFERRAL_PRINT_FORMAT_STRUCTURE,
-          // },
-        };
-        state.draftSettings = action.payload;
+        const rawpayload = action.payload || {};
+        const payload = enrichDischargeSummaryWithNewPatientInfoFields(rawpayload);
+        state.printSettings = payload;
+        state.draftSettings = payload;
       })
       .addCase(getPrintSettings.rejected, (state, action) => {
         state.loading = false;
@@ -520,9 +527,10 @@ const printSettingsSlice = createSlice({
       })
       .addCase(updatePrintSettings.fulfilled, (state, action) => {
         state.loading = false;
-        const requestPayload = action.meta.arg;
-        state.printSettings = requestPayload?.printSettings;
-        state.draftSettings = requestPayload?.printSettings;
+        const rawSettings = action.meta.arg?.printSettings;
+        const payload = enrichDischargeSummaryWithNewPatientInfoFields(rawSettings);
+        state.printSettings = payload || rawSettings;
+        state.draftSettings = payload || rawSettings;
       })
       .addCase(updatePrintSettings.rejected, (state, action) => {
         state.loading = false;

@@ -84,6 +84,7 @@ import { fetchAdvanceSetting } from "../../opdBilling/service";
 import { setAdvancedSettings } from "../../../redux/billingSlice";
 import { fetchActivityLogs } from "../../../redux/ipd/inPatientsSlice";
 import ActivityLogs from "./components/ActivityLogs";
+import abhaLogo from "../../../assets/images/icons/abha.svg";
 
 const PatientDetailsLayout = createRemoteComponent("PatientDetailsLayout");
 
@@ -119,7 +120,6 @@ const IPDPatientDetails = () => {
   );
   const { printSettings } = useSelector((state) => state.printSettings);
   const { activityLogs } = useSelector((state) => state.inPatients || {});
-  console.log('INTEL ==> activityLogs', activityLogs)
   const { frequencyList, timingList } = useSelector((state) => state.doctors);
   const [open, setOpen] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
@@ -1214,10 +1214,18 @@ const IPDPatientDetails = () => {
               wardBedNumber={patientData.wardBedNumber}
               consultant={patientData.consultant}
               admittedOn={patientData.admittedOn}
+              showAbhaLogo={
+                !!String(
+                  patientDetails?.details?.abha_address || ""
+                ).trim() &&
+                !!String(
+                  patientDetails?.details?.abha_number || ""
+                ).trim()
+              }
+              abhaLogoUrl={abhaLogo}
               renderContent={
                 isDataPresent ? renderContent : isLoading ? renderLoader : null
               }
-              // renderContent={renderLoader}
               showAddCTA={canShowAddCTA}
               contentHeaderActions={contentHeaderActions}
             />

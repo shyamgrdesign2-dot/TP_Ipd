@@ -17,7 +17,7 @@ import { pdf } from "@react-pdf/renderer";
 import BillPageFormatLayout from "./BillPageFormatLayout";
 import BillHeaderFooterLayout from "./BillHeaderFooterLayout";
 import ViewBillPdf from "../viewBillPdf/ViewBillPdf";
-import { deletePrintSetting, updatePrintSetting } from "../../service";
+import { deletePrintSetting, fetchBillDetailsByBillNumber, updatePrintSetting } from "../../service";
 import { useSelector } from "react-redux";
 import { setBillPrintSettings, setIpdBillPrintSettings } from "../../../../redux/billingSlice";
 import { useDispatch } from "react-redux";
@@ -25,6 +25,7 @@ const worker = require("pdfjs-dist/build/pdf.worker.min.js");
 pdfjs.GlobalWorkerOptions.workerSrc = worker;
 
 const ConfigureBillSettings = ({
+  showConfigureSettings,
   handleDrawerConfigureSettings,
   patientData,
   billData,
@@ -60,6 +61,8 @@ const ConfigureBillSettings = ({
   const [printSettingsDifferFromRx, setPrintSettingsDifferFromRx] = useState(
     {}
   );
+  const [effectiveBillData, setEffectiveBillData] = useState(null);
+  const [isRefreshingBill, setIsRefreshingBill] = useState(false);
   const divRef = useRef(null);
 
   const transformPrintSettings = (defaultPrintSettings) => {
@@ -194,11 +197,43 @@ const ConfigureBillSettings = ({
     }
   }, []);
 
+  // Refetch IPD bill when configure drawer opens so PDF preview uses fresh data (avoids stale ABHA/PMJAY fields)
   useEffect(() => {
-    if (printSettings && Object.keys(printSettings)?.length > 0) {
+    if (!showConfigureSettings) {
+      setEffectiveBillData(null);
+      return;
+    }
+    if (!isIpdBill || !billData?.billNumber) return;
+    let cancelled = false;
+    setIsRefreshingBill(true);
+    setPdfUrl(null);
+    fetchBillDetailsByBillNumber(
+      billData.billNumber,
+      billData.admissionId ?? billData.admission?.admissionId ?? null,
+      "ipd",
+      true
+    )
+      .then((res) => {
+        if (cancelled) return;
+        const data = res?.data != null ? res.data : res;
+        setEffectiveBillData(data && typeof data === "object" ? data : null);
+      })
+      .catch(() => {
+        if (!cancelled) setEffectiveBillData(null);
+      })
+      .finally(() => {
+        if (!cancelled) setIsRefreshingBill(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [showConfigureSettings, isIpdBill, billData?.billNumber, billData?.admissionId, billData?.admission?.admissionId]);
+
+  useEffect(() => {
+    if (printSettings && Object.keys(printSettings)?.length > 0 && !isRefreshingBill) {
       makePDFUrl();
     }
-  }, [printSettings]);
+  }, [printSettings, effectiveBillData, isRefreshingBill]);
 
   useEffect(() => {
     const transformedPrintSettings =
@@ -207,13 +242,15 @@ const ConfigureBillSettings = ({
     setPrintSettingsDifferFromRx(differences);
   }, [printSettings, defaultPrintSettings]);
 
+  const billDataForPdf = effectiveBillData ?? billData;
+
   const makePDFUrl = async () => {
     const blob = await pdf(
       <ViewBillPdf
         printSettings={printSettings}
         patientData={patientData}
         profile={profile}
-        billData={billData}
+        billData={billDataForPdf}
         isDepositReceipt={isDepositReceipt}
         totalAdvanceBalance={totalAdvanceBalance}
         gstIn={advancedSettings?.GSTIN}
@@ -583,7 +620,11 @@ const ConfigureBillSettings = ({
                 className="rounded-20px bg-white mt-20 overflow-hidden"
               >
                 <div className="position-relative printheight">
-                  {pdfUrl && (
+                  {isRefreshingBill && isIpdBill ? (
+                    <div className="d-flex justify-content-center align-items-center" style={{ minHeight: 400 }}>
+                      <Spin size="large" tip="Loading bill details..." />
+                    </div>
+                  ) : pdfUrl ? (
                     <Document
                       loading={
                         <Spin
@@ -641,7 +682,7 @@ const ConfigureBillSettings = ({
                           );
                         })}
                     </Document>
-                  )}
+                  ) : null}
                 </div>
               </div>
             </div>

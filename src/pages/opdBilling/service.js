@@ -3,15 +3,51 @@ import config from "../../config";
 
 const baseUrl = { customBaseUrl: config.lab_params_api_url };
 
+// 5 new IPD patient info fields - backend may not return these yet, so we add them on frontend
+const IPD_BILL_PATIENT_INFO_NEW_FIELDS = [
+  { id: 16, title: "Payer", enabled: false },
+  { id: 17, title: "Payer Type", enabled: false },
+  { id: 18, title: "ABHA ID", enabled: false },
+  { id: 19, title: "ABHA Registration Number", enabled: false },
+  { id: 20, title: "PMJAY ID", enabled: false },
+];
+
+const enrichIpdBillPrintSettingsWithNewFields = (settings) => {
+  if (!settings) return settings;
+  const headerFooter = settings.headerFooter ?? settings?.data?.headerFooter;
+  if (!headerFooter) return settings;
+  const patientInfo = Array.isArray(headerFooter.patientInfo) ? headerFooter.patientInfo : [];
+  const existingIds = new Set(patientInfo.map((p) => Number(p.id) || p.id));
+  const missingFields = IPD_BILL_PATIENT_INFO_NEW_FIELDS.filter(
+    (f) => !existingIds.has(f.id)
+  );
+  if (missingFields.length === 0) return settings;
+  const enrichedPatientInfo = [...patientInfo, ...missingFields];
+  return {
+    ...settings,
+    headerFooter: {
+      ...headerFooter,
+      patientInfo: enrichedPatientInfo,
+    },
+  };
+};
+
 export const fetchPrintSetting = async function (doctorId, billType) {
   let res = {};
   try {
-    res = await api.get(
-      `/api/v1/billing/printSetting?${doctorId ? `um_id=${doctorId}` : ""}${
-        billType ? `&billType=ipdBill` : ""
-      }`,
-      baseUrl
-    );
+    const params = new URLSearchParams();
+    if (doctorId != null && doctorId !== "") {
+      params.set("um_id", doctorId);
+    }
+    if (billType === "ipdBill") {
+      params.set("billType", "ipdBill");
+    }
+    const query = params.toString();
+    const url = `/api/v1/billing/printSetting${query ? `?${query}` : ""}`;
+    res = await api.get(url, baseUrl);
+    if (billType === "ipdBill" && res) {
+      res = enrichIpdBillPrintSettingsWithNewFields(res);
+    }
   } catch (e) {
     console.error("Error while fetching Print settings details: ", e);
   }
@@ -487,7 +523,8 @@ export const updateAdvancedSettings = async function (payload) {
 export const fetchBillDetailsByBillNumber = async function (
   billNumber,
   admissionId = null,
-  billType = "opd"
+  billType = "opd",
+  cacheBust = false
 ) {
   let res = {};
   try {
@@ -497,6 +534,10 @@ export const fetchBillDetailsByBillNumber = async function (
 
     if (admissionId && billType === "ipd") {
       queryParams.admissionId = admissionId;
+    }
+
+    if (cacheBust) {
+      queryParams._t = Date.now();
     }
 
     const queryString = new URLSearchParams(queryParams).toString();
