@@ -5,11 +5,11 @@ import { IPD } from "../../utils/locale";
 
 // 5 new discharge summary patient info fields - API may not return these yet; add on frontend with enabled: false
 const DISCHARGE_SUMMARY_NEW_PATIENT_INFO_FIELDS = [
-  { id: "payer", field: "payer", title: "Payer", enabled: false },
-  { id: "payerType", field: "payerType", title: "Payer Type", enabled: false },
-  { id: "abhaId", field: "abhaId", title: "ABHA ID", enabled: false },
-  { id: "abhaRegistrationNumber", field: "abhaRegistrationNumber", title: "ABHA Registration Number", enabled: false },
-  { id: "pmjayId", field: "pmjayId", title: "PMJAY ID", enabled: false },
+  { id: "payer", field: "payer", title: "Payer", enabled: false, order: 16 },
+  { id: "payerType", field: "payerType", title: "Payer Type", enabled: false, order: 17 },
+  { id: "abhaId", field: "abhaId", title: "ABHA ID", enabled: false, order: 18 },
+  { id: "abhaRegistrationNumber", field: "abhaRegistrationNumber", title: "ABHA Registration Number", enabled: false, order: 19 },
+  { id: "pmjayId", field: "pmjayId", title: "PMJAY ID", enabled: false, order: 20 },
 ];
 
 const enrichDischargeSummaryWithNewPatientInfoFields = (payload) => {
