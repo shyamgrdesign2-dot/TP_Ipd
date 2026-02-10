@@ -125,7 +125,7 @@ IPDSnapRxDigitization.digitize = function ({
   };
 
   return api.post(
-    `/ai/smart-rx?schemaKey=${schemaKey}&needGrounding=true&model=gemini${
+    `/ai/smart-rx?schemaKey=${schemaKey}&needGrounding=true${
       schemaKey ? `&form=${schemaKey}` : ""
     }`,
     data,

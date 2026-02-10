@@ -276,7 +276,7 @@ function FieldRenderer({
 
     case "select-rooms": {
       const ward = (wards || []).find((w) => w._id === selectedWardId);
-      const rooms = ward?.rooms || [];
+      const rooms = (ward?.rooms || []).filter((room) => room?.available);
       return (
         <Controller
           name={field.id}
