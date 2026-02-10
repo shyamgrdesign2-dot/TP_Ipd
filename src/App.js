@@ -97,9 +97,6 @@ import IPDSnapRxPreview from "./pages/ipd/snapRx/SnapRxPreview";
 import IPDUploadRx from "./pages/ipd/snapRx/uploadRx";
 import WardAndBedManagement from "./pages/ipd/wardAndBedManagement/WardAndBedManagement";
 import IpdBillingHistory from "./pages/ipd/billing/IpdBillingHistory";
-import IPDSnapRx from "./pages/ipd/snapRx/SnapRx";
-import IPDSnapRxPreview from "./pages/ipd/snapRx/SnapRxPreview";
-import IPDSnapRxDigitise from "./pages/ipd/snapRx/SnapRxDigitise";
 
 
 const growthbook = new GrowthBook({
