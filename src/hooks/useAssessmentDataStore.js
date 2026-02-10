@@ -21,6 +21,7 @@ import {
 import { addObstetricDetails } from "../redux/obstetricSlice";
 import { setProvisionalDiagnosis } from "../redux/ipd/dischargeSummarySlice";
 import { useSelector } from "react-redux";
+import { convertCurrentMedicationToPrescription } from "../utils/utils";
 
 /**
  * Custom hook to handle adding assessment data to Redux store
@@ -97,22 +98,32 @@ export const useAssessmentDataStore = () => {
             data?.basicInfo?.historyOfPresentIllness || []
           )
         );
-        const updatedMedications = data?.basicInfo?.currentMedications?.map(
+        const updatedMedications = data?.basicInfo?.currentMedications?.filter(
           (med) => {
             const groundingData =
               med?.grounding?.[0]?.structuralMedicationData || {
                 ...med?.grounding?.[0],
               };
-            return {
-              ...groundingData,
-              unitPerDose: med?.unitPerDose,
-              schedule: med?.schedule,
-              frequency: med?.frequency,
-              duration: med?.duration,
-              notes: med?.notes,
-            };
+            if (!groundingData || (typeof groundingData === "object" && Object.keys(groundingData).length === 0)) {
+              return false;
+            }
+            return true;
           }
-        );
+        )?.map(med => {
+          const groundingData =
+              med?.grounding?.[0]?.structuralMedicationData || {
+                ...med?.grounding?.[0],
+              };
+          const allDetails = {
+            ...groundingData,
+            unitPerDose: med?.unitPerDose,
+            schedule: med?.schedule,
+            frequency: med?.frequency,
+            duration: med?.duration,
+            notes: med?.notes,
+          };
+          return convertCurrentMedicationToPrescription([allDetails])?.[0];
+        });
         dispatch(
           setMedicationData(
             fromAIPipeline

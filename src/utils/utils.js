@@ -110,8 +110,8 @@ export const convertCurrentMedicationToPrescription = (medications = []) => {
     return {
       tmm_id: medication?.tmm_id || 0,
       tcm_tmr_type: "M",
-      tmm_medicine_name: medication?.name || "",
-      tmm_generic: medication?.unitPerDose || "",
+      tmm_medicine_name: medication?.tmm_medicine_name || medication?.name || "",
+      tmm_generic: medication?.tmm_generic || medication?.unitPerDose || "",
       tmm_company: "",
       tmm_type: 5,
       tmm_days: days,
