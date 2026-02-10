@@ -21,6 +21,7 @@ import {
   resetDischargeSummaryForm,
   setSurgeriesPerformed,
   setDischargeSummaryDataViaPatch,
+  updateDischargeSummaryData,
 } from "../../../redux/ipd/dischargeSummarySlice.js";
 import { addDischargeDataToStore } from "../../../utils/dischargeDataMapper.js";
 import { getPatientInformation } from "../../../utils/utils.js";
