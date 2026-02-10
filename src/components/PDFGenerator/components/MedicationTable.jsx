@@ -4,9 +4,10 @@
  */
 
 import React from "react";
-import { View, Text } from "@react-pdf/renderer";
+import { View } from "@react-pdf/renderer";
 import { StyleSheet } from "@react-pdf/renderer";
 import { PX_TO_PT } from "../constants";
+import { Text } from "./MultilingualText";
 import {
   capitalize,
   getDurationTitle,

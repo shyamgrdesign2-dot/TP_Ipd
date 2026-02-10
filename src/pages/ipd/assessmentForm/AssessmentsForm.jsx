@@ -1,4 +1,4 @@
-import React, { Suspense, useCallback, useEffect, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { IPD } from "../../../utils/locale";
 import "./styles.scss";
 import { Button, Drawer, message } from "antd";
@@ -42,6 +42,7 @@ import FullPageLoader from "../../vaccination/components/Loader";
 import FilledByCards from "../otNotes/components/FilledByCards";
 import GlobalVoiceAI from "../components/GlobalVoiceAI";
 import AgentAlexVoicePanel from "../components/AgentAlexVoicePanel";
+import AgentAlexSnapRxPanel from "../components/AgentAlexSnapRxPanel";
 import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 import { listSectionwithTag } from "../../../redux/medicalhistorySlice";
 import IPDSnapRx from "../snapRx/SnapRx";
@@ -71,6 +72,8 @@ const AssessmentsForm = (props) => {
   const [open, setOpen] = useState(true);
   const [showCustomisationDrawer, setShowCustomisationDrawer] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isMainCtaSubmitting, setIsMainCtaSubmitting] = useState(false);
+  const mainCtaLockRef = useRef(false);
   const { obstetricDetails: allObstetricDetails } = useSelector(
     (state) => state.obstetric
   );
@@ -87,7 +90,7 @@ const AssessmentsForm = (props) => {
   const [filledDate, setFilledDate] = useState(new Date());
   const [filledAtTime, setFilledAtTime] = useState(new Date());
   const [selectedTimePeriod, setSelectedTimePeriod] = useState("Morning");
-  const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
+  const [activeAssistantPanel, setActiveAssistantPanel] = useState(null);
 
   const customModuleFormType = IPD.CUSTOM_MODULE_FORM_TYPES.assessments;
 
@@ -364,6 +367,21 @@ const AssessmentsForm = (props) => {
     }
   };
 
+  const handleMainCtaClick = async (...args) => {
+    if (mainCtaLockRef.current) return;
+    mainCtaLockRef.current = true;
+    setIsMainCtaSubmitting(true);
+    try {
+      const result = onSaveAssessmentClick?.(...args);
+      if (result && typeof result.then === "function") {
+        await result;
+      }
+    } finally {
+      mainCtaLockRef.current = false;
+      setIsMainCtaSubmitting(false);
+    }
+  };
+
   const handleBackConfirmation = () => {
     if (!patientDetails?.details?.id && !patientDetails?.admissionId) {
       setIsBackModalOpen(false);
@@ -385,7 +403,7 @@ const AssessmentsForm = (props) => {
           admissionId: patientDetails?.admissionId,
         })
       ).then((res) => {
-        addDataToStore(res.payload.assessment);
+        addDataToStore(res?.payload?.assessment);
         navigate(`/ipd/patient-details`, {
           state: {
             ...state,
@@ -507,17 +525,25 @@ const AssessmentsForm = (props) => {
 
   const renderBottomSection = () => (
     <>
-      {isVoiceAssistantOpen && <div className="agent-alex-voice-overlay" />}
-      {/* <div className="global-voice-ai-wrapper">
-        {isVoiceAssistantOpen ? (
+      {activeAssistantPanel && <div className="agent-alex-voice-overlay" />}
+      <div className="global-voice-ai-wrapper">
+        {activeAssistantPanel === "voice" ? (
           <AgentAlexVoicePanel
             onSubmit={handleAIRecordingComplete}
-            onClose={() => setIsVoiceAssistantOpen(false)}
+            onClose={() => setActiveAssistantPanel(null)}
+          />
+        ) : activeAssistantPanel === "snaprx" ? (
+          <AgentAlexSnapRxPanel
+            onClose={() => setActiveAssistantPanel(null)}
+            previousOutput={reqData}
           />
         ) : (
-          <GlobalVoiceAI onClick={() => setIsVoiceAssistantOpen(true)} />
+          <GlobalVoiceAI
+            onVoiceClick={() => setActiveAssistantPanel("voice")}
+            onSnapRxClick={() => setActiveAssistantPanel("snaprx")}
+          />
         )}
-      </div> */}
+      </div>
       {renderCustomModulesFooter()}
     </>
   );
@@ -547,9 +573,9 @@ const AssessmentsForm = (props) => {
                 key="assessment"
                 title={"Admission Assessment"}
                 mainCta={{
-                  handler: onSaveAssessmentClick,
+                  handler: handleMainCtaClick,
                   title: isLoading ? "Saving..." : "Save",
-                  disabled: isLoading,
+                  disabled: isLoading || isMainCtaSubmitting,
                 }}
                 items={assessments}
                 renderSection={renderSections}

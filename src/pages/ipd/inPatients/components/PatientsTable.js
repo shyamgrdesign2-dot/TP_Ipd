@@ -116,6 +116,8 @@ const PatientsTable = ({
   const [userId, setUserId] = useState(null);
   const [warningModalOpen, setWarningModalOpen] = useState(null);
   const [confirmPopupOpen, setConfirmPopupOpen] = useState(null);
+  const [isDischargeSubmitting, setIsDischargeSubmitting] = useState(false);
+  const dischargeLockRef = useRef(false);
   const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
   const [transferDrawerOpen, setTransferDrawerOpen] = useState(false);
   const [patientForTransfer, setPatientForTransfer] = useState(null);
@@ -146,33 +148,44 @@ const PatientsTable = ({
     setApiToCall("markPatientAsDischarged");
   };
 
-  const dischargePatient = () => {
-    dischargeConfirmationModalRef?.current?.clearFormData();
-    setConfirmPopupOpen(null);
-    setWarningModalOpen(null);
-    dispatch(
-      markPatientAsDischarged({
-        admissionId: warningModalOpen?.admissionId,
-        ...confirmPopupOpen,
-      })
-    )
-      .then((res) => {
-        if (res?.payload?.status === 400) {
-          message.warning(
-            res?.payload?.data?.message || "Patient discharged failed"
-          );
-        } else {
-          message.success("Patient discharged successfully");
-          setApiToCall("");
-          setOpenMoreActionsPopover(null);
-          fetchData(fetchParams);
-        }
-      })
-      .finally(() => {
-        dischargeConfirmationModalRef?.current?.clearFormData();
-        setConfirmPopupOpen(null);
-        setWarningModalOpen(null);
-      });
+  const dischargePatient = async () => {
+    if (dischargeLockRef.current) return;
+    dischargeLockRef.current = true;
+    setIsDischargeSubmitting(true);
+    const admissionId = warningModalOpen?.admissionId;
+    if (!admissionId) {
+      message.warning("Admission ID is missing. Please try again.");
+      dischargeLockRef.current = false;
+      setIsDischargeSubmitting(false);
+      return;
+    }
+    try {
+      dischargeConfirmationModalRef?.current?.clearFormData();
+      setConfirmPopupOpen(null);
+      setWarningModalOpen(null);
+      await dispatch(
+        markPatientAsDischarged({
+          admissionId,
+          ...(confirmPopupOpen || {}),
+        })
+      ).unwrap();
+      message.success("Patient discharged successfully");
+      setApiToCall("");
+      setOpenMoreActionsPopover(null);
+      fetchData(fetchParams);
+    } catch (err) {
+      message.warning(
+        err?.response?.data?.message ||
+          err?.message ||
+          "Patient discharged failed"
+      );
+    } finally {
+      dischargeConfirmationModalRef?.current?.clearFormData();
+      setConfirmPopupOpen(null);
+      setWarningModalOpen(null);
+      dischargeLockRef.current = false;
+      setIsDischargeSubmitting(false);
+    }
   };
 
   const handleSendForDischargeApproval = (record) => {
@@ -247,30 +260,41 @@ const PatientsTable = ({
     );
   };
 
-  const sentForDischargeApproval = () => {
-    dispatch(
-      sendForDischargeApproval({
-        admissionId: warningModalOpen?.admissionId,
-        ...confirmPopupOpen,
-      })
-    )
-      .then((res) => {
-        if (res?.payload?.status === 400) {
-          message.warning(
-            res?.payload?.data?.message || "Send for approval failed"
-          );
-        } else {
-          message.success("Patient sent for discharge approval successfully");
-          setApiToCall("");
-          setOpenMoreActionsPopover(null);
-          fetchData(fetchParams);
-        }
-      })
-      .finally(() => {
-        dischargeConfirmationModalRef?.current?.clearFormData();
-        setConfirmPopupOpen(null);
-        setWarningModalOpen(null);
-      });
+  const sentForDischargeApproval = async () => {
+    if (dischargeLockRef.current) return;
+    dischargeLockRef.current = true;
+    setIsDischargeSubmitting(true);
+    const admissionId = warningModalOpen?.admissionId;
+    if (!admissionId) {
+      message.warning("Admission ID is missing. Please try again.");
+      dischargeLockRef.current = false;
+      setIsDischargeSubmitting(false);
+      return;
+    }
+    try {
+      await dispatch(
+        sendForDischargeApproval({
+          admissionId,
+          ...(confirmPopupOpen || {}),
+        })
+      ).unwrap();
+      message.success("Patient sent for discharge approval successfully");
+      setApiToCall("");
+      setOpenMoreActionsPopover(null);
+      fetchData(fetchParams);
+    } catch (err) {
+      message.warning(
+        err?.response?.data?.message ||
+          err?.message ||
+          "Send for approval failed"
+      );
+    } finally {
+      dischargeConfirmationModalRef?.current?.clearFormData();
+      setConfirmPopupOpen(null);
+      setWarningModalOpen(null);
+      dischargeLockRef.current = false;
+      setIsDischargeSubmitting(false);
+    }
   };
 
   const handleWarningModalClose = () => {
@@ -469,7 +493,7 @@ const PatientsTable = ({
       key: "action",
       fixed: "right",
       className: "col-action",
-      render: (_, record) => {
+      render: (_, record, index) => {
         const isAdmittingDoctor = record?.doctorId === userId;
         // const isAdmittingDoctor = true;
         const actionObj = isInPatients
@@ -495,6 +519,14 @@ const PatientsTable = ({
               onCtaClick: handleMarkPatientAsDischarged,
             }
           : null;
+        const popoverKey =
+          record?.patientData?.admissionId ??
+          record?.admissionId ??
+          record?.patientData?.patientId ??
+          record?.patientId ??
+          record?.patientData?.id ??
+          record?.id ??
+          index;
         return (
           <div
             size="middle"
@@ -514,9 +546,7 @@ const PatientsTable = ({
             </button>
             {(
               <Popover
-                open={
-                  openMoreActionsPopover === record?.patientData?.admissionId
-                }
+                open={openMoreActionsPopover === popoverKey}
                 onOpenChange={(open) => {
                   if (!open) {
                     setOpenMoreActionsPopover(null);
@@ -547,8 +577,7 @@ const PatientsTable = ({
                 <img
                   onClick={() =>
                     showHideMoreActionPopover(
-                      !openMoreActionsPopover
-                        ? record?.patientData?.admissionId
+                      !openMoreActionsPopover ? popoverKey
                         : null
                     )
                   }
@@ -647,6 +676,7 @@ const PatientsTable = ({
             ? dischargePatient
             : sentForDischargeApproval
         }
+        isConfirmLoading={isDischargeSubmitting}
       />
       <AdmissionDetailsDrawer
         open={admissionDetailsDrawerOpen}

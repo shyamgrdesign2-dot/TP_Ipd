@@ -20,6 +20,7 @@ const DischargeConfirmationPopup = ({
   onCancel,
   onConfirm,
   apiToCall,
+  isConfirmLoading = false,
 }) => {
   return (
     <CommonModal
@@ -51,17 +52,28 @@ const DischargeConfirmationPopup = ({
           <div className="mt-4">
             <div className="d-flex align-items-center mt-2 justify-content-end">
               <div
-                onClick={onCancel}
+                onClick={isConfirmLoading ? undefined : onCancel}
                 className="me-4 text-decoration-underline btn p-0 text-main"
-                style={{ cursor: "pointer", fontSize: "14px" }}
+                style={{
+                  cursor: isConfirmLoading ? "not-allowed" : "pointer",
+                  fontSize: "14px",
+                  opacity: isConfirmLoading ? 0.6 : 1,
+                  pointerEvents: isConfirmLoading ? "none" : "auto",
+                }}
               >
                 No, Go Back
               </div>
               <Button
                 onClick={onConfirm}
                 className="lh-lg btn btn-primary3 btn-41 px-4"
+                loading={isConfirmLoading}
+                disabled={isConfirmLoading}
               >
-                <span>{apiToCall === "markPatientAsDischarged" ? "Yes, Discharge Patient" : "Yes, Send for Discharge Approval"}</span>
+                <span>
+                  {apiToCall === "markPatientAsDischarged"
+                    ? "Yes, Discharge Patient"
+                    : "Yes, Send for Discharge Approval"}
+                </span>
               </Button>
             </div>
           </div>

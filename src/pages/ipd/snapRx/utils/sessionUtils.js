@@ -16,23 +16,19 @@ export const generateSessionId = () => {
  * Store session ID in sessionStorage
  * @param {string} sessionId - Session ID to store
  */
-export const storeSessionId = (sessionId) => {
-  sessionStorage.setItem("ipd_snaprx_session_id", sessionId);
-};
+let inMemorySessionId = null;
 
 /**
  * Get session ID from sessionStorage
  * @returns {string|null} - Stored session ID or null
  */
-export const getStoredSessionId = () => {
-  return sessionStorage.getItem("ipd_snaprx_session_id");
-};
+export const getStoredSessionId = () => inMemorySessionId;
 
 /**
  * Clear session ID from sessionStorage
  */
 export const clearSessionId = () => {
-  sessionStorage.removeItem("ipd_snaprx_session_id");
+  inMemorySessionId = null;
 };
 
 /**
@@ -40,10 +36,8 @@ export const clearSessionId = () => {
  * @returns {string} - Current or newly created session ID
  */
 export const getOrCreateSessionId = () => {
-  let sessionId = getStoredSessionId();
-  if (!sessionId) {
-    sessionId = generateSessionId();
-    storeSessionId(sessionId);
+  if (!inMemorySessionId) {
+    inMemorySessionId = generateSessionId();
   }
-  return sessionId;
+  return inMemorySessionId;
 };

@@ -24,10 +24,9 @@
     align-items: center;
     justify-content: center;
     position: relative;
-    width: 37.5625rem;
     margin: auto;
-    width: 580px;
-    height: 580px;
+    width: 54%;
+    height: auto;
 
     .skeleton-container {
       width: 100%;
@@ -124,7 +123,7 @@
 
     .crop-container {
       position: relative;
-      max-width: 485px;
+      max-width: 435px;
       max-height: auto;
       margin: auto;
       aspect-ratio: 1 / 1;
@@ -138,8 +137,8 @@
         justify-content: center;
 
         .ReactCrop__child-wrapper {
-          max-width: 480px;
-          max-height: 480px;
+          max-width: 430px;
+          max-height: 400px;
           display: inline-grid;
           place-items: center;
           .prescription-image {
@@ -174,8 +173,8 @@
       }
     }
     .preview-area .crop-container {
-      width: 480px;
-      height: 480px;
+      width: 430px;
+      height: 430px;
       overflow: hidden;
       display: grid;
       place-items: center;
@@ -625,4 +624,31 @@
   font-style: normal;
   font-weight: 600;
   line-height: 1.625rem; /* 144.444% */
+}
+
+.preview-drawer-footer {
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  padding: 12px 20px;
+  background: #fff;
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.08);
+  z-index: 3;
+  margin-top: 12px;
+}
+
+.preview-continue-btn {
+  min-width: 220px;
+  height: 48px !important;
+  border-radius: 12px !important;
+  background: linear-gradient(90deg, #5a4bdb 0%, #6f62ff 100%) !important;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }

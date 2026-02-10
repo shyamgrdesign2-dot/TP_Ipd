@@ -3,6 +3,7 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { IPD } from "../../../utils/locale";
@@ -55,6 +56,7 @@ import useIpdCustomModules from "../../../hooks/useIpdCustomModules";
 import useConsultantNotesRequestData from "../../../hooks/useConsultantNotesRequestData";
 import GlobalVoiceAI from "../components/GlobalVoiceAI";
 import AgentAlexVoicePanel from "../components/AgentAlexVoicePanel";
+import AgentAlexSnapRxPanel from "../components/AgentAlexSnapRxPanel";
 import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 dayjs.extend(customParseFormat);
 
@@ -108,12 +110,14 @@ const ConsultantNotes = (props) => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(true);
   const [showCustomisationDrawer, setShowCustomisationDrawer] = useState(false);
+  const [isMainCtaSubmitting, setIsMainCtaSubmitting] = useState(false);
+  const mainCtaLockRef = useRef(false);
   const [filledDate, setFilledDate] = useState(dayjs());
   const [filledAtTime, setFilledAtTime] = useState(dayjs());
   const [investigationData, setInvestigationData] = useState([]);
   const [shouldAutofill, setShouldAutofill] = useState(false);
   const [showAgentAlex, setShowAgentAlex] = useState(false);
-  const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
+  const [activeAssistantPanel, setActiveAssistantPanel] = useState(null);
   const [selectedTimePeriod, setSelectedTimePeriod] = useState("Morning");
   const [modelData, setModelData] = useState(
     consultantNotesCustomization.length > 0
@@ -285,6 +289,21 @@ const ConsultantNotes = (props) => {
       });
     } catch (error) {
       console.error("Error saving consultant notes:", error);
+    }
+  };
+
+  const handleMainCtaClick = async (...args) => {
+    if (mainCtaLockRef.current) return;
+    mainCtaLockRef.current = true;
+    setIsMainCtaSubmitting(true);
+    try {
+      const result = saveConsultantNotes?.(...args);
+      if (result && typeof result.then === "function") {
+        await result;
+      }
+    } finally {
+      mainCtaLockRef.current = false;
+      setIsMainCtaSubmitting(false);
     }
   };
 
@@ -496,7 +515,42 @@ const ConsultantNotes = (props) => {
   };
 
   const showProgressSummary =
-    !showAgentAlex && !isVoiceAssistantOpen && progressNotes.length > 0;
+    !showAgentAlex && !activeAssistantPanel && progressNotes.length > 0;
+
+  const handleDigitizationSuccess = useCallback(
+    (digitizedData) => {
+      const updatedNotes =
+        digitizedData?.consultationNotes ||
+        digitizedData?.consultantNotes ||
+        digitizedData;
+      if (!updatedNotes) return;
+      if (updatedNotes.vitals) dispatch(setVitals(updatedNotes.vitals));
+      if (updatedNotes.clinicalAssessmentPlan)
+        dispatch(setClinicalAssessmentPlan(updatedNotes.clinicalAssessmentPlan));
+      if (updatedNotes.medication) {
+        dispatch(setMedicationData(updatedNotes.medication));
+      }
+      if (updatedNotes.labInvestigation) {
+        const mappedInvestigations =
+          updatedNotes.labInvestigation?.map((e) => ({
+            investigation_name: e.name,
+            note: e.notes,
+          })) || [];
+        setInvestigationData(mappedInvestigations);
+        dispatch(setLabInvestigation(mappedInvestigations));
+      }
+      if (updatedNotes.additionalRemarks)
+        dispatch(setAdditionalRemarks(updatedNotes.additionalRemarks));
+      if (updatedNotes.examination)
+        dispatch(setPhysicalExaminationBasicData(updatedNotes.examination));
+      if (updatedNotes.fluidBalance)
+        dispatch(setFluidBalance(updatedNotes.fluidBalance));
+      if (updatedNotes.date) setFilledDate(dayjs(updatedNotes.date));
+      if (updatedNotes.time)
+        setFilledAtTime(dayjs(updatedNotes.time, API_TIME_FORMAT));
+    },
+    [dispatch]
+  );
 
   const handleAIRecordingComplete = useCallback(
     (payload, callback) =>
@@ -517,74 +571,66 @@ const ConsultantNotes = (props) => {
             updatedData;
           return { data: updatedNotes, success: true };
         },
-        onSuccess: (updatedNotes) => {
-          if (!updatedNotes) return;
-          if (updatedNotes.vitals) dispatch(setVitals(updatedNotes.vitals));
-          if (updatedNotes.clinicalAssessmentPlan)
-            dispatch(
-              setClinicalAssessmentPlan(updatedNotes.clinicalAssessmentPlan)
-            );
-          if (updatedNotes.medication) {
-            dispatch(setMedicationData(updatedNotes.medication));
-          }
-          if (updatedNotes.labInvestigation) {
-            const mappedInvestigations =
-              updatedNotes.labInvestigation?.map((e) => ({
-                investigation_name: e.name,
-                note: e.notes,
-              })) || [];
-            setInvestigationData(mappedInvestigations);
-            dispatch(setLabInvestigation(mappedInvestigations));
-          }
-          if (updatedNotes.additionalRemarks)
-            dispatch(setAdditionalRemarks(updatedNotes.additionalRemarks));
-          if (updatedNotes.examination)
-            dispatch(setPhysicalExaminationBasicData(updatedNotes.examination));
-          if (updatedNotes.fluidBalance)
-            dispatch(setFluidBalance(updatedNotes.fluidBalance));
-          if (updatedNotes.date) setFilledDate(dayjs(updatedNotes.date));
-          if (updatedNotes.time)
-            setFilledAtTime(dayjs(updatedNotes.time, API_TIME_FORMAT));
-        },
+        onSuccess: handleDigitizationSuccess,
         callback,
         fallbackToTranscription: false,
       }),
     [
       consultantNotesRequestData,
-      dispatch,
+      handleDigitizationSuccess,
       submitVoiceAiRecording,
     ]
   );
 
   const renderBottomSection = () => (
     <>
-      {isVoiceAssistantOpen && <div className="agent-alex-voice-overlay" />}
+      {activeAssistantPanel && <div className="agent-alex-voice-overlay" />}
       {showProgressSummary ? (
         <div className="floating-bottom-row">
-          {/* <div className="global-voice-ai-wrapper">
-            {isVoiceAssistantOpen ? (
+          <div className="global-voice-ai-wrapper">
+            {activeAssistantPanel === "voice" ? (
               <AgentAlexVoicePanel
                 onSubmit={handleAIRecordingComplete}
-                onClose={() => setIsVoiceAssistantOpen(false)}
+                onClose={() => setActiveAssistantPanel(null)}
+              />
+            ) : activeAssistantPanel === "snaprx" ? (
+              <AgentAlexSnapRxPanel
+                onClose={() => setActiveAssistantPanel(null)}
+                previousOutput={consultantNotesRequestData}
+                schemaKey="CONSULTANT_NOTES"
+                onSuccess={handleDigitizationSuccess}
               />
             ) : (
-              <GlobalVoiceAI onClick={() => setIsVoiceAssistantOpen(true)} />
+              <GlobalVoiceAI
+                onVoiceClick={() => setActiveAssistantPanel("voice")}
+                onSnapRxClick={() => setActiveAssistantPanel("snaprx")}
+              />
             )}
-          </div> */}
+          </div>
           <div className="progress-summary-wrapper">
             <ProgressSummary onClick={handleProgressSummaryClick} />
           </div>
         </div>
       ) : (
         <div className="global-voice-ai-wrapper">
-          {/* {isVoiceAssistantOpen ? (
+          {activeAssistantPanel === "voice" ? (
             <AgentAlexVoicePanel
               onSubmit={handleAIRecordingComplete}
-              onClose={() => setIsVoiceAssistantOpen(false)}
+              onClose={() => setActiveAssistantPanel(null)}
+            />
+          ) : activeAssistantPanel === "snaprx" ? (
+            <AgentAlexSnapRxPanel
+              onClose={() => setActiveAssistantPanel(null)}
+              previousOutput={consultantNotesRequestData}
+              schemaKey="CONSULTANT_NOTES"
+              onSuccess={handleDigitizationSuccess}
             />
           ) : (
-            <GlobalVoiceAI onClick={() => setIsVoiceAssistantOpen(true)} />
-          )} */}
+            <GlobalVoiceAI
+              onVoiceClick={() => setActiveAssistantPanel("voice")}
+              onSnapRxClick={() => setActiveAssistantPanel("snaprx")}
+            />
+          )}
         </div>
       )}
       {renderCustomModulesFooter()}
@@ -632,8 +678,8 @@ const ConsultantNotes = (props) => {
               onAutoFill={handleAutofillAll}
               mainCta={{
                 title: isUpdating ? "Saving..." : "Save",
-                handler: saveConsultantNotes,
-                disabled: isUpdating || !isDataPresent,
+                handler: handleMainCtaClick,
+                disabled: isUpdating || isMainCtaSubmitting || !isDataPresent,
               }}
               isAuxPanelOpen={showAgentAlex}
               auxPanel={<AgentAlex onClose={handleAgentAlexClose} />}

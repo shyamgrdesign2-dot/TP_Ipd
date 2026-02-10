@@ -3,7 +3,7 @@
  */
 
 import React from "react";
-import { View, Text } from "@react-pdf/renderer";
+import { View } from "@react-pdf/renderer";
 import { StyleSheet } from "@react-pdf/renderer";
 import SectionTitle from "../SectionTitle";
 import DiagnosisAndSurgery from "./components/DiagnosisAndSurgery";
@@ -19,6 +19,7 @@ import { renderSimpleText } from "../ListViewRenderer";
 import { getAllVisibleSections } from "../../utils/pdfUtils";
 import { isValidMongoId } from "../../../../utils/utils";
 import CustomModuleRenderer from "../../components/CustomModuleRenderer";
+import { Text } from "../../components/MultilingualText";
 
 const styles = StyleSheet.create({
   sectionContainer: {

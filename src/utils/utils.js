@@ -1,4 +1,5 @@
 import moment from "moment";
+import { v4 as uuidv4 } from "uuid";
 
 import config from "../config";
 import { message } from "antd";
@@ -25,6 +26,121 @@ import { uploadDocsToAzure } from "../pages/medicalRecords/service.js";
 import successIcon from "../assets/images/end-visit.svg";
 import closeIcon from "../assets/images/close-visit.svg";
 
+const DEFAULT_MEDICINE_UNITS = [
+  { tmu_id: 2, tmu_title: "Tablets" },
+  { tmu_id: 5, tmu_title: "units" },
+];
+
+const parseMedicationFrequency = (frequency = "") => {
+  if (!frequency || typeof frequency !== "string") {
+    return { morning: 0, afternoon: 0, evening: 0, night: 0, label: "" };
+  }
+  const segments = frequency
+    .split("-")
+    .map((part) => part.replace(/[^\d./]/g, "").trim())
+    .filter(Boolean);
+
+  const toNumber = (value) => {
+    const parsed = parseFloat(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  };
+
+  const morning = toNumber(segments[0]);
+  const afternoon = toNumber(segments[1]);
+  const evening = segments.length === 4 ? toNumber(segments[2]) : 0;
+  const night =
+    segments.length === 4
+      ? toNumber(segments[3])
+      : segments.length >= 3
+      ? toNumber(segments[2])
+      : 0;
+
+  return {
+    morning,
+    afternoon,
+    evening,
+    night,
+    label: frequency.trim(),
+  };
+};
+
+const parseMedicationDuration = (duration = "") => {
+  if (!duration || typeof duration !== "string") {
+    return { days: 0, durationType: "", durationDisplay: "" };
+  }
+
+  const trimmed = duration.trim();
+  const match = trimmed.match(/(\d+)\s*(day|week|month|year)/i);
+
+  if (match) {
+    const value = parseInt(match[1], 10);
+    const unit = match[2].toLowerCase();
+    return {
+      days: value,
+      durationType: `${unit}${value > 1 ? "s" : ""}`,
+      durationDisplay: trimmed,
+    };
+  }
+
+  const isAsNeeded = trimmed.toLowerCase() === "as needed";
+
+  return {
+    days: 0,
+    durationType: isAsNeeded ? "" : trimmed,
+    durationDisplay: isAsNeeded ? "" : trimmed,
+  };
+};
+
+export const convertCurrentMedicationToPrescription = (medications = []) => {
+  if (!Array.isArray(medications)) return [];
+
+  return medications.map((medication) => {
+    const { morning, afternoon, evening, night, label } =
+      parseMedicationFrequency(medication?.frequency);
+    const { days, durationType, durationDisplay } = parseMedicationDuration(
+      medication?.duration
+    );
+    const schedule = (medication?.schedule || "").trim();
+    const normalizedSchedule =
+      schedule.toLowerCase() === "as needed" ? "" : schedule;
+    const defaultUnitOptions = DEFAULT_MEDICINE_UNITS.map((u) => ({ ...u }));
+    const unit = defaultUnitOptions[0];
+    const dosageValue = 1;
+
+    return {
+      tmm_id: medication?.tmm_id || 0,
+      tcm_tmr_type: "M",
+      tmm_medicine_name: medication?.tmm_medicine_name || medication?.name || "",
+      tmm_generic: medication?.tmm_generic || medication?.unitPerDose || "",
+      tmm_company: "",
+      tmm_type: 5,
+      tmm_days: days,
+      tmm_duration_type: durationType,
+      tmm_dosage: dosageValue,
+      tmm_unit: unit.tmu_id,
+      tcm_tmm_freq_morning: morning,
+      tcm_tmm_freq_afternoon: afternoon,
+      tcm_tmm_freq_evening: evening,
+      tcm_tmm_freq_night: night,
+      tmm_time: 0,
+      tmm_freq_type: 0,
+      tmf_block: 0,
+      tmu_id: unit.tmu_id,
+      tmm_remarks: medication?.notes ?? "",
+      medicineUnit: defaultUnitOptions,
+      pms_default: 0,
+      tmm_unit_name: unit.tmu_title,
+      tmm_freq_type_name:
+        label || `${morning} - ${afternoon} - ${evening || night}`,
+      tmf_block_val: "",
+      tmm_time_name: normalizedSchedule,
+      tmm_dosage_unit_name: `${dosageValue} ${unit.tmu_title}`,
+      tmm_days_duration_type: durationDisplay,
+      unique_id: medication?.unique_id || uuidv4(),
+    };
+  });
+};
+
 /**
  * Converts a Blob to a File object with proper filename
  * @param {Blob} blob - The blob object to convert
@@ -39,7 +155,7 @@ export const convertBlobToFile = (blob, filename = null, mimeType = null) => {
 
   // Use provided filename or generate one
   const finalFilename = filename || `recording-${Date.now()}.webm`;
-  
+
   // Use provided mimeType, blob's type, or default
   const finalMimeType = mimeType || blob.type || "audio/webm";
 
@@ -1606,34 +1722,34 @@ export const convertMedicationFormat = (medications) => {
     ? medications
     : [medications];
 
-  return medicationArray.map((medication) => {
+  console.log("INTEL ==> medication", medicationArray);
+  return medicationArray?.map((medication) => {
     // Extract frequency and schedule from the medication object
     let frequency = "";
     let schedule = [];
-
     // Convert frequency type to human readable format
-    if (medication.tmm_freq_type_name) {
+    if (medication?.tmm_freq_type_name) {
       frequency = medication.tmm_freq_type_name;
     }
 
     // Build schedule based on morning, afternoon, evening, night values
-    if (medication.tcm_tmm_freq_morning === "1") schedule.push("Morning");
-    if (medication.tcm_tmm_freq_afternoon === "1") schedule.push("Afternoon");
-    if (medication.tcm_tmm_freq_evening === "1") schedule.push("Evening");
-    if (medication.tcm_tmm_freq_night === "1") schedule.push("Night");
+    if (medication?.tcm_tmm_freq_morning === "1") schedule.push("Morning");
+    if (medication?.tcm_tmm_freq_afternoon === "1") schedule.push("Afternoon");
+    if (medication?.tcm_tmm_freq_evening === "1") schedule.push("Evening");
+    if (medication?.tcm_tmm_freq_night === "1") schedule.push("Night");
 
     // If tmm_time_name exists, use that for schedule
-    if (medication.tmm_time_name) {
-      schedule = [medication.tmm_time_name];
+    if (medication?.tmm_time_name) {
+      schedule = [medication?.tmm_time_name];
     }
 
     return {
-      name: medication.tmm_medicine_name || "",
-      unitPerDose: medication.tmm_generic || "",
+      name: medication?.tmm_medicine_name || "",
+      unitPerDose: medication?.tmm_generic || "",
       frequency: frequency || "Once daily", // Default to once daily if not specified
       schedule: schedule.join(", ") || "As needed",
-      duration: medication.tmm_duration_type || "as needed",
-      notes: medication.tmm_remarks || "",
+      duration: medication?.tmm_duration_type || "as needed",
+      notes: medication?.tmm_remarks || "",
     };
   });
 };
@@ -2384,14 +2500,13 @@ export const groupIpdCustomModulesById = (customModules = []) => {
 };
 
 export const isIPad = () => {
-  return navigator.userAgent.includes("iPad") || (navigator.userAgent.includes("Macintosh") && navigator.maxTouchPoints > 1);
+  return (
+    navigator.userAgent.includes("iPad") ||
+    (navigator.userAgent.includes("Macintosh") && navigator.maxTouchPoints > 1)
+  );
 };
 
-export const showSuccessToast = ({
-  title,
-  duration = 3,
-  className = "",
-}) => {
+export const showSuccessToast = ({ title, duration = 3, className = "" }) => {
   message.open({
     key: MESSAGE_KEY,
     className: `message-appointment ${className}`,
@@ -2401,9 +2516,7 @@ export const showSuccessToast = ({
       <div className="d-flex align-items-center">
         <img src={successIcon} className="me-3" alt="" />
 
-        <div className="title-common text-start fontroboto">
-          {title}
-        </div>
+        <div className="title-common text-start fontroboto">{title}</div>
 
         <img
           src={closeIcon}
@@ -2416,4 +2529,3 @@ export const showSuccessToast = ({
     ),
   });
 };
-

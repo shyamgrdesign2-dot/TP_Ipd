@@ -1,4 +1,4 @@
-import React, { Suspense, useCallback, useEffect, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { IPD } from "../../../utils/locale.js";
 import "../assessmentForm/styles.scss";
 import "./styles.scss";
@@ -21,6 +21,7 @@ import {
   resetDischargeSummaryForm,
   setSurgeriesPerformed,
   setDischargeSummaryDataViaPatch,
+  updateDischargeSummaryData,
 } from "../../../redux/ipd/dischargeSummarySlice.js";
 import { addDischargeDataToStore } from "../../../utils/dischargeDataMapper.js";
 import { getPatientInformation } from "../../../utils/utils.js";
@@ -50,6 +51,7 @@ import { errorMessage } from "../../../utils/utils.js";
 import useDischargeSummaryRequestData from "../../../hooks/useDischargeSummaryRequestData.js";
 import GlobalVoiceAI from "../components/GlobalVoiceAI.jsx";
 import AgentAlexVoicePanel from "../components/AgentAlexVoicePanel.jsx";
+import AgentAlexSnapRxPanel from "../components/AgentAlexSnapRxPanel.jsx";
 import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
@@ -79,7 +81,9 @@ const DischargeSummary = (props) => {
   const [autoFillTitleLocal, setAutoFillTitleLocal] = useState("");
   const [open, setOpen] = useState(true);
   const [showCustomisationDrawer, setShowCustomisationDrawer] = useState(false);
-  const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
+  const [activeAssistantPanel, setActiveAssistantPanel] = useState(null);
+  const [isMainCtaSubmitting, setIsMainCtaSubmitting] = useState(false);
+  const mainCtaLockRef = useRef(false);
   const { customization = {} } = useSelector((state) => state.ipd);
   const assessmentData = useSelector((state) => state.assessment);
   const dischargeSummaryState = useSelector((state) => state.dischargeSummary);
@@ -278,6 +282,20 @@ const DischargeSummary = (props) => {
     });
   };
 
+  const handleDigitizationSuccess = useCallback(
+    (digitizedData) => {
+      const updatedSummary = digitizedData?.dischargeSummary || digitizedData;
+      if (updatedSummary) {
+        dispatch(resetDischargeSummaryForm());
+        addDischargeDataToStore(
+          updatedSummary,
+          dispatch
+        );
+      }
+    },
+    [addDischargeDataToStore, dispatch]
+  );
+
   const handleAIRecordingComplete = useCallback(
     (payload, callback) =>
       submitVoiceAiRecording({
@@ -294,19 +312,11 @@ const DischargeSummary = (props) => {
           const updatedSummary = updatedData?.dischargeSummary || updatedData;
           return { data: updatedSummary, success: true };
         },
-        onSuccess: (updatedSummary) => {
-          if (updatedSummary) {
-            dispatch(resetDischargeSummaryForm());
-            addDischargeDataToStore(
-              { dischargeSummary: updatedSummary },
-              dispatch
-            );
-          }
-        },
+        onSuccess: handleDigitizationSuccess,
         callback,
         fallbackToTranscription: false,
       }),
-    [addDischargeDataToStore, dispatch, reqData, submitVoiceAiRecording]
+    [handleDigitizationSuccess, reqData, submitVoiceAiRecording]
   );
 
   const renderSections = (data) => {
@@ -492,6 +502,21 @@ const DischargeSummary = (props) => {
     }
   };
 
+  const handleMainCtaClick = async (...args) => {
+    if (mainCtaLockRef.current) return;
+    mainCtaLockRef.current = true;
+    setIsMainCtaSubmitting(true);
+    try {
+      const result = onSaveDischargeSummaryClick?.(...args);
+      if (result && typeof result.then === "function") {
+        await result;
+      }
+    } finally {
+      mainCtaLockRef.current = false;
+      setIsMainCtaSubmitting(false);
+    }
+  };
+
   const renderHeaderSection = () => {
     return (
       <div className="ipd-filled-by-card-container">
@@ -544,17 +569,27 @@ const DischargeSummary = (props) => {
 
   const renderBottomSection = () => (
     <>
-      {/* {isVoiceAssistantOpen && <div className="agent-alex-voice-overlay" />}
+      {activeAssistantPanel && <div className="agent-alex-voice-overlay" />}
       <div className="global-voice-ai-wrapper">
-        {isVoiceAssistantOpen ? (
+        {activeAssistantPanel === "voice" ? (
           <AgentAlexVoicePanel
             onSubmit={handleAIRecordingComplete}
-            onClose={() => setIsVoiceAssistantOpen(false)}
+            onClose={() => setActiveAssistantPanel(null)}
+          />
+        ) : activeAssistantPanel === "snaprx" ? (
+          <AgentAlexSnapRxPanel
+            onClose={() => setActiveAssistantPanel(null)}
+            previousOutput={reqData}
+            schemaKey="DISCHARGED_SUMMARY"
+            onSuccess={handleDigitizationSuccess}
           />
         ) : (
-          <GlobalVoiceAI onClick={() => setIsVoiceAssistantOpen(true)} />
+          <GlobalVoiceAI
+            onVoiceClick={() => setActiveAssistantPanel("voice")}
+            onSnapRxClick={() => setActiveAssistantPanel("snaprx")}
+          />
         )}
-      </div> */}
+      </div>
       {renderCustomModulesFooter()}
     </>
   );
@@ -592,8 +627,9 @@ const DischargeSummary = (props) => {
                 key="dischargeSummary"
                 title={"Discharge Summary"}
                 mainCta={{
-                  handler: onSaveDischargeSummaryClick,
-                  title: "Save",
+                  handler: handleMainCtaClick,
+                  title: isMainCtaSubmitting ? "Saving..." : "Save",
+                  disabled: isMainCtaSubmitting,
                 }}
                 items={modelData}
                 renderSection={renderSections}

@@ -1,7 +1,8 @@
 import axiosService from "../../../../api/services/axiosService";
+import config from "../../../../config";
 import { env } from "../../../../EnvironmentConfig";
 
-const SNAP_RX_BASE_URL = `${env.digitization_api_url}/api/v1/digitization/snap-rx`;
+const SNAP_RX_BASE_URL = `${config.ipd_api_url}/ai/smart-rx/snap-rx`;
 
 /**
  * Upload snap rx files to the server
@@ -10,9 +11,8 @@ const SNAP_RX_BASE_URL = `${env.digitization_api_url}/api/v1/digitization/snap-r
  */
 export const uploadSnapRxFiles = async (
   files,
-  patientUniqueId,
-  sessionId,
-  fileUploadToken
+  fileUploadToken,
+  schemaKey
 ) => {
   try {
     const formData = new FormData();
@@ -22,8 +22,6 @@ export const uploadSnapRxFiles = async (
       formData.append("file", file);
     });
 
-    formData.append("patient_unique_id", patientUniqueId);
-    formData.append("session_id", sessionId);
 
     const config = {
       customBaseUrl: SNAP_RX_BASE_URL,
@@ -34,7 +32,13 @@ export const uploadSnapRxFiles = async (
       snapRxFileUpload: true,
     };
 
-    const response = await axiosService.post("/upload-files", formData, config);
+    const formQuery = schemaKey ? `?form=${schemaKey}` : "";
+
+    const response = await axiosService.post(
+      `/upload-files${formQuery}`,
+      formData,
+      config
+    );
     return response;
   } catch (error) {
     console.error("Error uploading snap rx files:", error);

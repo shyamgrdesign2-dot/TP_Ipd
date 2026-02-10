@@ -4,8 +4,9 @@
  */
 
 import React from "react";
-import { Text, View } from "@react-pdf/renderer";
+import { View } from "@react-pdf/renderer";
 import { RICH_TEXT_NODE_TYPES } from "../constants";
+import { Text } from "../components/MultilingualText";
 
 /**
  * Render text with formatting

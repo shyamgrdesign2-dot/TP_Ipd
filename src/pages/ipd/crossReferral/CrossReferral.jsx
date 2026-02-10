@@ -1,4 +1,4 @@
-import React, { Suspense, useCallback, useEffect, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { IPD } from "../../../utils/locale.js";
 import "../assessmentForm/styles.scss";
 import "./styles.scss";
@@ -29,6 +29,7 @@ import { useSelector } from "react-redux";
 import useCrossReferralRequestData from "../../../hooks/useCrossReferralRequestData.js";
 import GlobalVoiceAI from "../components/GlobalVoiceAI.jsx";
 import AgentAlexVoicePanel from "../components/AgentAlexVoicePanel.jsx";
+import AgentAlexSnapRxPanel from "../components/AgentAlexSnapRxPanel.jsx";
 import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
@@ -48,10 +49,12 @@ const CrossReferral = (props) => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(true);
   const [showCustomisationDrawer, setShowCustomisationDrawer] = useState(false);
+  const [isMainCtaSubmitting, setIsMainCtaSubmitting] = useState(false);
+  const mainCtaLockRef = useRef(false);
   const [filledDate, setFilledDate] = useState(new Date());
   const [filledAtTime, setFilledAtTime] = useState(new Date());
   const [selectedTimePeriod, setSelectedTimePeriod] = useState("Morning");
-  const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
+  const [activeAssistantPanel, setActiveAssistantPanel] = useState(null);
 
   const customModuleFormType = IPD.CUSTOM_MODULE_FORM_TYPES.crossReferral;
   const { customization = {} } = useSelector((state) => state.ipd);
@@ -179,6 +182,28 @@ const CrossReferral = (props) => {
     );
   };
 
+  const handleDigitizationSuccess = useCallback(
+    (digitizedData) => {
+      const updatedReferral = digitizedData?.crossReferral || digitizedData;
+      if (!updatedReferral) return;
+      const normalizedReferral = { ...updatedReferral };
+      const referralDate =
+        updatedReferral?.referralInformation?.referralDate || null;
+      if (referralDate) {
+        const parsed = dayjs(referralDate);
+        if (parsed.isValid()) {
+          normalizedReferral.referralInformation = {
+            ...(updatedReferral.referralInformation || {}),
+            referralDate: parsed.format("D MMM YYYY"),
+          };
+        }
+      }
+
+      dispatch(setCrossReferralFormDetails(normalizedReferral));
+    },
+    [dispatch]
+  );
+
   const handleAIRecordingComplete = useCallback(
     (payload, callback) =>
       submitVoiceAiRecording({
@@ -194,27 +219,11 @@ const CrossReferral = (props) => {
           const updatedReferral = updatedData?.crossReferral || updatedData;
           return { data: updatedReferral, success: true };
         },
-        onSuccess: (updatedReferral) => {
-          if (!updatedReferral) return;
-          const normalizedReferral = { ...updatedReferral };
-          const referralDate =
-            updatedReferral?.referralInformation?.referralDate || null;
-          if (referralDate) {
-            const parsed = dayjs(referralDate);
-            if (parsed.isValid()) {
-              normalizedReferral.referralInformation = {
-                ...(updatedReferral.referralInformation || {}),
-                referralDate: parsed.format("D MMM YYYY"),
-              };
-            }
-          }
-
-          dispatch(setCrossReferralFormDetails(normalizedReferral));
-        },
+        onSuccess: handleDigitizationSuccess,
         callback,
         fallbackToTranscription: false,
       }),
-    [dispatch, reqData, submitVoiceAiRecording]
+    [handleDigitizationSuccess, reqData, submitVoiceAiRecording]
   );
 
   const onAddReferralClick = async () => {
@@ -259,6 +268,21 @@ const CrossReferral = (props) => {
       }
     } else {
       errorMessage(response?.error);
+    }
+  };
+
+  const handleMainCtaClick = async (...args) => {
+    if (mainCtaLockRef.current) return;
+    mainCtaLockRef.current = true;
+    setIsMainCtaSubmitting(true);
+    try {
+      const result = onAddReferralClick?.(...args);
+      if (result && typeof result.then === "function") {
+        await result;
+      }
+    } finally {
+      mainCtaLockRef.current = false;
+      setIsMainCtaSubmitting(false);
     }
   };
 
@@ -338,15 +362,25 @@ const CrossReferral = (props) => {
 
   const renderBottomSection = () => (
     <>
-      {isVoiceAssistantOpen && <div className="agent-alex-voice-overlay" />}
+      {activeAssistantPanel && <div className="agent-alex-voice-overlay" />}
       <div className="global-voice-ai-wrapper">
-        {isVoiceAssistantOpen ? (
+        {activeAssistantPanel === "voice" ? (
           <AgentAlexVoicePanel
             onSubmit={handleAIRecordingComplete}
-            onClose={() => setIsVoiceAssistantOpen(false)}
+            onClose={() => setActiveAssistantPanel(null)}
+          />
+        ) : activeAssistantPanel === "snaprx" ? (
+          <AgentAlexSnapRxPanel
+            onClose={() => setActiveAssistantPanel(null)}
+            previousOutput={reqData}
+            schemaKey="CROSS_REFERRAL"
+            onSuccess={handleDigitizationSuccess}
           />
         ) : (
-          <GlobalVoiceAI onClick={() => setIsVoiceAssistantOpen(true)} />
+          <GlobalVoiceAI
+            onVoiceClick={() => setActiveAssistantPanel("voice")}
+            onSnapRxClick={() => setActiveAssistantPanel("snaprx")}
+          />
         )}
       </div>
     </>
@@ -388,8 +422,9 @@ const CrossReferral = (props) => {
                 key="crossReferral"
                 title={"Cross Referral"}
                 mainCta={{
-                  handler: onAddReferralClick,
-                  title: "Add Referral",
+                  handler: handleMainCtaClick,
+                  title: isMainCtaSubmitting ? "Saving..." : "Add Referral",
+                  disabled: isMainCtaSubmitting,
                 }}
                 items={modelData}
                 renderSection={renderSections}

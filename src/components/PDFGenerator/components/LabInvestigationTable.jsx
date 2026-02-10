@@ -1,6 +1,7 @@
 import React from "react";
-import { View, Text } from "@react-pdf/renderer";
+import { View } from "@react-pdf/renderer";
 import { StyleSheet } from "@react-pdf/renderer";
+import { Text } from "./MultilingualText";
 
 const styles = StyleSheet.create({
   labInvestigationTableContainer: {

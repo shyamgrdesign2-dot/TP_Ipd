@@ -32,22 +32,19 @@
     z-index: -1;
   }
 
-  .upload-modal-content {
-    background: #ffffff;
-    border: 2px solid #a855f7;
-    border-radius: 20px;
-    // padding: 0rem 4.9375rem 2.375rem 4.9375rem;
+  .ipd-upload-modal-content {
+    background: transparent;
+    border: none;
     max-width: 600px;
     width: 43.75rem;
-// height: 54rem;
-    box-shadow: 0 4px 20px rgba(168, 85, 247, 0.1);
+    // box-shadow: 0 4px 20px rgba(168, 85, 247, 0.1);
     position: relative;
 
     .upload-header {
       text-align: center;
       margin-bottom: 20px;
-      padding: 1rem 0.75rem;
-      border-bottom: 1px solid #E2E2EA;
+      // padding: 1rem 0.75rem;
+      // border-bottom: 1px solid #E2E2EA;
       position: relative;
 
       .back-button {
@@ -155,7 +152,7 @@
 
     .or-separator {
       text-align: center;
-      margin: 20px 0;
+      margin: 12px 0;
       position: relative;
       
       span {
@@ -253,7 +250,7 @@
   .upload-written-rx-container {
     padding: 16px;
 
-    .upload-modal-content {
+    .ipd-upload-modal-content {
       padding: 24px;
       border-radius: 16px;
 

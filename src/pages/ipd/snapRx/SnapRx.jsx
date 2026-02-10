@@ -1,58 +1,92 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import CashManagerContext from "../../../context/CashManagerContext";
 import { useLocation, useNavigate } from "react-router-dom";
+import visitEnd from "../../../assets/images/end-visit.svg";
+import imgCloseVisit from "../../../assets/images/close-visit.svg";
 import Header from "./components/Header";
 import FullPageLoader from "../../vaccination/components/Loader";
 import ErrorBoundary from "./components/ErrorBoundary";
 import UploadedFilesPreview from "./components/UploadedFilesPreview";
 import { Drawer } from "antd";
 import KnowMore from "../../../components/KnowMore";
-import { SNAP_RX_KNOW_MORE_DATA } from "../../../utils/constants";
+import { MESSAGE_KEY, SNAP_RX_KNOW_MORE_DATA } from "../../../utils/constants";
 import FileUploadErrorModal from "../../../components/common/FileUploadErrorModal";
 import {
   IPDSnapRxSessionProvider,
-  useIPDSnapRxSession,
 } from "./context/SnapRxSessionContext";
 import UploadMoreDrawer from "./components/UploadMoreDrawer";
 import UploadWrittenRx from "./components/UploadWrittenRx";
-import { message } from "antd";
-import {
-  createSnapRx,
-  editSnapRx,
-  uploadSnapRxFiles,
-} from "./services/snapRxService";
+import { message, Button } from "antd";
+import { createSnapRx, editSnapRx } from "./services/snapRxService";
 import "./SnapRx.scss";
 import { useSelector } from "react-redux";
 import {
   generateFileUploadToken,
   getFiles,
   setFileUploadToken,
+  setFileUploadSessionId,
   setUploadedFilesFromStore,
+  digitizeAssessments,
+  resetFileUploadToken,
 } from "../../../redux/ipd/ipdSnapRxDigitizationSlice";
 import { useDispatch } from "react-redux";
 import PreviewDrawer from "./components/PreviewDrawer";
 import { clearExpiredTokensFromStorage } from "../../../utils/utils";
+import { SNAP_RX_TOKENS_STORAGE_KEY } from "../../../utils/constants";
+import { useAssessmentDataStore } from "../../../hooks/useAssessmentDataStore";
+import GenRXLoaders from "../../../components/GenRxLoaders";
 const UPLOADED_FILES_DOMAIN = "iscribe.blob.core.windows.net";
 
-function SnapRxContent() {
+const getTokenKey = (patientId, admissionId, schemaKey) =>
+  `fileUploadToken_${patientId}_${admissionId}_${schemaKey || "ASSESSMENTS"}`;
+
+const getLegacyTokenKey = (patientId, admissionId) =>
+  `fileUploadToken_${patientId}_${admissionId}`;
+
+function SnapRxContent({
+  previousOutput,
+  handleClose,
+  schemaKey = "ASSESSMENTS",
+  onSuccess,
+  onDigitizingChange,
+}) {
+  const { addDataToStore } = useAssessmentDataStore();
   const { state } = useLocation();
+  const { patientDetails } = state || {};
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { uploadedFiles: uploadedFilesFromStore, fileUploadToken } =
-    useSelector((state) => state.ipdSnapRx);
+  const {
+    uploadedFiles: uploadedFilesFromStoreRaw,
+    uploadedFilesScope,
+    fileUploadToken,
+    fileUploadSessionId: sessionId,
+  } = useSelector((state) => state.ipdSnapRx);
+  
+  const patientId = patientDetails?.details?.id;
+  const admissionId = patientDetails?.admissionId;
+  
+  const uploadedFilesFromStore =
+    uploadedFilesScope?.patientId === patientId &&
+    uploadedFilesScope?.admissionId === admissionId &&
+    uploadedFilesScope?.schemaKey === schemaKey
+      ? (uploadedFilesFromStoreRaw || [])
+      : [];
   const { userId } = useSelector((state) => state.doctors);
-  const { sessionId, refreshSessionId } = useIPDSnapRxSession();
   const uploadWrittenRxRef = useRef(null);
   const timerForLoadingRef = useRef(null);
+  const isGeneratingTokenRef = useRef(false);
+  const schemaKeyRef = useRef(schemaKey);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   const [showKnowMore, setShowKnowMore] = useState(false);
   const [isUploadMoreDrawerOpen, setIsUploadMoreDrawerOpen] = useState(false);
   const [isAddMoreClicked, setIsAddMoreClicked] = useState(false);
+  const [isDigitizing, setIsDigitizing] = useState(false);
   const previewDrawerRef = useRef(null);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isWaitingForFiles, setIsWaitingForFiles] = useState(false);
+  const [tokenScopeKey, setTokenScopeKey] = useState(null);
   const { patient_data, send_path, caseManagerData, pam_id } = state || {};
   const tcmId = caseManagerData?.tcm_id || 0;
   const pamId = pam_id
@@ -72,19 +106,128 @@ function SnapRxContent() {
     clearExpiredTokensFromStorage();
   }, []);
 
+  useEffect(() => {
+    schemaKeyRef.current = schemaKey;
+  }, [schemaKey]);
+
+  useEffect(() => {
+    const patientId = patientDetails?.details?.id;
+    const admissionId = patientDetails?.admissionId;
+    if (!patientId || !admissionId) return;
+
+    setTokenScopeKey(null);
+
+    const tokenKey = getTokenKey(patientId, admissionId, schemaKey);
+    const legacyTokenKey = getLegacyTokenKey(patientId, admissionId);
+    const allowLegacyToken = (schemaKey || "ASSESSMENTS") === "ASSESSMENTS";
+    const tokenDataString = localStorage.getItem(SNAP_RX_TOKENS_STORAGE_KEY);
+    if (tokenDataString) {
+      try {
+        const parsed = JSON.parse(tokenDataString);
+        const storedToken =
+          parsed[tokenKey] || (allowLegacyToken ? parsed[legacyTokenKey] : null);
+        const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+        const isExpired =
+          !storedToken?.timestamp ||
+          Date.now() - storedToken.timestamp > ONE_DAY_MS ||
+          Date.now() > storedToken.expiresIn;
+        if (storedToken && !isExpired) {
+          dispatch(setFileUploadToken(storedToken.value));
+          if (storedToken.sessionId) {
+            dispatch(setFileUploadSessionId(storedToken.sessionId));
+          }
+          setTokenScopeKey(schemaKey);
+          // migrate legacy key forward
+          if (parsed[legacyTokenKey] && !parsed[tokenKey]) {
+            delete parsed[legacyTokenKey];
+            parsed[tokenKey] = storedToken;
+            localStorage.setItem(
+              SNAP_RX_TOKENS_STORAGE_KEY,
+              JSON.stringify(parsed)
+            );
+          }
+          return;
+        }
+        if (isExpired) {
+          if (parsed[tokenKey]) delete parsed[tokenKey];
+          if (allowLegacyToken && parsed[legacyTokenKey]) {
+            delete parsed[legacyTokenKey];
+          }
+          localStorage.setItem(
+            SNAP_RX_TOKENS_STORAGE_KEY,
+            JSON.stringify(parsed)
+          );
+        }
+      } catch (error) {
+        console.error("Error parsing stored token:", error);
+      }
+    }
+
+    if (isGeneratingTokenRef.current) return;
+
+    dispatch(setFileUploadToken(null));
+    dispatch(setFileUploadSessionId(null));
+    isGeneratingTokenRef.current = true;
+    const requestedSchemaKey = schemaKey;
+    dispatch(
+      generateFileUploadToken({
+        patientId,
+        admissionId,
+        schemaKey: requestedSchemaKey,
+      })
+    )
+      .then((action) => {
+        if (
+          action?.meta?.requestStatus === "fulfilled" &&
+          schemaKeyRef.current === requestedSchemaKey
+        ) {
+          setTokenScopeKey(requestedSchemaKey);
+        }
+      })
+      .finally(() => {
+        isGeneratingTokenRef.current = false;
+      });
+  }, [patientDetails, schemaKey]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(setFileUploadToken(null));
+    };
+  }, []);
+
+  useEffect(() => {
+    if (onDigitizingChange) {
+      onDigitizingChange(isDigitizing);
+    }
+  }, [isDigitizing, onDigitizingChange]);
+
+  useEffect(() => {
+    return () => {
+      if (onDigitizingChange) {
+        onDigitizingChange(false);
+      }
+    };
+  }, [onDigitizingChange]);
+
+  useEffect(() => {
+    if (!isDigitizing) return;
+    const handlePopState = () => {
+      window.history.pushState(null, "", window.location.href);
+    };
+    window.history.pushState(null, "", window.location.href);
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [isDigitizing]);
+
   const fetchUploadedFiles = async (
-    fetchByTcmId = false,
     createEditSnapRx = false,
     showErrorOnRefreshClick = false
   ) => {
-    if (
-      !patient_data?.patient_unique_id ||
-      (!tcmId && !sessionStorage.getItem("ipd_snaprx_session_id")) ||
-      (fetchByTcmId && !tcmId)
-    ) {
-      if (showErrorOnRefreshClick) {
-        message.error("Please try again after uploading the files.");
-      }
+    const patientId = patientDetails?.details?.id;
+    const admissionId = patientDetails?.admissionId;
+    const tokenForFiles = fileUploadToken;
+    if (!patientId || !admissionId) {
+      message.error("Patient information is missing. Please try again.");
       return;
     }
     if (showErrorOnRefreshClick) {
@@ -92,35 +235,20 @@ function SnapRxContent() {
     }
     try {
       const reqData = {
-        patient_unique_id: patient_data?.patient_unique_id,
+        patientId,
+        admissionId,
+        sessionId,
+        fileUploadToken: tokenForFiles,
+        type: schemaKey,
       };
-      let sessionIdToGenerateToken =
-        sessionId || sessionStorage.getItem("ipd_snaprx_session_id");
-      if (fetchByTcmId && !localStorage.getItem("usedTcmId")) {
-        reqData.tcm_id = tcmId;
-        sessionIdToGenerateToken = refreshSessionId();
-        localStorage.setItem("usedTcmId", true);
-      } else {
-        reqData.session_id =
-          sessionId || sessionStorage.getItem("ipd_snaprx_session_id");
-      }
       dispatch(
         getFiles({
           ...reqData,
         })
-      ).then(() => {
+      ).then((action) => {
         if (createEditSnapRx) {
           setIsWaitingForFiles(true);
           handleCreateSnapRx();
-        }
-        if (fetchByTcmId && localStorage.getItem("usedTcmId")) {
-          dispatch(
-            generateFileUploadToken({
-              doctor_id: userId,
-              patient_unique_id: patient_data?.patient_unique_id,
-              session_id: sessionIdToGenerateToken,
-            })
-          );
         }
       });
     } catch (error) {
@@ -133,12 +261,13 @@ function SnapRxContent() {
   };
 
   useEffect(() => {
-    fetchUploadedFiles(!!tcmId);
-  }, [patient_data, tcmId]);
+    if (fileUploadToken && tokenScopeKey === schemaKey) {
+      fetchUploadedFiles();
+    }
+  }, [fileUploadToken, tokenScopeKey, patientDetails, schemaKey, sessionId]);
 
   useEffect(() => {
     return () => {
-      localStorage.removeItem("usedTcmId");
       clearTimeout(timerForLoadingRef.current);
     };
   }, []);
@@ -155,6 +284,13 @@ function SnapRxContent() {
   };
 
   const fetchImages = async (toDeleteFile = null) => {
+    const patientId = patientDetails?.details?.id;
+    const admissionId = patientDetails?.admissionId;
+    if (!patientId || !admissionId) {
+      setIsLoading(false);
+      message.error("Patient information is missing. Please try again.");
+      return;
+    }
     if (uploadedFilesFromStore?.length === 0) {
       setUploadedFiles([]);
       setIsLoading(false);
@@ -163,19 +299,47 @@ function SnapRxContent() {
     if (
       !uploadedFilesFromStore?.[0]?.fileUrl?.includes(UPLOADED_FILES_DOMAIN)
     ) {
-      setUploadedFiles(uploadedFilesFromStore);
+      const dedupedFiles = Array.from(
+        new Map(
+          uploadedFilesFromStore.map((file) => [
+            file.filename || file.name,
+            file,
+          ])
+        ).values()
+      );
+      setUploadedFiles(dedupedFiles);
+      dispatch(setUploadedFilesFromStore(dedupedFiles));
       setIsLoading(false);
       return;
     }
 
     try {
+      const dedupedFiles = Array.from(
+        new Map(
+          uploadedFilesFromStore.map((file) => [
+            file.filename || file.name,
+            file,
+          ])
+        ).values()
+      );
+      // Apply deletion before normalizing to avoid re-uploading/duplicating files
+      const filteredStoreFiles = toDeleteFile
+        ? dedupedFiles.filter(
+            (file) =>
+              file?.filename !== toDeleteFile &&
+              file?.name !== toDeleteFile &&
+              file !== toDeleteFile
+          )
+        : dedupedFiles;
+
       const normalizedFiles = await Promise.all(
-        uploadedFilesFromStore.map(async (file, index) => {
+        filteredStoreFiles.map(async (file, index) => {
           const fileBlob = await fetchImageAsFile(file.fileUrl);
           const objectUrl = URL.createObjectURL(fileBlob);
           return {
             id: Date.now() + index,
-            name: file.filename,
+            name: file.filename || file.name,
+            filename: file.filename || file.name,
             file: fileBlob,
             fileUrl: objectUrl,
             url: objectUrl,
@@ -193,30 +357,10 @@ function SnapRxContent() {
         })
       );
       setUploadedFiles(normalizedFiles);
+      dispatch(setUploadedFilesFromStore(filteredStoreFiles));
       if (toDeleteFile) {
         try {
-          const newUploadedFiles = normalizedFiles?.filter(
-            (file) => file.name !== toDeleteFile
-          );
-          const convertedFiles = normalizedFiles
-            .map((file) => {
-              return new File([file.file], file.name, {
-                type: file.file.type || "image/jpeg",
-              });
-            })
-            .filter((file) => file.name !== toDeleteFile);
-          if (convertedFiles?.length) {
-            setUploadedFiles(newUploadedFiles);
-            const response = await uploadSnapRxFiles(
-              convertedFiles,
-              patient_data?.patient_unique_id,
-              sessionId,
-              fileUploadToken
-            );
-            if (response?.uploaded_files?.length > 0) {
-              fetchUploadedFiles();
-            }
-          } else {
+          if (!filteredStoreFiles.length) {
             message.warning(
               "You cannot delete the only file. Please reupload the file."
             );
@@ -237,10 +381,8 @@ function SnapRxContent() {
   useEffect(() => {
     if (
       !isLoading &&
-      tcmId &&
       !uploadedFilesFromStore?.length &&
-      !uploadedFiles?.length &&
-      localStorage.getItem("usedTcmId")
+      !uploadedFiles?.length
     ) {
       navigate(-1, { replace: true });
     }
@@ -311,12 +453,7 @@ function SnapRxContent() {
 
   const handleCreateSnapRx = useCallback(async () => {
     if (!uploadedFilesFromStore?.length) {
-      fetchUploadedFiles(false, true);
-      return;
-    }
-    if (tcmId) {
-      localStorage.removeItem("usedTcmId");
-      handleEditSnapRx();
+      fetchUploadedFiles(true);
       return;
     }
     if (!uploadedFilesFromStore?.length) {
@@ -342,7 +479,6 @@ function SnapRxContent() {
       );
       if (response && response.status) {
         dispatch(setFileUploadToken(null));
-        refreshSessionId();
         navigate("/ipd/snap-rx/preview", {
           replace: true,
           state: { ...state, ...response?.data, files: uploadedFilesFromStore },
@@ -401,8 +537,20 @@ function SnapRxContent() {
     uploadWrittenRxRef?.current?.handleZoomOut(fileId);
   };
 
-  const handleRemoveFile = (fileId) => {
-    uploadWrittenRxRef?.current?.handleRemoveFile(fileId);
+  const handleRemoveFile = (file) => {
+    const fileId = file?.id;
+    const filename = file?.filename || file?.name || file;
+
+    // If files are already on the server, delete via refresh flow
+    if (uploadedFilesFromStore?.length) {
+      handlePreviewDelete(filename);
+      return;
+    }
+
+    // Fallback: just remove from local uploads
+    if (fileId || filename) {
+      uploadWrittenRxRef?.current?.handleRemoveFile(fileId || filename, true, !fileId);
+    }
   };
 
   const handleRotateClick = (fileId) => {
@@ -413,16 +561,17 @@ function SnapRxContent() {
     clearTimeout(timerForLoadingRef.current);
     setIsLoading(true);
     dispatch(setUploadedFilesFromStore([]));
-    fetchUploadedFiles(!!tcmId);
+    fetchUploadedFiles();
   };
 
   const handlePreviewClose = () => {
     setIsPreviewOpen(false);
     setIsAddMoreClicked(false);
+    setIsUploadMoreDrawerOpen(false);
   };
 
   const handleRefreshForMobileUploadedFiles = () => {
-    fetchUploadedFiles(false, false, true);
+    fetchUploadedFiles(false, true);
   };
 
   const handleFileEdit = (file) => {
@@ -430,9 +579,88 @@ function SnapRxContent() {
     previewDrawerRef?.current?.handleFileEdit(file);
   };
 
-  const handlePreviewDelete = (filename) => {
+  const handlePreviewDelete = (file) => {
+    const filename =
+      (file && (file.filename || file.name)) || file || "";
+    if (!filename) {
+      message.error("Unable to delete the selected file. Please try again.");
+      return;
+    }
     setIsLoading(true);
     fetchImages(filename);
+  };
+  const removeFileUploadTokenFromLS = () => {
+    const patientId = patientDetails?.details?.id;
+    const admissionId = patientDetails?.admissionId;
+    if (patientId && admissionId) {
+      const tokenKey = getTokenKey(patientId, admissionId, schemaKey);
+      const legacyTokenKey = getLegacyTokenKey(patientId, admissionId);
+      const tokenDataString = localStorage.getItem(SNAP_RX_TOKENS_STORAGE_KEY);
+      if (tokenDataString) {
+        try {
+          const tokenData = JSON.parse(tokenDataString);
+          if (tokenData[tokenKey]) delete tokenData[tokenKey];
+          if (tokenData[legacyTokenKey]) delete tokenData[legacyTokenKey];
+          localStorage.setItem(
+            SNAP_RX_TOKENS_STORAGE_KEY,
+            JSON.stringify(tokenData)
+          );
+        } catch (e) {
+          // fallback to removing the whole key
+          localStorage.removeItem(SNAP_RX_TOKENS_STORAGE_KEY);
+        }
+      }
+    }
+  };
+
+  const handleExtract = async () => {
+    try {
+      setIsDigitizing(true);
+      const res = await dispatch(
+        digitizeAssessments({
+          previousOutput,
+          schemaKey,
+        })
+      ).unwrap();
+      const digitizedData =
+        res?.data?.rxDigitizationHistory?.[0]?.response || {};
+
+      if (onSuccess) {
+        onSuccess(digitizedData);
+      } else {
+        addDataToStore(digitizedData || {}, true);
+      }
+      dispatch(resetFileUploadToken());
+      removeFileUploadTokenFromLS();
+      handleClose();
+      message.open({
+        key: MESSAGE_KEY,
+        type: "",
+        className: "message-appointment",
+        content: (
+          <div className="d-flex align-items-center">
+            <img src={visitEnd} className="me-3" alt="Visit End" />
+            <div>
+              <div className="title-common text-start fontroboto">
+                Your Input Autofilled Successfully
+              </div>
+            </div>
+            <img
+              src={imgCloseVisit}
+              className="ms-3"
+              onClick={() => message.destroy()}
+              alt="Close Visit"
+            />
+          </div>
+        ),
+        duration: 3,
+      });
+    } catch (error) {
+      console.error("Error digitizing assessment:", error);
+      message.error("Failed to extract details. Please try again.");
+    } finally {
+      setIsDigitizing(false);
+    }
   };
 
   if (isLoading) {
@@ -441,27 +669,80 @@ function SnapRxContent() {
 
   return (
     <CashManagerContext.Provider value={contextApi}>
-      <div className="snap-rx-container">
-        <Header
+      <PreviewDrawer
+        isOpen={isPreviewOpen}
+        onClose={handlePreviewClose}
+        tcmId={tcmId}
+        ref={previewDrawerRef}
+        sessionId={sessionId}
+        uploadedFilesFromStore={uploadedFilesFromStore}
+        onCloseDrawer={handleUploadMoreDrawerClose}
+        uploadedFiles={uploadedFiles}
+        onReupload={handleReupload}
+        onZoomIn={handleZoomIn}
+        onZoomOut={handleZoomOut}
+        handleUpdatedFiles={setUploadedFiles}
+        onRemove={handleRemoveFile}
+        onRotate={handleRotateClick}
+        handleGoBackToMainFiles={handleGoBackToMainFiles}
+        onAddMore={handleAddMore}
+        isUploadMoreDrawer={false}
+        schemaKey={schemaKey}
+        style={{
+          display: isPreviewOpen ? "block" : "none",
+        }}
+      />
+
+      <div
+        className={`snap-rx-container ${
+          uploadedFilesFromStore?.length ? "with-overflow-hidden" : ""
+        }`}
+        style={{
+          display: isPreviewOpen ? "none" : "block",
+        }}
+      >
+        {isDigitizing ? (
+          <div className="snaprx-digitizing-overlay" role="status" aria-live="polite">
+            <div className="snaprx-digitizing-center">
+              <GenRXLoaders
+                isProcessing={true}
+                isSnapRx={true}
+                showStepText={false}
+                showProgress={false}
+                containerStyle={{ height: "220px", width: "240px", padding: "16px" }}
+              />
+              <div className="snaprx-digitizing-text">
+                Extracting your input data...
+              </div>
+            </div>
+          </div>
+        ) : null}
+        {/* <Header
           loader={isUploading}
           onClear={handleClearFiles}
           onSubmit={handleCreateSnapRx}
           onUploadMore={handleUploadMore}
           showUploadMoreButton={uploadedFilesFromStore?.length}
           handleTutorial={handleKnowMore}
-        />
-        <div className="snap-rx-content">
-          <ErrorBoundary>
-            {uploadedFilesFromStore?.length ? (
-              <UploadedFilesPreview
-                uploadedFiles={uploadedFilesFromStore}
-                onEdit={handleFileEdit}
-                loading={false}
-                onDelete={handlePreviewDelete}
-              />
+        /> */}
+        <ErrorBoundary>
+          <div
+            className={`snap-rx-content ${
+              uploadedFilesFromStore?.length ? "with-overflow-auto" : ""
+            }`}
+          >
+            {uploadedFilesFromStore?.length && !isUploadMoreDrawerOpen ? (
+              <>
+                <UploadedFilesPreview
+                  uploadedFiles={uploadedFilesFromStore}
+                  onEdit={handleFileEdit}
+                  loading={false}
+                  onDelete={handlePreviewDelete}
+                />
+              </>
             ) : null}
             <UploadWrittenRx
-              isOpen={!uploadedFilesFromStore?.length}
+              isOpen={!uploadedFilesFromStore?.length || isUploadMoreDrawerOpen}
               ref={uploadWrittenRxRef}
               showBackButton={false}
               onBack={() => {}}
@@ -470,32 +751,35 @@ function SnapRxContent() {
               handleUpdatedFiles={setUploadedFiles}
               uploadedFiles={uploadedFiles}
               setIsAddMoreClicked={setIsAddMoreClicked}
+              schemaKey={schemaKey}
             />
             {/* Preview Drawer */}
-            <PreviewDrawer
-              isOpen={isPreviewOpen}
-              onClose={handlePreviewClose}
-              tcmId={tcmId}
-              ref={previewDrawerRef}
-              sessionId={sessionId}
-              uploadedFilesFromStore={uploadedFilesFromStore}
-              onCloseDrawer={handleUploadMoreDrawerClose}
-              uploadedFiles={uploadedFiles}
-              onReupload={handleReupload}
-              onZoomIn={handleZoomIn}
-              onZoomOut={handleZoomOut}
-              handleUpdatedFiles={setUploadedFiles}
-              onRemove={handleRemoveFile}
-              onRotate={handleRotateClick}
-              handleGoBackToMainFiles={handleGoBackToMainFiles}
-              onAddMore={handleAddMore}
-              isUploadMoreDrawer={false}
-            />
-          </ErrorBoundary>
-        </div>
+          </div>
+          {uploadedFilesFromStore?.length && !isUploadMoreDrawerOpen ? (
+            <>
+              <div className="snap-rx-floating-actions">
+                <Button
+                  className="upload-more-btn"
+                  onClick={handleUploadMore}
+                  disabled={isDigitizing}
+                >
+                  Upload More
+                </Button>
+                <Button
+                  type="primary"
+                  className="extract-btn"
+                  onClick={handleExtract}
+                  disabled={isDigitizing}
+                >
+                  Extract & Autofill Details
+                </Button>
+              </div>
+            </>
+          ) : null}
+        </ErrorBoundary>
       </div>
 
-      <UploadMoreDrawer
+      {/* <UploadMoreDrawer
         isOpen={isUploadMoreDrawerOpen}
         uploadedFiles={uploadedFiles}
         setUploadedFiles={setUploadedFiles}
@@ -506,7 +790,7 @@ function SnapRxContent() {
         tcmId={tcmId}
         sessionId={sessionId}
         onFileUpload={() => {}}
-      />
+      /> */}
 
       <FileUploadErrorModal
         isFileSizeError={false}
@@ -538,10 +822,22 @@ function SnapRxContent() {
 }
 
 // Main component with session provider
-export default function IPDSnapRx() {
+export default function IPDSnapRx({
+  previousOutput,
+  handleClose,
+  schemaKey,
+  onSuccess,
+  onDigitizingChange,
+}) {
   return (
     <IPDSnapRxSessionProvider>
-      <SnapRxContent />
+      <SnapRxContent
+        previousOutput={previousOutput}
+        handleClose={handleClose}
+        schemaKey={schemaKey}
+        onSuccess={onSuccess}
+        onDigitizingChange={onDigitizingChange}
+      />
     </IPDSnapRxSessionProvider>
   );
 }

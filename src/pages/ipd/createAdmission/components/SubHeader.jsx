@@ -1,4 +1,5 @@
 import { Button } from "antd";
+import { useRef, useState } from "react";
 import "../../inPatients/components/SubHeader.scss";
 import { defaultIcons } from "../../../../assets/images/icons";
 import { useNavigate } from "react-router-dom";
@@ -11,12 +12,35 @@ const SubHeader = ({
   backButtonPath = "/ipd/inPatients",
   onConfirmAdmissionClick,
   isConfirmDisabled = false,
+  isConfirmLoading = false,
   helperMessage = "",
   onDisabledClick,
   isEditMode = false,
 }) => {
+  const [isClickLocked, setIsClickLocked] = useState(false);
+  const clickLockRef = useRef(false);
 
   const navigate = useNavigate();
+
+  const handleConfirmClick = async (e) => {
+    if (isConfirmDisabled || isConfirmLoading || clickLockRef.current) {
+      if (isConfirmDisabled) {
+        onDisabledClick?.();
+      }
+      return;
+    }
+    clickLockRef.current = true;
+    setIsClickLocked(true);
+    try {
+      const result = onConfirmAdmissionClick?.(e);
+      if (result && typeof result.then === "function") {
+        await result;
+      }
+    } finally {
+      clickLockRef.current = false;
+      setIsClickLocked(false);
+    }
+  };
 
   return (
     <div className="sub-header">
@@ -37,17 +61,14 @@ const SubHeader = ({
           <Button
             type="primary"
             //   icon={<img src={defaultIcons.plusIcon} alt="+" />}
-            onClick={(e) => {
-              if (isConfirmDisabled) {
-                onDisabledClick?.();
-                return;
-              }
-              onConfirmAdmissionClick?.(e);
-            }}
+            onClick={handleConfirmClick}
             className={`add-admission-button ${
-              isConfirmDisabled ? "is-disabled glass-button" : ""
+              isConfirmDisabled || isConfirmLoading || isClickLocked
+                ? "is-disabled glass-button"
+                : ""
             }`}
-            // disabled={isConfirmDisabled}
+            disabled={isConfirmDisabled || isConfirmLoading || isClickLocked}
+            loading={isConfirmLoading}
           >
             {isEditMode ? "Edit Admission" : "Confirm Admission"}
           </Button>

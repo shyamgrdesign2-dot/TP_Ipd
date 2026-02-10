@@ -14,7 +14,14 @@ const CREEP_RATE = 1;
 const CREEP_MS = 1000; 
 const CREEP_CAP = 95;  
 
-const GenRXLoaders = ({ isProcessing, showAbsHeaderInsideLoader = false, isSnapRx = false }) => {
+const GenRXLoaders = ({
+  isProcessing,
+  showAbsHeaderInsideLoader = false,
+  isSnapRx = false,
+  showStepText = true,
+  showProgress = true,
+  containerStyle,
+}) => {
   const STEP_PROGRESS = !isSnapRx ? [0, 30, 45, 60] : [15, 15, 30, 60];
   const [currentStep, setCurrentStep] = useState(0);
   const [progress, setProgress] = useState(0);
@@ -93,7 +100,7 @@ const GenRXLoaders = ({ isProcessing, showAbsHeaderInsideLoader = false, isSnapR
   if (showSkeleton) return <SkeletonScreen />;
 
   return (
-    <div className={styles.backgroundContainer}>
+    <div className={styles.backgroundContainer} style={containerStyle}>
       {showAbsHeaderInsideLoader ? (
         <div className="title-digitise-card-inside-loader">
           <img src={digitiseRxIcon} alt="rx-icon2" className="me-2" />
@@ -109,9 +116,11 @@ const GenRXLoaders = ({ isProcessing, showAbsHeaderInsideLoader = false, isSnapR
               autoplay
               style={{ width: 168, height: 140 }}
             />
-            <div className={styles.genRxLoadingText}>
-              Your input is being processed in the backend...
-            </div>
+            {showStepText && (
+              <div className={styles.genRxLoadingText}>
+                Your input is being processed in the backend...
+              </div>
+            )}
           </div>
         )}
         {currentStep === 1 && (
@@ -122,9 +131,11 @@ const GenRXLoaders = ({ isProcessing, showAbsHeaderInsideLoader = false, isSnapR
               autoplay
               style={{ width: 168, height: 140 }}
             />
-            <div className={styles.genRxLoadingText}>
-              Converting your input data...
-            </div>
+            {showStepText && (
+              <div className={styles.genRxLoadingText}>
+                Converting your input data...
+              </div>
+            )}
           </div>
         )}
         {currentStep === 2 && (
@@ -135,9 +146,11 @@ const GenRXLoaders = ({ isProcessing, showAbsHeaderInsideLoader = false, isSnapR
               autoplay
               style={{ width: 168, height: 140 }}
             />
-            <div className={styles.genRxLoadingText}>
-              Structuring your input data...
-            </div>
+            {showStepText && (
+              <div className={styles.genRxLoadingText}>
+                Structuring your input data...
+              </div>
+            )}
           </div>
         )}
         {currentStep === 3 && (
@@ -148,17 +161,20 @@ const GenRXLoaders = ({ isProcessing, showAbsHeaderInsideLoader = false, isSnapR
               autoplay
               style={{ width: 168, height: 140 }}
             />
-            <div className={styles.genRxLoadingText}>
-              Finalizing your structured prescription...
-            </div>
+            {showStepText && (
+              <div className={styles.genRxLoadingText}>
+                Finalizing your structured prescription...
+              </div>
+            )}
           </div>
         )}
 
-        <GradientProgressBar height="11px" value={progress} />
+        {showProgress ? (
+          <GradientProgressBar height="11px" value={progress} />
+        ) : null}
       </div>
     </div>
   );
 };
 
 export default GenRXLoaders;
-

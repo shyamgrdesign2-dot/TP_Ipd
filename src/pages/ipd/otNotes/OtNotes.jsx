@@ -1,4 +1,4 @@
-import React, { Suspense, useCallback, useEffect, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { IPD } from "../../../utils/locale.js";
 import "../assessmentForm/styles.scss";
 import "./styles.scss";
@@ -40,6 +40,7 @@ import { errorMessage } from "../../../utils/utils.js";
 import useOtNotesRequestData from "../../../hooks/useOtNotesRequestData.js";
 import GlobalVoiceAI from "../components/GlobalVoiceAI.jsx";
 import AgentAlexVoicePanel from "../components/AgentAlexVoicePanel.jsx";
+import AgentAlexSnapRxPanel from "../components/AgentAlexSnapRxPanel.jsx";
 import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 import { fetchFilters } from "../../../redux/ipd/inPatientsSlice.js";
 
@@ -69,7 +70,9 @@ const OtNotes = (props) => {
   const [autoFillTitleLocal, setAutoFillTitleLocal] = useState("");
   const [open, setOpen] = useState(true);
   const [showCustomisationDrawer, setShowCustomisationDrawer] = useState(false);
-  const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
+  const [activeAssistantPanel, setActiveAssistantPanel] = useState(null);
+  const [isMainCtaSubmitting, setIsMainCtaSubmitting] = useState(false);
+  const mainCtaLockRef = useRef(false);
   const requiredSurgeryDetailsFields = [
     { key: "procedureName", label: "Surgery/Procedure Name" },
     { key: "surgeryDate", label: "Surgery Date" },
@@ -293,6 +296,91 @@ const OtNotes = (props) => {
     dispatch(updateCustomization({ doctorId: patientDetails?.doctor?.id, customization: newData }));
   };
 
+  const handleDigitizationSuccess = useCallback(
+    (digitizedData) => {
+      const updatedNotes = digitizedData?.otNotes || digitizedData;
+      if (!updatedNotes) return;
+      if (updatedNotes?.surgeryDetails) {
+        const sd = updatedNotes.surgeryDetails;
+        if (sd.procedureName !== undefined)
+          dispatch(setSurgeryProcedureName(sd.procedureName));
+        if (sd.anaesthesiaType !== undefined)
+          dispatch(setAnaesthesiaType(sd.anaesthesiaType));
+        if (sd.surgeryDate !== undefined)
+          dispatch(setSurgeryDate(sd.surgeryDate));
+        if (sd.surgeryStartTime !== undefined)
+          dispatch(setSurgeryStartTime(sd.surgeryStartTime));
+        if (sd.surgeryEndTime !== undefined)
+          dispatch(setSurgeryEndTime(sd.surgeryEndTime));
+        if (sd.diagnosis !== undefined)
+          dispatch(setDiagnosis(sd.diagnosis));
+      }
+
+      if (updatedNotes?.surgeryTeam) {
+        const st = updatedNotes.surgeryTeam;
+        Object.entries(st).forEach(([roleId, value]) => {
+          let updatedValue = value;
+          if (
+            roleId === "anaesthesiologist" &&
+            Array.isArray(value) &&
+            value.length > 0 &&
+            typeof value[0] === "object" &&
+            value[0].name
+          ) {
+            updatedValue = value[0].name;
+          }
+          dispatch(setSurgeryTeam({ roleId, value: updatedValue }));
+        });
+      }
+
+      if (updatedNotes?.operativeNotes) {
+        Object.entries(updatedNotes.operativeNotes).forEach(([key, value]) => {
+          dispatch(setOperativeNotes({ key, value }));
+        });
+      }
+
+      if (updatedNotes?.intraOperativeNotes) {
+        const io = updatedNotes.intraOperativeNotes;
+        ["complicationsSeverity", "specimensSent", "implantsUsed"].forEach(
+          (key) => {
+            if (io[key] !== undefined) {
+              dispatch(setIntraOperativeNotes({ key, value: io[key] }));
+            }
+          }
+        );
+        if (io.additionalUnits) {
+          Object.entries(io.additionalUnits).forEach(([key, value]) => {
+            dispatch(
+              setIntraOperativeNotes({
+                parentId: "additionalUnits",
+                key,
+                value,
+              })
+            );
+          });
+        }
+        ["estimatedBloodLoss", "swabCount", "fluidCount", "sutureType"].forEach(
+          (key) => {
+            if (io[key] !== undefined) {
+              dispatch(setIntraOperativeNotes({ key, value: io[key] }));
+            }
+          }
+        );
+      }
+
+      if (updatedNotes?.postOperativeNotes) {
+        const po = updatedNotes.postOperativeNotes;
+        Object.entries(po).forEach(([key, value]) => {
+          dispatch(setPostOperativeNotes({ key, value }));
+        });
+      }
+
+      if (updatedNotes?.date) setFilledDate(new Date(updatedNotes.date));
+      if (updatedNotes?.time) setFilledAtTime(new Date(updatedNotes.time));
+    },
+    [dispatch]
+  );
+
   const handleAIRecordingComplete = useCallback(
     (payload, callback) =>
       submitVoiceAiRecording({
@@ -309,82 +397,11 @@ const OtNotes = (props) => {
           const updatedNotes = updatedData?.otNotes || updatedData;
           return { data: updatedNotes, success: true };
         },
-        onSuccess: (updatedNotes) => {
-          if (!updatedNotes) return;
-          if (updatedNotes?.surgeryDetails) {
-            const sd = updatedNotes.surgeryDetails;
-            if (sd.procedureName !== undefined)
-              dispatch(setSurgeryProcedureName(sd.procedureName));
-            if (sd.anaesthesiaType !== undefined)
-              dispatch(setAnaesthesiaType(sd.anaesthesiaType));
-            if (sd.surgeryDate !== undefined)
-              dispatch(setSurgeryDate(sd.surgeryDate));
-            if (sd.surgeryStartTime !== undefined)
-              dispatch(setSurgeryStartTime(sd.surgeryStartTime));
-            if (sd.surgeryEndTime !== undefined)
-              dispatch(setSurgeryEndTime(sd.surgeryEndTime));
-            if (sd.diagnosis !== undefined)
-              dispatch(setDiagnosis(sd.diagnosis));
-          }
-
-          if (updatedNotes?.surgeryTeam) {
-            const st = updatedNotes.surgeryTeam;
-            Object.entries(st).forEach(([roleId, value]) => {
-              dispatch(setSurgeryTeam({ roleId, value }));
-            });
-          }
-
-          if (updatedNotes?.operativeNotes) {
-            Object.entries(updatedNotes.operativeNotes).forEach(
-              ([key, value]) => {
-                dispatch(setOperativeNotes({ key, value }));
-              }
-            );
-          }
-
-          if (updatedNotes?.intraOperativeNotes) {
-            const io = updatedNotes.intraOperativeNotes;
-            ["complicationsSeverity", "specimensSent", "implantsUsed"].forEach(
-              (key) => {
-                if (io[key] !== undefined) {
-                  dispatch(setIntraOperativeNotes({ key, value: io[key] }));
-                }
-              }
-            );
-            if (io.additionalUnits) {
-              Object.entries(io.additionalUnits).forEach(([key, value]) => {
-                dispatch(
-                  setIntraOperativeNotes({
-                    parentId: "additionalUnits",
-                    key,
-                    value,
-                  })
-                );
-              });
-            }
-            ["estimatedBloodLoss", "swabCount", "fluidCount", "sutureType"].forEach(
-              (key) => {
-                if (io[key] !== undefined) {
-                  dispatch(setIntraOperativeNotes({ key, value: io[key] }));
-                }
-              }
-            );
-          }
-
-          if (updatedNotes?.postOperativeNotes) {
-            const po = updatedNotes.postOperativeNotes;
-            Object.entries(po).forEach(([key, value]) => {
-              dispatch(setPostOperativeNotes({ key, value }));
-            });
-          }
-
-          if (updatedNotes?.date) setFilledDate(new Date(updatedNotes.date));
-          if (updatedNotes?.time) setFilledAtTime(new Date(updatedNotes.time));
-        },
+        onSuccess: handleDigitizationSuccess,
         callback,
         fallbackToTranscription: false,
       }),
-    [dispatch, reqData, submitVoiceAiRecording]
+    [handleDigitizationSuccess, reqData, submitVoiceAiRecording]
   );
 
   const getMissingRequiredFields = () => {
@@ -475,19 +492,44 @@ const OtNotes = (props) => {
     }
   };
 
+  const handleMainCtaClick = async (...args) => {
+    if (mainCtaLockRef.current) return;
+    mainCtaLockRef.current = true;
+    setIsMainCtaSubmitting(true);
+    try {
+      const result = onSaveOtNotesClick?.(...args);
+      if (result && typeof result.then === "function") {
+        await result;
+      }
+    } finally {
+      mainCtaLockRef.current = false;
+      setIsMainCtaSubmitting(false);
+    }
+  };
+
   const renderBottomSection = () => (
     <>
-      {/* {isVoiceAssistantOpen && <div className="agent-alex-voice-overlay" />}
+      {activeAssistantPanel && <div className="agent-alex-voice-overlay" />}
       <div className="global-voice-ai-wrapper">
-        {isVoiceAssistantOpen ? (
+        {activeAssistantPanel === "voice" ? (
           <AgentAlexVoicePanel
             onSubmit={handleAIRecordingComplete}
-            onClose={() => setIsVoiceAssistantOpen(false)}
+            onClose={() => setActiveAssistantPanel(null)}
+          />
+        ) : activeAssistantPanel === "snaprx" ? (
+          <AgentAlexSnapRxPanel
+            onClose={() => setActiveAssistantPanel(null)}
+            previousOutput={reqData}
+            schemaKey="OT_NOTES"
+            onSuccess={handleDigitizationSuccess}
           />
         ) : (
-          <GlobalVoiceAI onClick={() => setIsVoiceAssistantOpen(true)} />
+          <GlobalVoiceAI
+            onVoiceClick={() => setActiveAssistantPanel("voice")}
+            onSnapRxClick={() => setActiveAssistantPanel("snaprx")}
+          />
         )}
-      </div> */}
+      </div>
       {renderCustomModulesFooter()}
     </>
   );
@@ -577,8 +619,9 @@ const OtNotes = (props) => {
                   key="otNotes"
                   title={"OT Notes"}
                   mainCta={{
-                    handler: onSaveOtNotesClick,
+                    handler: handleMainCtaClick,
                     title: "Save",
+                    disabled: isMainCtaSubmitting,
                   }}
                   showAutoFill={showAutoFillLocal && isNew}
                   autoFillTitle={autoFillTitleLocal}

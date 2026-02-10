@@ -3,7 +3,7 @@
  */
 
 import React from "react";
-import { View, Text } from "@react-pdf/renderer";
+import { View } from "@react-pdf/renderer";
 import { StyleSheet } from "@react-pdf/renderer";
 import {
   getAllVisibleSections,
@@ -13,6 +13,7 @@ import SlateToPdf from "../../../components/SlateToPdf";
 import Vitals from "../../../components/Vitals";
 import SectionTitle from "../../SectionTitle";
 import RichTextPrintRenderer from "./richTextPrintRenderer";
+import { Text } from "../../../components/MultilingualText";
 
 const styles = StyleSheet.create({
   // Main container

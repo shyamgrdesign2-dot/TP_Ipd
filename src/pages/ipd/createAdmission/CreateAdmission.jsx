@@ -529,6 +529,8 @@ export default function CreateAdmission() {
   const [wardBedDrawerOpen, setWardBedDrawerOpen] = useState(false);
   const [selectedWardBed, setSelectedWardBed] = useState("");
   const [isEditModeState, setIsEditModeState] = useState(isEditMode || false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const submitLockRef = useRef(false);
 //   const [selectedTab, setSelectedTab] = useState(1);
 //   const [page, setPage] = useState(1);
 //   const [hasMore, setHasMore] = useState(true);
@@ -818,7 +820,9 @@ export default function CreateAdmission() {
   };
 
   const onSubmit = async (formData) => {
-
+    if (submitLockRef.current) return;
+    submitLockRef.current = true;
+    setIsSubmitting(true);
     // console.log(formData,"formData");
     try {
       const admittedOn = combineToAdmittedOn(
@@ -1006,6 +1010,9 @@ export default function CreateAdmission() {
         err?.response?.data?.message ||
           `Unable to ${isEditModeState ? "update" : "create"} admission. Please try again.`
       );
+    } finally {
+      submitLockRef.current = false;
+      setIsSubmitting(false);
     }
   };
 
@@ -1318,7 +1325,8 @@ export default function CreateAdmission() {
         showConfirmAdmissionButton={isPatientSelected}
         headerTitle={isEditModeState ? "Edit Admission" : "Create New Admission"}
         onConfirmAdmissionClick={() => handleSubmit(onSubmit)()}
-        isConfirmDisabled={isConfirmDisabled}
+        isConfirmDisabled={isConfirmDisabled || isSubmitting}
+        isConfirmLoading={isSubmitting}
         helperMessage={helperMessage}
         onDisabledClick={() => {
           if (helperMessage) {

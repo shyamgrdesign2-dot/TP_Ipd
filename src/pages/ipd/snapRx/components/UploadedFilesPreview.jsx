@@ -1,24 +1,22 @@
 import React, { useState, useMemo } from "react";
 import { Button, message } from "antd";
-
 import "./UploadedFilesPreview.scss";
 import CommonModal from "../../../../common/CommonModal";
 import alertIcon from "../../../../assets/images/alertIcon.svg";
-import PageIcon from "./PageIcon";
 
 const UploadedFilesPreview = ({ uploadedFiles, onEdit, loading, onDelete }) => {
   const [deletingFile, setDeletingFile] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const showHideModal = (filename) => {
-    setIsModalOpen(!isModalOpen);
-    setDeletingFile(filename);
+  const showHideModal = (file) => {
+    setIsModalOpen((v) => !v);
+    setDeletingFile(file);
   };
 
-  const handleDelete = async (filename) => {
+  const handleDelete = async (file) => {
     try {
-      setDeletingFile(filename);
-      onDelete(filename);
+      setDeletingFile(file);
+      onDelete(file);
       setIsModalOpen(false);
     } catch (error) {
       console.error("Error removing file:", error);
@@ -28,15 +26,13 @@ const UploadedFilesPreview = ({ uploadedFiles, onEdit, loading, onDelete }) => {
     }
   };
 
-  const handleEdit = (file) => {
-    onEdit(file);
-  };
+  const handleEdit = (file) => onEdit(file);
 
   const DELETE_MODAL = useMemo(() => {
     return (
       <CommonModal
         isModalOpen={isModalOpen}
-        onCancel={showHideModal}
+        onCancel={() => showHideModal(null)}
         modalWidth={500}
         title={"You may lose your data"}
         modalBody={
@@ -56,7 +52,7 @@ const UploadedFilesPreview = ({ uploadedFiles, onEdit, loading, onDelete }) => {
                   Yes Delete
                 </div>
                 <Button
-                  onClick={showHideModal}
+                  onClick={() => showHideModal(null)}
                   className="lh-lg btn btn-primary3 btn-41 px-4"
                 >
                   <span>No</span>
@@ -67,7 +63,7 @@ const UploadedFilesPreview = ({ uploadedFiles, onEdit, loading, onDelete }) => {
         }
       />
     );
-  }, [isModalOpen]);
+  }, [isModalOpen, deletingFile]);
 
   if (loading) {
     return (
@@ -79,20 +75,15 @@ const UploadedFilesPreview = ({ uploadedFiles, onEdit, loading, onDelete }) => {
     );
   }
 
-  if (!uploadedFiles || uploadedFiles.length === 0) {
-    return null;
-  }
+  if (!uploadedFiles || uploadedFiles.length === 0) return null;
 
   return (
     <div className="uploaded-files-preview">
       <div className="files-grid">
         {uploadedFiles.map((file, index) => (
-          <div key={index} className="file-preview-card">
+          <div key={file.filename || file.name || index} className="file-preview-card">
             <div className="file-header">
               <div className="page-info">
-                {/* <div className="page-icon">
-                  <PageIcon />
-                </div> */}
                 <span className="page-text">Page {index + 1}</span>
               </div>
               <div className="file-actions">
@@ -106,16 +97,11 @@ const UploadedFilesPreview = ({ uploadedFiles, onEdit, loading, onDelete }) => {
                 />
                 {uploadedFiles?.length > 1 ? (
                   <Button
-                    icon={
-                      <i
-                        className="icon-delete fs-21"
-                        style={{ color: "#FC5A5A" }}
-                      ></i>
-                    }
+                    icon={<i className="icon-delete fs-21" style={{ color: "#FC5A5A" }}></i>}
                     size="small"
                     type="text"
                     className="delete-btn"
-                    onClick={() => showHideModal(file.filename)}
+                    onClick={() => showHideModal(file)}
                     title="Delete"
                   />
                 ) : null}
@@ -130,7 +116,7 @@ const UploadedFilesPreview = ({ uploadedFiles, onEdit, loading, onDelete }) => {
                   className="prescription-image"
                   onError={(e) => {
                     e.target.style.display = "none";
-                    e.target.nextSibling.style.display = "flex";
+                    if (e.target.nextSibling) e.target.nextSibling.style.display = "flex";
                   }}
                 />
                 <div className="image-error" style={{ display: "none" }}>
