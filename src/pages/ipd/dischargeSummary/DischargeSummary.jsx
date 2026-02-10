@@ -570,7 +570,7 @@ const DischargeSummary = (props) => {
   const renderBottomSection = () => (
     <>
       {activeAssistantPanel && <div className="agent-alex-voice-overlay" />}
-      <div className="global-voice-ai-wrapper">
+      {/* <div className="global-voice-ai-wrapper">
         {activeAssistantPanel === "voice" ? (
           <AgentAlexVoicePanel
             onSubmit={handleAIRecordingComplete}
@@ -589,7 +589,7 @@ const DischargeSummary = (props) => {
             onSnapRxClick={() => setActiveAssistantPanel("snaprx")}
           />
         )}
-      </div>
+      </div> */}
       {renderCustomModulesFooter()}
     </>
   );
