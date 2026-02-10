@@ -11,7 +11,13 @@ import {
 } from "../../../redux/ipd/ipdSnapRxDigitizationSlice";
 import { SNAP_RX_TOKENS_STORAGE_KEY } from "../../../utils/constants";
 
-const AgentAlexSnapRxPanel = ({ onClose, previousOutput, schemaKey, onSuccess }) => {
+const AgentAlexSnapRxPanel = ({
+  onClose,
+  previousOutput,
+  schemaKey,
+  onSuccess,
+  onAutofillSuccess,
+}) => {
   const dispatch = useDispatch();
   const [isDigitizing, setIsDigitizing] = React.useState(false);
 
@@ -66,6 +72,7 @@ const AgentAlexSnapRxPanel = ({ onClose, previousOutput, schemaKey, onSuccess })
               handleClose={handleClose}
               schemaKey={schemaKey}
               onSuccess={onSuccess}
+              onAutofillSuccess={onAutofillSuccess}
               onDigitizingChange={setIsDigitizing}
             />
           </div>

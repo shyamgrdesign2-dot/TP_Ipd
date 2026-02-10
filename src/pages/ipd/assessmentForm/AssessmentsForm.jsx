@@ -45,7 +45,7 @@ import AgentAlexVoicePanel from "../components/AgentAlexVoicePanel";
 import AgentAlexSnapRxPanel from "../components/AgentAlexSnapRxPanel";
 import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 import { listSectionwithTag } from "../../../redux/medicalhistorySlice";
-import IPDSnapRx from "../snapRx/SnapRx";
+import { defaultIcons } from "../../../assets/images/icons";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -91,6 +91,7 @@ const AssessmentsForm = (props) => {
   const [filledAtTime, setFilledAtTime] = useState(new Date());
   const [selectedTimePeriod, setSelectedTimePeriod] = useState("Morning");
   const [activeAssistantPanel, setActiveAssistantPanel] = useState(null);
+  const [showDisclaimerBanner, setShowDisclaimerBanner] = useState(false);
 
   const customModuleFormType = IPD.CUSTOM_MODULE_FORM_TYPES.assessments;
 
@@ -450,6 +451,34 @@ const AssessmentsForm = (props) => {
     );
   };
 
+  const renderTopSection = () => (
+    <>
+      {showDisclaimerBanner ? (
+        <div className="assessment-disclaimer-banner">
+          <img
+            src={defaultIcons.infoIconWarningColoured}
+            alt="Disclaimer"
+            className="banner-icon"
+          />
+          <p className="banner-text">
+            <strong>Disclaimer:</strong> Our AI helps autofill details
+            efficiency, but <strong>please double-check</strong> all filled
+            details to ensure they are correct and complete.
+          </p>
+          <button
+            type="button"
+            className="bnr-close-btn"
+            onClick={() => setShowDisclaimerBanner(false)}
+            aria-label="Close disclaimer"
+          >
+            <img src={defaultIcons.crossIcon} alt="Close" />
+          </button>
+        </div>
+      ) : null}
+      {renderFilledBySection()}
+    </>
+  );
+
   const renderAllSections = () => {
     const { createdByName, createdByRole, createdAt, updates } =
       assessmentData?.assessmentsFilledByData || {};
@@ -536,6 +565,7 @@ const AssessmentsForm = (props) => {
           <AgentAlexSnapRxPanel
             onClose={() => setActiveAssistantPanel(null)}
             previousOutput={reqData}
+            onAutofillSuccess={() => setShowDisclaimerBanner(true)}
           />
         ) : (
           <GlobalVoiceAI
@@ -579,7 +609,7 @@ const AssessmentsForm = (props) => {
                 }}
                 items={assessments}
                 renderSection={renderSections}
-                renderTopSection={renderFilledBySection}
+                renderTopSection={renderTopSection}
                 onRequestClose={() => {
                   setIsBackModalOpen(true);
                 }}

@@ -1722,7 +1722,6 @@ export const convertMedicationFormat = (medications) => {
     ? medications
     : [medications];
 
-  console.log("INTEL ==> medication", medicationArray);
   return medicationArray?.map((medication) => {
     // Extract frequency and schedule from the medication object
     let frequency = "";

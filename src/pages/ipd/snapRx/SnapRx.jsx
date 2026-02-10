@@ -48,6 +48,7 @@ function SnapRxContent({
   handleClose,
   schemaKey = "ASSESSMENTS",
   onSuccess,
+  onAutofillSuccess,
   onDigitizingChange,
 }) {
   const { addDataToStore } = useAssessmentDataStore();
@@ -636,7 +637,7 @@ function SnapRxContent({
       message.open({
         key: MESSAGE_KEY,
         type: "",
-        className: "message-appointment",
+        className: "message-snap-input-success",
         content: (
           <div className="d-flex align-items-center">
             <img src={visitEnd} className="me-3" alt="Visit End" />
@@ -655,6 +656,9 @@ function SnapRxContent({
         ),
         duration: 3,
       });
+      if (onAutofillSuccess) {
+        onAutofillSuccess();
+      }
     } catch (error) {
       console.error("Error digitizing assessment:", error);
       message.error("Failed to extract details. Please try again.");
@@ -827,6 +831,7 @@ export default function IPDSnapRx({
   handleClose,
   schemaKey,
   onSuccess,
+  onAutofillSuccess,
   onDigitizingChange,
 }) {
   return (
@@ -836,6 +841,7 @@ export default function IPDSnapRx({
         handleClose={handleClose}
         schemaKey={schemaKey}
         onSuccess={onSuccess}
+        onAutofillSuccess={onAutofillSuccess}
         onDigitizingChange={onDigitizingChange}
       />
     </IPDSnapRxSessionProvider>
