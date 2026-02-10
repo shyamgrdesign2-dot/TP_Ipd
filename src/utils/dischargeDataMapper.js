@@ -58,7 +58,9 @@ const isEmptyGyneacHistory = (gyneacHistory) => {
   const keys = Object.keys(DEFAULT_GYNEAC_HISTORY);
   if (Object.keys(gyneacHistory).length === 0) return true;
   if (Object.keys(gyneacHistory).length !== keys.length) return false;
-  return keys.every((key) => gyneacHistory[key] === DEFAULT_GYNEAC_HISTORY[key]);
+  return keys.every(
+    (key) => gyneacHistory[key] === DEFAULT_GYNEAC_HISTORY[key],
+  );
 };
 
 const isEmptyObstetricHistory = (obstetricHistory) => {
@@ -88,7 +90,7 @@ const isEmptyObstetricHistory = (obstetricHistory) => {
 export const addDischargeDataToStore = (dischargeSummaryData, dispatch) => {
   if (!dischargeSummaryData || !dispatch) {
     console.warn(
-      "addDischargeDataToStore: Missing dischargeSummaryData or dispatch function"
+      "addDischargeDataToStore: Missing dischargeSummaryData or dispatch function",
     );
     return;
   }
@@ -98,30 +100,30 @@ export const addDischargeDataToStore = (dischargeSummaryData, dispatch) => {
       dispatch(
         setDischargeSummaryDataViaPatch({
           assessmentId: dischargeSummaryData.assessmentId,
-        })
+        }),
       );
     }
     if (dischargeSummaryData?.patientInformation) {
       dispatch(
         setDischargeSummaryDataViaPatch({
           patientInformation: dischargeSummaryData.patientInformation,
-        })
+        }),
       );
     }
     if (dischargeSummaryData?.patientHistory) {
       if (dischargeSummaryData?.patientHistory?.presentingComplaints) {
         dispatch(
           setChiefComplaint(
-            dischargeSummaryData.patientHistory.presentingComplaints
-          )
+            dischargeSummaryData.patientHistory.presentingComplaints,
+          ),
         );
       }
 
       if (dischargeSummaryData?.patientHistory?.pastMedicalHistory) {
         dispatch(
           setMedicalHistoryData(
-            dischargeSummaryData.patientHistory.pastMedicalHistory
-          )
+            dischargeSummaryData.patientHistory.pastMedicalHistory,
+          ),
         );
       }
 
@@ -141,23 +143,23 @@ export const addDischargeDataToStore = (dischargeSummaryData, dispatch) => {
       if (dischargeSummaryData?.physicalExamination?.vitals) {
         dispatch(
           setAssessmentFormVitalsData(
-            dischargeSummaryData.physicalExamination.vitals
-          )
+            dischargeSummaryData.physicalExamination.vitals,
+          ),
         );
       }
       if (dischargeSummaryData?.physicalExamination?.generalExamination) {
         dispatch(
           setPhysicalExaminationBasicData(
-            dischargeSummaryData.physicalExamination.generalExamination
-          )
+            dischargeSummaryData.physicalExamination.generalExamination,
+          ),
         );
       }
 
       if (dischargeSummaryData?.physicalExamination?.others) {
         dispatch(
           setPhysicalExaminationOthersData(
-            dischargeSummaryData.physicalExamination.others
-          )
+            dischargeSummaryData.physicalExamination.others,
+          ),
         );
       }
     }
@@ -166,16 +168,16 @@ export const addDischargeDataToStore = (dischargeSummaryData, dispatch) => {
       if (dischargeSummaryData.diagnosisAndSurgery.finalDiagnosis) {
         dispatch(
           setFinalDiagnosis(
-            dischargeSummaryData.diagnosisAndSurgery.finalDiagnosis
-          )
+            dischargeSummaryData.diagnosisAndSurgery.finalDiagnosis,
+          ),
         );
       }
 
       if (dischargeSummaryData?.diagnosisAndSurgery?.provisionalDiagnosis) {
         dispatch(
           setProvisionalDiagnosis(
-            dischargeSummaryData.diagnosisAndSurgery.provisionalDiagnosis
-          )
+            dischargeSummaryData.diagnosisAndSurgery.provisionalDiagnosis,
+          ),
         );
       }
     }
@@ -189,7 +191,7 @@ export const addDischargeDataToStore = (dischargeSummaryData, dispatch) => {
             others:
               dischargeSummaryData.functionalAssessmentTimeOfAdmission.others ||
               [],
-          })
+          }),
         );
       }
     }
@@ -200,8 +202,8 @@ export const addDischargeDataToStore = (dischargeSummaryData, dispatch) => {
     ) {
       dispatch(
         setMedicationData(
-          dischargeSummaryData.dischargeNotes.dischargeMedications || []
-        )
+          dischargeSummaryData.dischargeNotes.dischargeMedications || [],
+        ),
       );
     }
     if (
@@ -215,7 +217,9 @@ export const addDischargeDataToStore = (dischargeSummaryData, dispatch) => {
       dischargeSummaryData.dischargeNotes.dischargeVitals
     ) {
       dispatch(
-        setVitalsData(dischargeSummaryData.dischargeNotes.dischargeVitals || {})
+        setVitalsData(
+          dischargeSummaryData.dischargeNotes.dischargeVitals || {},
+        ),
       );
     }
 
@@ -223,16 +227,16 @@ export const addDischargeDataToStore = (dischargeSummaryData, dispatch) => {
       if (dischargeSummaryData.courseInHospital.chronologicalSummary) {
         dispatch(
           setChronologicalSummary(
-            dischargeSummaryData.courseInHospital.chronologicalSummary
-          )
+            dischargeSummaryData.courseInHospital.chronologicalSummary,
+          ),
         );
       }
 
       if (dischargeSummaryData?.courseInHospital?.treatmentGiven) {
         dispatch(
           setTreatmentNotes(
-            dischargeSummaryData.courseInHospital.treatmentGiven
-          )
+            dischargeSummaryData.courseInHospital.treatmentGiven,
+          ),
         );
       }
     }
@@ -240,20 +244,24 @@ export const addDischargeDataToStore = (dischargeSummaryData, dispatch) => {
     if (dischargeSummaryData?.dischargeNotes?.patientCondition) {
       dispatch(
         setPatientCondition(
-          dischargeSummaryData.dischargeNotes.patientCondition
-        )
+          dischargeSummaryData.dischargeNotes.patientCondition,
+        ),
       );
     }
 
     if (dischargeSummaryData?.crossReferral) {
-      dispatch(setDischargeSummaryDataViaPatch({
-        crossReferral: dischargeSummaryData?.crossReferral,
-      }));
+      dispatch(
+        setDischargeSummaryDataViaPatch({
+          crossReferral: dischargeSummaryData?.crossReferral,
+        }),
+      );
     }
     if (dischargeSummaryData?.labResults) {
-      dispatch(setDischargeSummaryDataViaPatch({
-        labResults: dischargeSummaryData?.labResults,
-      }));
+      dispatch(
+        setDischargeSummaryDataViaPatch({
+          labResults: dischargeSummaryData?.labResults,
+        }),
+      );
     }
 
     if (dischargeSummaryData?.dischargeAdvice) {
@@ -264,33 +272,33 @@ export const addDischargeDataToStore = (dischargeSummaryData, dispatch) => {
           setDischargeSummaryDataViaPatch({
             physicalActivities:
               dischargeSummaryData?.dischargeAdvice?.physicalActivities,
-          })
+          }),
         );
       dischargeSummaryData?.dischargeAdvice?.otherAdvice &&
         dispatch(
           setDischargeSummaryDataViaPatch({
             otherAdvice: dischargeSummaryData?.dischargeAdvice?.otherAdvice,
-          })
+          }),
         );
       dischargeSummaryData?.dischargeAdvice?.warningSigns &&
         dispatch(
           setDischargeSummaryDataViaPatch({
             warningSigns: dischargeSummaryData?.dischargeAdvice?.warningSigns,
-          })
+          }),
         );
       dischargeSummaryData?.dischargeAdvice?.preventiveMeasures &&
         dispatch(
           setDischargeSummaryDataViaPatch({
             preventiveMeasures:
               dischargeSummaryData?.dischargeAdvice?.preventiveMeasures,
-          })
+          }),
         );
       dischargeSummaryData?.dischargeAdvice?.emergencyContact &&
         dispatch(
           setDischargeSummaryDataViaPatch({
             emergencyContact:
               dischargeSummaryData?.dischargeAdvice?.emergencyContact,
-          })
+          }),
         );
     }
 
@@ -308,9 +316,18 @@ export const addDischargeDataToStore = (dischargeSummaryData, dispatch) => {
       dispatch(setFollowUps(dischargeSummaryData.followUp));
     }
 
-    if (dischargeSummaryData?.followUpAdditionalNotes) {
+    if (
+      dischargeSummaryData?.followUpAdditionalNotes ||
+      dischargeSummaryData?.followUp?.additionalNotes
+    ) {
       dispatch(
-        setAdditionalNotes(dischargeSummaryData.followUpAdditionalNotes)
+        setAdditionalNotes(
+          !dischargeSummaryData?.followUpAdditionalNotes ||
+            (Array.isArray(dischargeSummaryData?.followUpAdditionalNotes) &&
+              dischargeSummaryData.followUpAdditionalNotes.length === 0)
+            ? dischargeSummaryData?.followUp?.additionalNotes || []
+            : dischargeSummaryData?.followUpAdditionalNotes,
+        ),
       );
     }
     if (dischargeSummaryData?.preparedBy) {
