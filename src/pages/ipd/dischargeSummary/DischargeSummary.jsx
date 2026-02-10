@@ -288,7 +288,7 @@ const DischargeSummary = (props) => {
       if (updatedSummary) {
         dispatch(resetDischargeSummaryForm());
         addDischargeDataToStore(
-          { dischargeSummary: updatedSummary },
+          updatedSummary,
           dispatch
         );
       }

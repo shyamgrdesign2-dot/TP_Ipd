@@ -47,6 +47,36 @@ const isEmptyObstetricHistory = (obstetricHistory) => {
   return isEmptyCurrentPregnancy && isEmptyPregnancyHistory;
 };
 
+const DEFAULT_GYNEAC_HISTORY = {
+  lmp: "",
+  ageAtMenarche: 0,
+  cycle: "",
+  intervalOfCycle: 0,
+  cycleNotes: "",
+  flow: "",
+  durationOfMenstrualFlow: 0,
+  clots: true,
+  numberOfPadsPerDay: 0,
+  flowNotes: "",
+  occurrenceOfPain: "",
+  pain: "",
+  painNotes: "",
+  menarcheNotes: "",
+  reproductiveLifeStages: "",
+  ageAtMenopause: 0,
+  typeOfMenopause: "",
+  reproductiveNotes: "",
+  notes: "",
+};
+
+const isEmptyGyneacHistory = (gyneacHistory) => {
+  if (!gyneacHistory || typeof gyneacHistory !== "object") return true;
+  const keys = Object.keys(DEFAULT_GYNEAC_HISTORY);
+  if (Object.keys(gyneacHistory).length === 0) return true;
+  if (Object.keys(gyneacHistory).length !== keys.length) return false;
+  return keys.every((key) => gyneacHistory[key] === DEFAULT_GYNEAC_HISTORY[key]);
+};
+
 /**
  * Custom hook to handle adding assessment data to Redux store
  * @returns {Function} addDataToStore - Memoized function to populate Redux store with assessment data
@@ -160,7 +190,10 @@ export const useAssessmentDataStore = () => {
           ? mapIdsFromDefaultList(data?.basicInfo?.pastMedicalHistory)
           : data?.basicInfo?.pastMedicalHistory;
         dispatch(setMedicalHistoryData(dataWithIds || []));
-        dispatch(setGynecHistoryData(data?.basicInfo?.gyneacHistory || {}));
+        const gyneacHistory = data?.basicInfo?.gyneacHistory;
+        if (!isEmptyGyneacHistory(gyneacHistory)) {
+          dispatch(setGynecHistoryData(gyneacHistory));
+        }
         const obstetricHistory = data?.basicInfo?.obstetricHistory;
         if (!isEmptyObstetricHistory(obstetricHistory)) {
           dispatch(addObstetricDetails(obstetricHistory));
