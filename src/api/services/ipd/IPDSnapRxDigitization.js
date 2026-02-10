@@ -123,10 +123,11 @@ IPDSnapRxDigitization.digitize = function ({
     ipdSnapRxGetFiles: true,
     timeout: 600000,
   };
+  const formKey = schemaKey === "DISCHARGED_SUMMARY" ? "DISCHARGE_SUMMARY" : schemaKey;
 
   return api.post(
     `/ai/smart-rx?schemaKey=${schemaKey}&needGrounding=true${
-      schemaKey ? `&form=${schemaKey}` : ""
+      formKey ? `&form=${formKey}` : ""
     }`,
     data,
     configWithHeaders

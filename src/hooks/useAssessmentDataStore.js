@@ -23,6 +23,30 @@ import { setProvisionalDiagnosis } from "../redux/ipd/dischargeSummarySlice";
 import { useSelector } from "react-redux";
 import { convertCurrentMedicationToPrescription } from "../utils/utils";
 
+const isEmptyObstetricHistory = (obstetricHistory) => {
+  if (!obstetricHistory || typeof obstetricHistory !== "object") return true;
+
+  const { currentPregnancy, pregnancyHistory } = obstetricHistory;
+  const isEmptyValue = (val) => {
+    if (val === null || val === undefined) return true;
+    if (Array.isArray(val)) return val.length === 0;
+    if (typeof val === "string") return val.trim() === "";
+    if (typeof val === "number") return val === 0;
+    if (typeof val === "boolean") return val === false;
+    if (typeof val === "object") return Object.keys(val).length === 0;
+    return false;
+  };
+
+  const isEmptyCurrentPregnancy =
+    !currentPregnancy ||
+    (typeof currentPregnancy === "object" &&
+      Object.values(currentPregnancy).every(isEmptyValue));
+  const isEmptyPregnancyHistory =
+    !Array.isArray(pregnancyHistory) || pregnancyHistory.length === 0;
+
+  return isEmptyCurrentPregnancy && isEmptyPregnancyHistory;
+};
+
 /**
  * Custom hook to handle adding assessment data to Redux store
  * @returns {Function} addDataToStore - Memoized function to populate Redux store with assessment data
@@ -137,7 +161,10 @@ export const useAssessmentDataStore = () => {
           : data?.basicInfo?.pastMedicalHistory;
         dispatch(setMedicalHistoryData(dataWithIds || []));
         dispatch(setGynecHistoryData(data?.basicInfo?.gyneacHistory || {}));
-        dispatch(addObstetricDetails(data?.basicInfo?.obstetricHistory || []));
+        const obstetricHistory = data?.basicInfo?.obstetricHistory;
+        if (!isEmptyObstetricHistory(obstetricHistory)) {
+          dispatch(addObstetricDetails(obstetricHistory));
+        }
 
         // Physical Examination dispatches
         dispatch(setVitalsData(data?.physicalExamination?.vitals || {}));
