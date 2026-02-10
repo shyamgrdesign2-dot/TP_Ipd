@@ -580,7 +580,7 @@ const DischargeSummary = (props) => {
           <AgentAlexSnapRxPanel
             onClose={() => setActiveAssistantPanel(null)}
             previousOutput={reqData}
-            schemaKey="DISCHARGE_SUMMARY"
+            schemaKey="DISCHARGED_SUMMARY"
             onSuccess={handleDigitizationSuccess}
           />
         ) : (
