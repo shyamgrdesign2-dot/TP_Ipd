@@ -12,7 +12,6 @@ import { Button, message, Drawer } from "antd";
 import { CloudUploadOutlined, LoadingOutlined } from "@ant-design/icons";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
-import { uploadSnapRxFiles } from "../services/snapRxService";
 import CashManagerContext from "../../../context/CashManagerContext";
 import { useSnapRxSession } from "../context/SnapRxSessionContext";
 import "./PreviewDrawer.scss";
@@ -27,6 +26,7 @@ import {
   resetFileUploadToken,
   setUploadedFilesFromStore,
 } from "../../../redux/snapRxDigitizationSlice";
+import { uploadFiles as uploadIpdFiles } from "../../../redux/ipd/ipdSnapRxDigitizationSlice";
 import RotateLeftIcon from "./RotateLeftIcon";
 
 const PreviewDrawer = forwardRef(
@@ -50,6 +50,7 @@ const PreviewDrawer = forwardRef(
       handleGoBackToMainFiles,
       onZoomIn,
       onZoomOut,
+      schemaKey,
     },
     ref
   ) => {
@@ -412,43 +413,32 @@ const PreviewDrawer = forwardRef(
           );
 
           const apiStartTime = Date.now();
-          updatedCroppedFiles = updatedCroppedFiles.map((file) => {
+          const filesToUpload = updatedCroppedFiles.map((file) => {
             const newFileName = file?.file?.name.toLowerCase();
-            file.file = new File([file.file], newFileName, { type: file.file.type });
-            return file.file;
-          })
-          const response = await uploadSnapRxFiles(
-            updatedCroppedFiles,
-            patient_data?.patient_unique_id,
-            sessionId,
-            fileUploadToken
-          );
-          if (response) {
-            if (response?.uploaded_files?.length > 0) {
-              setTimeout(() => {
-                setIsSubmitting(false);
-                onCloseDrawer();
-                handleGoBackToMainFiles();
-                setHasUploadedFiles(true);
-              }, 500);
-              trackEvent(EVENTS.SNAP_RX.uploadSuccess, {
-                file_type: "img",
-                file_size: updatedCroppedFiles?.reduce(
-                  (acc, file) => acc + file.size,
-                  0
-                ),
-                upload_time: (Date.now() - apiStartTime) / 1000,
-                upload_source: "EMR",
-              });
-            } else {
-              trackEvent(EVENTS.SNAP_RX.uploadFailed);
-              message.warning("Failed to upload file(s)");
-              setIsSubmitting(false);
-            }
-          } else {
-            message.warning("Failed to upload file(s)");
+            return new File([file.file], newFileName, { type: file.file.type });
+          });
+          await dispatch(
+            uploadIpdFiles({
+              files: filesToUpload,
+              fileUploadToken,
+              schemaKey,
+            })
+          ).unwrap();
+          setTimeout(() => {
             setIsSubmitting(false);
-          }
+            onCloseDrawer();
+            handleGoBackToMainFiles();
+            setHasUploadedFiles(true);
+          }, 500);
+          trackEvent(EVENTS.SNAP_RX.uploadSuccess, {
+            file_type: "img",
+            file_size: filesToUpload?.reduce(
+              (acc, file) => acc + file.size,
+              0
+            ),
+            upload_time: (Date.now() - apiStartTime) / 1000,
+            upload_source: "EMR",
+          });
         } catch (error) {
           if (error?.response?.status === 401) { // TODO: INTEL - handle better
             dispatch(resetFileUploadToken());

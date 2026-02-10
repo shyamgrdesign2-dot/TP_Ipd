@@ -129,11 +129,17 @@
     "xlsx": "^0.18.5"
   },
   "scripts": {
-    "start": "DISABLE_ESLINT_PLUGIN=true node scripts/start.js",
-    "start:dev": "DISABLE_ESLINT_PLUGIN=true env-cmd -f .env.dev node scripts/start.js",
-    "build": "DISABLE_ESLINT_PLUGIN=true node scripts/build.js",
-    "build:debug": "GENERATE_SOURCEMAP=true DISABLE_ESLINT_PLUGIN=false node scripts/build.js",
-    "build:release": "DISABLE_ESLINT_PLUGIN=true PROD_SOURCEMAP_MODE=hidden node scripts/build.js",
+    "lint": "eslint src --ext .js,.jsx,.ts,.tsx --max-warnings=0 --no-cache",
+    "prestart": "npm run lint",
+    "start": "node scripts/start.js",
+    "prestart:dev": "npm run lint",
+    "start:dev": "env-cmd -f .env.dev node scripts/start.js",
+    "prebuild": "npm run lint",
+    "build": "node scripts/build.js",
+    "prebuild:debug": "npm run lint",
+    "build:debug": "GENERATE_SOURCEMAP=true node scripts/build.js",
+    "prebuild:release": "npm run lint",
+    "build:release": "PROD_SOURCEMAP_MODE=hidden node scripts/build.js",
     "test": "node scripts/test.js",
     "eject": "react-scare-jl --project tatvapractice ./build && sentry-cli sourcemaps upload --org tatvacare-jl --project tatvapractice ./build"
   },

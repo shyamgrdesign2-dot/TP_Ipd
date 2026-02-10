@@ -3,10 +3,11 @@
  */
 
 import React from "react";
-import { View, Text } from "@react-pdf/renderer";
+import { View } from "@react-pdf/renderer";
 import { StyleSheet } from "@react-pdf/renderer";
 import { renderRichText } from "../utils/richTextRenderer";
 import { isEmptyRichText } from "../utils/pdfUtils";
+import { Text } from "../components/MultilingualText";
 
 const styles = StyleSheet.create({
   // Simple text item (like Admitting Consultant)

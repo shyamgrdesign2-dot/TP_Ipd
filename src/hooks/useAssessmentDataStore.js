@@ -21,6 +21,61 @@ import {
 import { addObstetricDetails } from "../redux/obstetricSlice";
 import { setProvisionalDiagnosis } from "../redux/ipd/dischargeSummarySlice";
 import { useSelector } from "react-redux";
+import { convertCurrentMedicationToPrescription } from "../utils/utils";
+
+const isEmptyObstetricHistory = (obstetricHistory) => {
+  if (!obstetricHistory || typeof obstetricHistory !== "object") return true;
+
+  const { currentPregnancy, pregnancyHistory } = obstetricHistory;
+  const isEmptyValue = (val) => {
+    if (val === null || val === undefined) return true;
+    if (Array.isArray(val)) return val.length === 0;
+    if (typeof val === "string") return val.trim() === "";
+    if (typeof val === "number") return val === 0;
+    if (typeof val === "boolean") return val === false;
+    if (typeof val === "object") return Object.keys(val).length === 0;
+    return false;
+  };
+
+  const isEmptyCurrentPregnancy =
+    !currentPregnancy ||
+    (typeof currentPregnancy === "object" &&
+      Object.values(currentPregnancy).every(isEmptyValue));
+  const isEmptyPregnancyHistory =
+    !Array.isArray(pregnancyHistory) || pregnancyHistory.length === 0;
+
+  return isEmptyCurrentPregnancy && isEmptyPregnancyHistory;
+};
+
+const DEFAULT_GYNEAC_HISTORY = {
+  lmp: "",
+  ageAtMenarche: 0,
+  cycle: "",
+  intervalOfCycle: 0,
+  cycleNotes: "",
+  flow: "",
+  durationOfMenstrualFlow: 0,
+  clots: true,
+  numberOfPadsPerDay: 0,
+  flowNotes: "",
+  occurrenceOfPain: "",
+  pain: "",
+  painNotes: "",
+  menarcheNotes: "",
+  reproductiveLifeStages: "",
+  ageAtMenopause: 0,
+  typeOfMenopause: "",
+  reproductiveNotes: "",
+  notes: "",
+};
+
+const isEmptyGyneacHistory = (gyneacHistory) => {
+  if (!gyneacHistory || typeof gyneacHistory !== "object") return true;
+  const keys = Object.keys(DEFAULT_GYNEAC_HISTORY);
+  if (Object.keys(gyneacHistory).length === 0) return true;
+  if (Object.keys(gyneacHistory).length !== keys.length) return false;
+  return keys.every((key) => gyneacHistory[key] === DEFAULT_GYNEAC_HISTORY[key]);
+};
 
 /**
  * Custom hook to handle adding assessment data to Redux store
@@ -85,7 +140,7 @@ export const useAssessmentDataStore = () => {
   );
 
   const addDataToStore = useCallback(
-    (data, fromVoice = false) => {
+    (data, fromAIPipeline = false) => {
       if (data) {
         // Basic Info dispatches
         dispatch(
@@ -97,14 +152,52 @@ export const useAssessmentDataStore = () => {
             data?.basicInfo?.historyOfPresentIllness || []
           )
         );
-        dispatch(setMedicationData(data?.basicInfo?.medications || []));
+        const updatedMedications = data?.basicInfo?.currentMedications?.filter(
+          (med) => {
+            const groundingData =
+              med?.grounding?.[0]?.structuralMedicationData || {
+                ...med?.grounding?.[0],
+              };
+            if (!groundingData || (typeof groundingData === "object" && Object.keys(groundingData).length === 0)) {
+              return false;
+            }
+            return true;
+          }
+        )?.map(med => {
+          const groundingData =
+              med?.grounding?.[0]?.structuralMedicationData || {
+                ...med?.grounding?.[0],
+              };
+          const allDetails = {
+            ...groundingData,
+            unitPerDose: med?.unitPerDose,
+            schedule: med?.schedule,
+            frequency: med?.frequency,
+            duration: med?.duration,
+            notes: med?.notes,
+          };
+          return convertCurrentMedicationToPrescription([allDetails])?.[0];
+        });
+        dispatch(
+          setMedicationData(
+            fromAIPipeline
+              ? updatedMedications
+              : data?.basicInfo?.medications || []
+          )
+        );
         dispatch(setLabResults(data?.basicInfo?.labResults || []));
-        const dataWithIds = fromVoice
+        const dataWithIds = fromAIPipeline
           ? mapIdsFromDefaultList(data?.basicInfo?.pastMedicalHistory)
           : data?.basicInfo?.pastMedicalHistory;
         dispatch(setMedicalHistoryData(dataWithIds || []));
-        dispatch(setGynecHistoryData(data?.basicInfo?.gyneacHistory || {}));
-        dispatch(addObstetricDetails(data?.basicInfo?.obstetricHistory || []));
+        const gyneacHistory = data?.basicInfo?.gyneacHistory;
+        if (!isEmptyGyneacHistory(gyneacHistory)) {
+          dispatch(setGynecHistoryData(gyneacHistory));
+        }
+        const obstetricHistory = data?.basicInfo?.obstetricHistory;
+        if (!isEmptyObstetricHistory(obstetricHistory)) {
+          dispatch(addObstetricDetails(obstetricHistory));
+        }
 
         // Physical Examination dispatches
         dispatch(setVitalsData(data?.physicalExamination?.vitals || {}));

@@ -1,9 +1,10 @@
 import React from "react";
 import RichTextPrintRenderer from "./richTextPrintRenderer";
-import { View, StyleSheet, Text } from "@react-pdf/renderer";
+import { View, StyleSheet } from "@react-pdf/renderer";
 import { camelToCapitalized } from "../../../../../utils/utils";
 import { getAllVisibleSections, isEmptyRichText } from "../../../utils/pdfUtils";
 import SectionTitle from "../../SectionTitle";
+import { Text } from "../../../components/MultilingualText";
 
 const styles = StyleSheet.create({
   // Main container

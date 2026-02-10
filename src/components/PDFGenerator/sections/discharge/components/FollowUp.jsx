@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text } from "@react-pdf/renderer";
+import { View } from "@react-pdf/renderer";
 import { StyleSheet } from "@react-pdf/renderer";
 import {
   getAllVisibleSections,
@@ -7,6 +7,7 @@ import {
 } from "../../../utils/pdfUtils";
 import SectionTitle from "../../SectionTitle";
 import RichTextPrintRenderer from "./richTextPrintRenderer";
+import { Text } from "../../../components/MultilingualText";
 
 const styles = StyleSheet.create({
   mainContainer: {
@@ -151,7 +152,7 @@ const styles = StyleSheet.create({
 });
 
 const FollowUp = ({ data, title, formatSettings }) => {
-  if (!data?.followUp) return null;
+  if (!data?.followUp && !data?.followUpAdditionalNotes) return null;
 
   const followUp = data.followUp;
 
@@ -167,13 +168,13 @@ const FollowUp = ({ data, title, formatSettings }) => {
     const hasValidData = followUp.some(
       (item) => item.date || (item.doctor && item.doctor.length > 0)
     );
-
-    if (!hasValidData) return null;
+    
+    if (!hasValidData && isEmptyRichText(data?.followUpAdditionalNotes)) return null;
 
     return (
       <View style={styles.sectionContainer}>
         {title ? <Text style={styles.subsectionTitle2}>{title}</Text> : null}
-        <View style={styles.mainContainer2}>
+        {followUp.length > 0 ?( <View style={styles.mainContainer2}>
           <View style={styles.table}>
             <View style={[styles.tableRow, styles.tableHeader]}>
               <View style={[styles.tableCol, styles.tableColDate]}>
@@ -238,7 +239,7 @@ const FollowUp = ({ data, title, formatSettings }) => {
               );
             })}
           </View>
-        </View>
+        </View>) : null}
         {!isEmptyRichText(data?.followUpAdditionalNotes) ? (
           <RichTextPrintRenderer
             key={"followup-additional-notes"}
@@ -312,6 +313,13 @@ const FollowUp = ({ data, title, formatSettings }) => {
           }
           return null;
         })}
+        {!isEmptyRichText(data?.followUpAdditionalNotes) ? (
+          <RichTextPrintRenderer
+            key={"followup-additional-notes"}
+            data={data?.followUpAdditionalNotes}
+            title={"Additional Notes"}
+          />
+        ) : null}
       </View>
     </View>
   );

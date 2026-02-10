@@ -3,7 +3,7 @@
  */
 
 import React from "react";
-import { View, Text } from "@react-pdf/renderer";
+import { View } from "@react-pdf/renderer";
 import { StyleSheet } from "@react-pdf/renderer";
 import SectionTitle from "../SectionTitle";
 import { renderSimpleText, renderListItem } from "../ListViewRenderer";
@@ -20,6 +20,7 @@ import { renderGeneralExamination } from "../discharge/components/PhysicalExamin
 import { isEmptyRichText } from "../../../../utils/utils";
 import { isValidMongoId } from "../../../../utils/utils";
 import CustomModuleRenderer from "../../components/CustomModuleRenderer";
+import { Text } from "../../components/MultilingualText";
 
 const styles = StyleSheet.create({
   sectionContainer: {

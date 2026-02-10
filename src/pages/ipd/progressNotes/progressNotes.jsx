@@ -3,6 +3,7 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { IPD } from "../../../utils/locale";
@@ -47,6 +48,7 @@ import PNExaminationSection from "../assessmentForm/PNExaminationSection.jsx";
 import useProgressNotesRequestData from "../../../hooks/useProgressNotesRequestData";
 import GlobalVoiceAI from "../components/GlobalVoiceAI";
 import AgentAlexVoicePanel from "../components/AgentAlexVoicePanel";
+import AgentAlexSnapRxPanel from "../components/AgentAlexSnapRxPanel";
 import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
@@ -77,10 +79,12 @@ const ProgressNotes = (props) => {
   const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const [open, setOpen] = useState(true);
   const [showCustomisationDrawer, setShowCustomisationDrawer] = useState(false);
+  const [isMainCtaSubmitting, setIsMainCtaSubmitting] = useState(false);
+  const mainCtaLockRef = useRef(false);
   const [filledDate, setFilledDate] = useState(new Date());
   const [filledAtTime, setFilledAtTime] = useState(new Date());
   const [shouldAutofill, setShouldAutofill] = useState(false);
-  const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
+  const [activeAssistantPanel, setActiveAssistantPanel] = useState(null);
 
   const customModuleFormType = IPD.CUSTOM_MODULE_FORM_TYPES.progressNotes;
 
@@ -238,6 +242,24 @@ const ProgressNotes = (props) => {
     serializeCustomModules,
   });
 
+  const handleDigitizationSuccess = useCallback(
+    (digitizedData) => {
+      const updatedNotes = digitizedData?.progressNotes || digitizedData;
+      if (!updatedNotes) return;
+      if (updatedNotes.vitals) dispatch(setVitals(updatedNotes.vitals));
+      if (updatedNotes.chiefComplaint)
+        dispatch(setChiefComplaint(updatedNotes.chiefComplaint));
+      if (updatedNotes.findings) dispatch(setFindings(updatedNotes.findings));
+      if (updatedNotes.additionalRemarks)
+        dispatch(setAdditionalRemarks(updatedNotes.additionalRemarks));
+      if (updatedNotes.examination)
+        dispatch(setPhysicalExaminationBasicData(updatedNotes.examination));
+      if (updatedNotes.date) setFilledDate(new Date(updatedNotes.date));
+      if (updatedNotes.time) setFilledAtTime(new Date(updatedNotes.time));
+    },
+    [dispatch]
+  );
+
   const handleAIRecordingComplete = useCallback(
     (payload, callback) =>
       submitVoiceAiRecording({
@@ -253,28 +275,11 @@ const ProgressNotes = (props) => {
           const updatedNotes = updatedData?.progressNotes || updatedData;
           return { data: updatedNotes, success: true };
         },
-        onSuccess: (updatedNotes) => {
-          if (!updatedNotes) return;
-          if (updatedNotes.vitals) dispatch(setVitals(updatedNotes.vitals));
-          if (updatedNotes.chiefComplaint)
-            dispatch(setChiefComplaint(updatedNotes.chiefComplaint));
-          if (updatedNotes.findings)
-            dispatch(setFindings(updatedNotes.findings));
-          if (updatedNotes.additionalRemarks)
-            dispatch(setAdditionalRemarks(updatedNotes.additionalRemarks));
-          if (updatedNotes.examination)
-            dispatch(setPhysicalExaminationBasicData(updatedNotes.examination));
-          if (updatedNotes.date) setFilledDate(new Date(updatedNotes.date));
-          if (updatedNotes.time) setFilledAtTime(new Date(updatedNotes.time));
-        },
+        onSuccess: handleDigitizationSuccess,
         callback,
         fallbackToTranscription: false,
       }),
-    [
-      dispatch,
-      progressNotesRequestData,
-      submitVoiceAiRecording,
-    ]
+    [handleDigitizationSuccess, progressNotesRequestData, submitVoiceAiRecording]
   );
 
   const saveProgressNotes = async () => {
@@ -429,6 +434,21 @@ const ProgressNotes = (props) => {
     }
   };
 
+  const handleMainCtaClick = async (...args) => {
+    if (mainCtaLockRef.current) return;
+    mainCtaLockRef.current = true;
+    setIsMainCtaSubmitting(true);
+    try {
+      const result = saveProgressNotes?.(...args);
+      if (result && typeof result.then === "function") {
+        await result;
+      }
+    } finally {
+      mainCtaLockRef.current = false;
+      setIsMainCtaSubmitting(false);
+    }
+  };
+
   const handleAutofillVitals = () => {
     if (progressNotes && progressNotes.length > 0) {
       const latestNote = progressNotes[progressNotes?.length - 1];
@@ -573,15 +593,25 @@ const ProgressNotes = (props) => {
 
   const renderBottomSection = () => (
     <>
-      {isVoiceAssistantOpen && <div className="agent-alex-voice-overlay" />}
+      {activeAssistantPanel && <div className="agent-alex-voice-overlay" />}
       <div className="global-voice-ai-wrapper">
-        {isVoiceAssistantOpen ? (
+        {activeAssistantPanel === "voice" ? (
           <AgentAlexVoicePanel
             onSubmit={handleAIRecordingComplete}
-            onClose={() => setIsVoiceAssistantOpen(false)}
+            onClose={() => setActiveAssistantPanel(null)}
+          />
+        ) : activeAssistantPanel === "snaprx" ? (
+          <AgentAlexSnapRxPanel
+            onClose={() => setActiveAssistantPanel(null)}
+            previousOutput={progressNotesRequestData}
+            schemaKey="PROGRESS_NOTES"
+            onSuccess={handleDigitizationSuccess}
           />
         ) : (
-          <GlobalVoiceAI onClick={() => setIsVoiceAssistantOpen(true)} />
+          <GlobalVoiceAI
+            onVoiceClick={() => setActiveAssistantPanel("voice")}
+            onSnapRxClick={() => setActiveAssistantPanel("snaprx")}
+          />
         )}
       </div>
       {renderCustomModulesFooter()}
@@ -712,8 +742,8 @@ const ProgressNotes = (props) => {
               title={"Progress Notes"}
               mainCta={{
                 title: isUpdating ? "Saving..." : "Save",
-                handler: saveProgressNotes,
-                disabled: isUpdating || !isDataPresent,
+                handler: handleMainCtaClick,
+                disabled: isUpdating || isMainCtaSubmitting || !isDataPresent,
               }}
               items={modelData}
               renderSection={renderSections}

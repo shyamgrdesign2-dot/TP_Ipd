@@ -1,5 +1,5 @@
 // PatientAdmission.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ConfigProvider,
   Row,
@@ -276,7 +276,7 @@ function FieldRenderer({
 
     case "select-rooms": {
       const ward = (wards || []).find((w) => w._id === selectedWardId);
-      const rooms = ward?.rooms || [];
+      const rooms = (ward?.rooms || []).filter((room) => room?.available);
       return (
         <Controller
           name={field.id}
@@ -457,6 +457,8 @@ export default function PatientAdmission() {
       : "-");
 
   const [loadingInitial, setLoadingInitial] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const submitLockRef = useRef(false);
 
   const {
     handleSubmit,
@@ -505,6 +507,9 @@ export default function PatientAdmission() {
   const handleWardChange = () => setValue("roomId", undefined);
 
   const onSubmit = async (formData) => {
+    if (submitLockRef.current) return;
+    submitLockRef.current = true;
+    setIsSubmitting(true);
     try {
       const admittedOn = combineToAdmittedOn(
         formData.admissionDate,
@@ -626,6 +631,9 @@ export default function PatientAdmission() {
         err?.response?.data?.message ||
           "Unable to create admission. Please try again."
       );
+    } finally {
+      submitLockRef.current = false;
+      setIsSubmitting(false);
     }
   };
 
@@ -694,7 +702,12 @@ export default function PatientAdmission() {
               <Button htmlType="button" onClick={() => navigate(-1)}>
                 Back
               </Button>
-              <Button type="primary" htmlType="submit">
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={isSubmitting}
+                disabled={isSubmitting}
+              >
                 Confirm Admission
               </Button>
             </div>

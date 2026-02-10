@@ -26,8 +26,6 @@ RUN npm install --legacy-peer-deps
 COPY . .
 
 ENV NODE_OPTIONS="--max-old-space-size=4096"
-ENV DISABLE_ESLINT_PLUGIN=true
-
 # Build the React app for production
 RUN npm run build
 

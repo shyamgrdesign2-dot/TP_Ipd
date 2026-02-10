@@ -3,7 +3,7 @@
  */
 
 import React from "react";
-import { View, Text } from "@react-pdf/renderer";
+import { View } from "@react-pdf/renderer";
 import { StyleSheet } from "@react-pdf/renderer";
 import SlateToPdf from "../../../components/SlateToPdf";
 import MedicationTable from "../../../components/MedicationTable";
@@ -16,6 +16,7 @@ import {
   isEmptyRichText,
 } from "../../../utils/pdfUtils";
 import SectionTitle from "../../SectionTitle";
+import { Text } from "../../../components/MultilingualText";
 
 const styles = StyleSheet.create({
   pageBreak: {

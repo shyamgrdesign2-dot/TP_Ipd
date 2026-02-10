@@ -64,7 +64,6 @@ const CourseInHospital = (props) => {
     admissionId: resolvedAdmissionId,
   });
 
-  // console.log("INTEL ==> chronologicalSummary", chronologicalSummary);
 
   const dispatch = useDispatch();
   const [autoFillTextToAppend, setAutoFillTextToAppend] = useState([]);
@@ -179,9 +178,9 @@ const CourseInHospital = (props) => {
       : Object.values(apiData);
 
     dataToProcess.forEach((dayData) => {
-      if (dayData && dayData.date && dayData.day) {
-        const formattedDate = dayjs(dayData.date).format("DD MMM YYYY");
-        const dayPrefix = `${dayData.day} (${formattedDate}): `;
+      if (dayData && dayData.date) {
+        const formattedDate = dayData.date ? dayjs(dayData.date, "DD-MM-YYYY").format("DD MMM YYYY") : "";
+        const dayPrefix = `${dayData.day ? dayData.day : "Date"} (${formattedDate}): `;
 
         const moduleCode = dayData.module ? getModuleCode(dayData.module) : "";
 
@@ -201,6 +200,16 @@ const CourseInHospital = (props) => {
                 dayContent += child.text + " ";
               }
             });
+          } else if (entryItem && entryItem.type === "bulleted-list") {
+            entryItem.children.forEach((child) => {
+              if (child && child.children) {
+                child.children.forEach((childChild) => {
+                  if (childChild && childChild.text) {
+                    dayContent += childChild.text + " ";
+                  }
+                });
+              }
+            })
           }
         });
 

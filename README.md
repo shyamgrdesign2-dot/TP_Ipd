@@ -3,7 +3,7 @@ Doctor portal website React
 
 ## Build tweaks
 - Production builds ship without source maps to speed up webpack; set `GENERATE_SOURCEMAP=true` if you need them.
-- The ESLint webpack plugin is disabled for all builds to speed up dev/prod (`DISABLE_ESLINT_PLUGIN=true` is set in env, scripts, and Dockerfile); set `DISABLE_ESLINT_PLUGIN=false` when you explicitly want linting.
+- The ESLint webpack plugin runs by default; set `DISABLE_ESLINT_PLUGIN=true` when you explicitly want to skip linting.
 - For a private map (not referenced in bundle) use `npm run build:release`, which sets `PROD_SOURCEMAP_MODE=hidden` so you can upload maps to Sentry without exposing them publicly.
 
 ## Debugging production issues without source maps

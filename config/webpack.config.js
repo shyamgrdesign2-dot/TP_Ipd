@@ -51,8 +51,8 @@ const babelRuntimeRegenerator = require.resolve('@babel/runtime/regenerator', {
 const shouldInlineRuntimeChunk = process.env.INLINE_RUNTIME_CHUNK !== 'false';
 
 const emitErrorsAsWarnings = process.env.ESLINT_NO_DEV_ERRORS === 'true';
-// Disable ESLint plugin by default to speed builds; set DISABLE_ESLINT_PLUGIN=false to re-enable.
-const disableESLintPlugin = process.env.DISABLE_ESLINT_PLUGIN !== 'false';
+// Enable ESLint by default; set DISABLE_ESLINT_PLUGIN=true to opt out.
+const disableESLintPlugin = process.env.DISABLE_ESLINT_PLUGIN === 'true';
 
 const imageInlineSizeLimit = parseInt(
   process.env.IMAGE_INLINE_SIZE_LIMIT || '10000'

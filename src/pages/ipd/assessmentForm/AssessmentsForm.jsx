@@ -1,4 +1,4 @@
-import React, { Suspense, useCallback, useEffect, useState } from "react";
+import React, { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { IPD } from "../../../utils/locale";
 import "./styles.scss";
 import { Button, Drawer, message } from "antd";
@@ -42,8 +42,10 @@ import FullPageLoader from "../../vaccination/components/Loader";
 import FilledByCards from "../otNotes/components/FilledByCards";
 import GlobalVoiceAI from "../components/GlobalVoiceAI";
 import AgentAlexVoicePanel from "../components/AgentAlexVoicePanel";
+import AgentAlexSnapRxPanel from "../components/AgentAlexSnapRxPanel";
 import { useVoiceAiRecordingComplete } from "../../../hooks/useVoiceAiRecordingComplete";
 import { listSectionwithTag } from "../../../redux/medicalhistorySlice";
+import { defaultIcons } from "../../../assets/images/icons";
 
 const LayoutWithMenu = createRemoteComponent("LayoutWithMenu");
 const Customization = createRemoteComponent("Customization");
@@ -70,6 +72,8 @@ const AssessmentsForm = (props) => {
   const [open, setOpen] = useState(true);
   const [showCustomisationDrawer, setShowCustomisationDrawer] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isMainCtaSubmitting, setIsMainCtaSubmitting] = useState(false);
+  const mainCtaLockRef = useRef(false);
   const { obstetricDetails: allObstetricDetails } = useSelector(
     (state) => state.obstetric
   );
@@ -86,7 +90,8 @@ const AssessmentsForm = (props) => {
   const [filledDate, setFilledDate] = useState(new Date());
   const [filledAtTime, setFilledAtTime] = useState(new Date());
   const [selectedTimePeriod, setSelectedTimePeriod] = useState("Morning");
-  const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
+  const [activeAssistantPanel, setActiveAssistantPanel] = useState(null);
+  const [showDisclaimerBanner, setShowDisclaimerBanner] = useState(false);
 
   const customModuleFormType = IPD.CUSTOM_MODULE_FORM_TYPES.assessments;
 
@@ -363,6 +368,21 @@ const AssessmentsForm = (props) => {
     }
   };
 
+  const handleMainCtaClick = async (...args) => {
+    if (mainCtaLockRef.current) return;
+    mainCtaLockRef.current = true;
+    setIsMainCtaSubmitting(true);
+    try {
+      const result = onSaveAssessmentClick?.(...args);
+      if (result && typeof result.then === "function") {
+        await result;
+      }
+    } finally {
+      mainCtaLockRef.current = false;
+      setIsMainCtaSubmitting(false);
+    }
+  };
+
   const handleBackConfirmation = () => {
     if (!patientDetails?.details?.id && !patientDetails?.admissionId) {
       setIsBackModalOpen(false);
@@ -384,7 +404,7 @@ const AssessmentsForm = (props) => {
           admissionId: patientDetails?.admissionId,
         })
       ).then((res) => {
-        addDataToStore(res.payload.assessment);
+        addDataToStore(res?.payload?.assessment);
         navigate(`/ipd/patient-details`, {
           state: {
             ...state,
@@ -430,6 +450,34 @@ const AssessmentsForm = (props) => {
       </div>
     );
   };
+
+  const renderTopSection = () => (
+    <>
+      {showDisclaimerBanner ? (
+        <div className="assessment-disclaimer-banner">
+          <img
+            src={defaultIcons.infoIconWarningColoured}
+            alt="Disclaimer"
+            className="banner-icon"
+          />
+          <p className="banner-text">
+            <strong>Disclaimer:</strong> Our AI helps autofill details
+            efficiency, but <strong>please double-check</strong> all filled
+            details to ensure they are correct and complete.
+          </p>
+          <button
+            type="button"
+            className="bnr-close-btn"
+            onClick={() => setShowDisclaimerBanner(false)}
+            aria-label="Close disclaimer"
+          >
+            <img src={defaultIcons.crossIcon} alt="Close" />
+          </button>
+        </div>
+      ) : null}
+      {renderFilledBySection()}
+    </>
+  );
 
   const renderAllSections = () => {
     const { createdByName, createdByRole, createdAt, updates } =
@@ -506,15 +554,24 @@ const AssessmentsForm = (props) => {
 
   const renderBottomSection = () => (
     <>
-      {isVoiceAssistantOpen && <div className="agent-alex-voice-overlay" />}
+      {activeAssistantPanel && <div className="agent-alex-voice-overlay" />}
       <div className="global-voice-ai-wrapper">
-        {isVoiceAssistantOpen ? (
+        {activeAssistantPanel === "voice" ? (
           <AgentAlexVoicePanel
             onSubmit={handleAIRecordingComplete}
-            onClose={() => setIsVoiceAssistantOpen(false)}
+            onClose={() => setActiveAssistantPanel(null)}
+          />
+        ) : activeAssistantPanel === "snaprx" ? (
+          <AgentAlexSnapRxPanel
+            onClose={() => setActiveAssistantPanel(null)}
+            previousOutput={reqData}
+            onAutofillSuccess={() => setShowDisclaimerBanner(true)}
           />
         ) : (
-          <GlobalVoiceAI onClick={() => setIsVoiceAssistantOpen(true)} />
+          <GlobalVoiceAI
+            onVoiceClick={() => setActiveAssistantPanel("voice")}
+            onSnapRxClick={() => setActiveAssistantPanel("snaprx")}
+          />
         )}
       </div>
       {renderCustomModulesFooter()}
@@ -546,13 +603,13 @@ const AssessmentsForm = (props) => {
                 key="assessment"
                 title={"Admission Assessment"}
                 mainCta={{
-                  handler: onSaveAssessmentClick,
+                  handler: handleMainCtaClick,
                   title: isLoading ? "Saving..." : "Save",
-                  disabled: isLoading,
+                  disabled: isLoading || isMainCtaSubmitting,
                 }}
                 items={assessments}
                 renderSection={renderSections}
-                renderTopSection={renderFilledBySection}
+                renderTopSection={renderTopSection}
                 onRequestClose={() => {
                   setIsBackModalOpen(true);
                 }}
