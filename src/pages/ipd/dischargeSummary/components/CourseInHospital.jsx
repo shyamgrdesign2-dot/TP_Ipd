@@ -179,7 +179,7 @@ const CourseInHospital = (props) => {
 
     dataToProcess.forEach((dayData) => {
       if (dayData && dayData.date) {
-        const formattedDate = dayData.date ? dayjs(dayData.date, "DD-MM-YYYY").format("DD MMM YYYY") : "";
+        const formattedDate = dayData.date ? dayjs(dayData.date).format("DD MMM YYYY") : "";
         const dayPrefix = `${dayData.day ? dayData.day : "Date"} (${formattedDate}): `;
 
         const moduleCode = dayData.module ? getModuleCode(dayData.module) : "";
