@@ -22,6 +22,7 @@ import { addObstetricDetails } from "../redux/obstetricSlice";
 import { setProvisionalDiagnosis } from "../redux/ipd/dischargeSummarySlice";
 import { useSelector } from "react-redux";
 import { convertCurrentMedicationToPrescription } from "../utils/utils";
+import { sanitizeProvisionalDiagnosis } from "../utils/diagnosisUtils";
 
 const isEmptyObstetricHistory = (obstetricHistory) => {
   if (!obstetricHistory || typeof obstetricHistory !== "object") return true;
@@ -201,7 +202,11 @@ export const useAssessmentDataStore = () => {
 
         // Physical Examination dispatches
         dispatch(setVitalsData(data?.physicalExamination?.vitals || {}));
-        dispatch(setProvisionalDiagnosis(data?.provisionalDiagnosis || []));
+        dispatch(
+          setProvisionalDiagnosis(
+            sanitizeProvisionalDiagnosis(data?.provisionalDiagnosis)
+          )
+        );
         dispatch(
           setPhysicalExaminationOthersData(
             data?.physicalExamination?.others || []
