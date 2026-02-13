@@ -4,6 +4,7 @@ import React, {
   forwardRef,
   useEffect,
   useImperativeHandle,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -23,6 +24,10 @@ import DischargeSummaryLoading from "./components/DischargeSummaryLoading/Discha
 import { getPatientInformation } from "../../../utils/utils";
 import { useLocation } from "react-router-dom";
 import { GB_IPD_DYNAMIC_DISCHARGE_HEADING } from "../../../utils/constants";
+import {
+  getSasExpiryInfo,
+  sanitizePrintSettingsForPdf,
+} from "../../../utils/printSettings";
 
 const DischargeSummaryReadonly = forwardRef((props, ref) => {
   const isIpdDynamicDischargeHeadingEnabled = useFeatureIsOn(
@@ -40,6 +45,35 @@ const DischargeSummaryReadonly = forwardRef((props, ref) => {
     (state) => state.dischargeSummary
   );
   const { dischargeSummary: currentSettings } = printSettings;
+  const sanitizedSettings = useMemo(
+    () => sanitizePrintSettingsForPdf(currentSettings),
+    [currentSettings]
+  );
+  useEffect(() => {
+    const header = currentSettings?.headerFooter?.header || {};
+    const other = currentSettings?.headerFooter?.otherSettings || {};
+    const candidates = [
+      { label: "header.logo", url: header.logo },
+      { label: "header.headerImg", url: header.headerImg },
+      { label: "otherSettings.signatureImg", url: other.signatureImg },
+      { label: "otherSettings.watermarkImg", url: other.watermarkImg },
+    ];
+    const info = candidates
+      .map((item) => {
+        const result = getSasExpiryInfo(item.url);
+        if (!result) return null;
+        return {
+          label: item.label,
+          url: result.url,
+          expiry: result.expiry.toISOString(),
+          expired: result.expired,
+        };
+      })
+      .filter(Boolean);
+    if (info.length) {
+      console.log("[DischargeSummary Readonly] SAS image URLs", info);
+    }
+  }, [currentSettings]);
   const { frequencyList, timingList } = useSelector((state) => state.doctors);
   const patientData = dischargeSummaryData?.patientInformation || {};
   const isLoading = !Object.keys(dischargeSummaryData).length || !pdfUrl;
@@ -49,16 +83,16 @@ const DischargeSummaryReadonly = forwardRef((props, ref) => {
   }, [divRef]);
 
   useEffect(() => {
-    if (currentSettings && Object.keys(dischargeSummaryData).length) {
+    if (sanitizedSettings && Object.keys(dischargeSummaryData).length) {
       makePDFUrl();
     }
-  }, [currentSettings, dischargeSummaryData]);
+  }, [sanitizedSettings, dischargeSummaryData]);
 
   const makePDFUrl = async () => {
     try {
       const blob = await pdf(
         <PDFGenerator
-          settings={currentSettings}
+          settings={sanitizedSettings}
           data={dischargeSummaryData}
           documentType="dischargeSummary"
           patientData={getPatientInformation(patientDetails)}
@@ -104,7 +138,16 @@ const DischargeSummaryReadonly = forwardRef((props, ref) => {
             className={`rounded-20px bg-white ${isLoading ? "ds-loading-wrapper" : ""}`}
           >
             {isLoading ? (
-              <DischargeSummaryLoading />
+              // <DischargeSummaryLoading />
+              <Spin
+                style={{
+                  position: "absolute",
+                  zIndex: 0,
+                  left: "50%",
+                  top: "50%",
+                }}
+                tip="Loading PDF..."
+              />
             ) : (
               <div ref={divRef} className="printheight">
                 <div className="position-relative h-100">

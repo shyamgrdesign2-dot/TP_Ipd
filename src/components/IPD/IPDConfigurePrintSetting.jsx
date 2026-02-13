@@ -25,6 +25,7 @@ import { Document, Page } from "react-pdf";
 import { pdf } from "@react-pdf/renderer";
 import { getPatientInformation } from "../../utils/utils";
 import usePrintPreviewSetup from "../../hooks/usePrintPreviewSetup";
+import { sanitizePrintSettingsForPdf } from "../../utils/printSettings";
 
 // Document type mapping for PDF generation
 const DOCUMENT_TYPE_MAPPING = {
@@ -348,6 +349,10 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
       },
     };
   }, [currentSettings, fileFooter?.renderedFooterImageHeight, fileFooter?.showFile]);
+  const sanitizedSettingsWithFooterDimensions = React.useMemo(
+    () => sanitizePrintSettingsForPdf(settingsWithFooterDimensions),
+    [settingsWithFooterDimensions]
+  );
 
   const makePDFUrl = useCallback(
     async (settings) => {
@@ -398,7 +403,7 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
   );
 
   useEffect(() => {
-    if (!settingsWithFooterDimensions) {
+    if (!sanitizedSettingsWithFooterDimensions) {
       return;
     }
 
@@ -408,7 +413,7 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
 
     previewDebounceRef.current = setTimeout(() => {
       previewDebounceRef.current = null;
-      makePDFUrl(settingsWithFooterDimensions);
+      makePDFUrl(sanitizedSettingsWithFooterDimensions);
     }, 400);
 
     return () => {
@@ -417,7 +422,7 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
         previewDebounceRef.current = null;
       }
     };
-  }, [settingsWithFooterDimensions, makePDFUrl]);
+  }, [sanitizedSettingsWithFooterDimensions, makePDFUrl]);
 
   useEffect(() => {
     return () => {

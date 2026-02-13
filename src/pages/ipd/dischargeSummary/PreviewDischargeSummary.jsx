@@ -1,6 +1,6 @@
 import { Button, Col, Row, Spin } from "antd";
 import { isMobile } from "react-device-detect";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Document, Page } from "react-pdf";
 import { pdf } from "@react-pdf/renderer";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
@@ -21,6 +21,10 @@ import PrintPreviewShimmer from "./components/PrintPreviewShimmer/PrintPreviewSh
 import { getPatientInformation } from "../../../utils/utils";
 import usePrintPreviewSetup from "../../../hooks/usePrintPreviewSetup";
 import { GB_IPD_DYNAMIC_DISCHARGE_HEADING } from "../../../utils/constants";
+import {
+  getSasExpiryInfo,
+  sanitizePrintSettingsForPdf,
+} from "../../../utils/printSettings";
 
 const PreviewDischargeSummary = () => {
   const isIpdDynamicDischargeHeadingEnabled = useFeatureIsOn(
@@ -40,6 +44,35 @@ const PreviewDischargeSummary = () => {
     (state) => state.dischargeSummary
   );
   const { dischargeSummary: currentSettings } = printSettings;
+  const sanitizedSettings = useMemo(
+    () => sanitizePrintSettingsForPdf(currentSettings),
+    [currentSettings]
+  );
+  useEffect(() => {
+    const header = currentSettings?.headerFooter?.header || {};
+    const other = currentSettings?.headerFooter?.otherSettings || {};
+    const candidates = [
+      { label: "header.logo", url: header.logo },
+      { label: "header.headerImg", url: header.headerImg },
+      { label: "otherSettings.signatureImg", url: other.signatureImg },
+      { label: "otherSettings.watermarkImg", url: other.watermarkImg },
+    ];
+    const info = candidates
+      .map((item) => {
+        const result = getSasExpiryInfo(item.url);
+        if (!result) return null;
+        return {
+          label: item.label,
+          url: result.url,
+          expiry: result.expiry.toISOString(),
+          expired: result.expired,
+        };
+      })
+      .filter(Boolean);
+    if (info.length) {
+      console.log("[DischargeSummary Preview] SAS image URLs", info);
+    }
+  }, [currentSettings]);
   const { frequencyList, timingList } = useSelector((state) => state.doctors);
   const patientData = dischargeSummaryData?.patientInformation || {};
 
@@ -72,16 +105,16 @@ const PreviewDischargeSummary = () => {
   }, []);
 
   useEffect(() => {
-    if (currentSettings && Object.keys(dischargeSummaryData).length) {
+    if (sanitizedSettings && Object.keys(dischargeSummaryData).length) {
       makePDFUrl();
     }
-  }, [currentSettings, dischargeSummaryData]);
+  }, [sanitizedSettings, dischargeSummaryData]);
 
   const makePDFUrl = async () => {
     try {
       const blob = await pdf(
         <PDFGenerator
-          settings={currentSettings}
+          settings={sanitizedSettings}
           data={dischargeSummaryData}
           documentType="dischargeSummary"
           patientData={getPatientInformation(patientDetails)}
