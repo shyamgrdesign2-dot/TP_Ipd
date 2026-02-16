@@ -3,12 +3,13 @@
  * Main document component that wraps all pages
  */
 
-import React from "react";
-import { Document, Page, Text, View } from "@react-pdf/renderer";
+import React, { useState, useEffect } from "react";
+import { Document, Page, View } from "@react-pdf/renderer";
 import { StyleSheet } from "@react-pdf/renderer";
-import { PAGE_SIZES } from "./constants";
+import { PAGE_SIZES, LETTERHEAD_FORMATS } from "./constants";
 import { getMargins } from "./utils/pdfUtils";
 import { createCommonStyles } from "./styles/commonStyles";
+import { getFooterImageHeight } from "../../utils/utils";
 import PDFHeader from "./components/PDFHeader";
 import PatientInfo from "./components/PatientInfo";
 import PDFFooter from "./components/PDFFooter";
@@ -31,18 +32,7 @@ const PDFDocument = ({
   fullData,
   isIpdDynamicDischargeHeadingEnabled = false,
 }) => {
-  if (!settings) return null;
-
-  const { pageFormat = {}, headerFooter = {} } = settings;
-
-  const {
-    pageSize = "A4",
-    fontFamily,
-    fontSize = 10,
-    patientInfoFontSize = 10,
-    pagination = false,
-  } = pageFormat;
-
+  const { pageFormat = {}, headerFooter = {} } = settings || {};
   const {
     header = {},
     footer = {},
@@ -52,6 +42,39 @@ const PDFDocument = ({
     printMode = "allPages",
     showHeaderFooterPage,
   } = headerFooter;
+
+  const [computedFooterImageHeight, setComputedFooterImageHeight] = useState(null);
+  const footerImg = footer?.footerImg;
+  const needsFooterHeight = footerImg && (footer.renderedFooterImageHeight == null);
+
+  useEffect(() => {
+    if (!needsFooterHeight) return;
+    setComputedFooterImageHeight(null);
+    let cancelled = false;
+    const fetchHeight = async () => {
+      const height = await getFooterImageHeight(footerImg);
+      if (!cancelled && height != null) {
+        setComputedFooterImageHeight(height);
+      }
+    };
+  
+    fetchHeight();
+    return () => { cancelled = true; };
+  }, [needsFooterHeight, footerImg]);
+
+  const footerWithHeight = needsFooterHeight && computedFooterImageHeight != null
+    ? { ...footer, renderedFooterImageHeight: computedFooterImageHeight }
+    : footer;
+  
+  if (!settings) return null;
+
+  const {
+    pageSize = "A4",
+    fontFamily,
+    fontSize = 10,
+    patientInfoFontSize = 10,
+    pagination = false,
+  } = pageFormat;
 
   // Get page dimensions
   const pageDimensions = PAGE_SIZES[pageSize] || PAGE_SIZES.A4;
@@ -66,7 +89,7 @@ const PDFDocument = ({
     printMode ||
     (showHeaderFooterPage === "first" ? "firstPage" : "allPages");
   const isOwnLetterheadFirstPageOnly =
-    letterHeadFormat === 2 && resolvedPrintMode === "firstPage";
+    letterHeadFormat === LETTERHEAD_FORMATS.OWN && resolvedPrintMode === "firstPage";
   const firstPageExtraTop = Math.max(0, margins.top - baseMargins.top);
 
   // Create styles
@@ -120,7 +143,7 @@ const PDFDocument = ({
           render={({ pageNumber }) =>
             ((pageNumber === 1 && resolvedPrintMode === "firstPage") || resolvedPrintMode === "allPages") ? (
               <PDFFooter
-                footerSettings={footer}
+                footerSettings={footerWithHeight}
                 fontFamily={fontFamily}
                 letterHeadFormat={letterHeadFormat}
                 showPageNumbers={pageFormat?.pagination}
