@@ -606,6 +606,7 @@ const AdmissionBilling = ({
               showHideBackModal={showHideBackModal}
               patientData={transformedPatientData}
               admissionId={admissionId}
+              admissionDate={patientDetails?.admittedOn || patientDetails?.admissionDate}
               onBillCreated={handleBillCreated}
             />
           </Drawer>
@@ -751,6 +752,7 @@ const AdmissionBilling = ({
               showHideBackModal={showHideBackModal}
               patientData={transformedPatientData}
               admissionId={admissionId}
+              admissionDate={patientDetails?.admittedOn || patientDetails?.admissionDate}
               editBillData={billData}
               onBillCreated={handleBillCreated}
             />

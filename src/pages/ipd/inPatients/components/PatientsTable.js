@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Table, Spin, Popover, message } from "antd";
+import { Table, Spin, Popover, message, Drawer } from "antd";
 import moment from "moment";
 import { useDispatch } from "react-redux";
 import noData from "../../../../assets/images/nodata-found.svg";
@@ -13,7 +13,7 @@ import {
 } from "../../../../redux/ipd/ipdSlice";
 import { updatePatientInList } from "../../../../redux/ipd/inPatientsSlice";
 import { usePatientsData } from "../hooks/usePatientsData";
-import { getTokenData, isEmptyRichText, isZydus } from "../../../../utils/utils";
+import { getTokenData, isEmptyRichText, isZydus, transformAdmissionToPatient } from "../../../../utils/utils";
 import DischargeConfirmationModal from "../../dischargeSummary/components/DischargeConfirmationModal";
 import DischargeConfirmationPopup from "../../dischargeSummary/components/DischargeConfirmationPopup";
 import { createRemoteComponent } from "../../../../shared/remoteComponents";
@@ -23,6 +23,8 @@ import { env } from "../../../../EnvironmentConfig";
 import AdmissionDetailsDrawer from "./AdmissionDetailsDrawer";
 import TransferWardBedDrawer from "./TransferWardBedDrawer";
 import TransferDoctorDepartmentDrawer from "./TransferDoctorDepartmentDrawer";
+import CreateBill from "../../../opdBilling/components/createBill/CreateBill";
+import AddAdvance from "../../../opdBilling/components/advanceDeposit/AddAdvance";
 import abhaLogo from "../../../../assets/images/icons/abha.svg";
 
 const RichTextEditor = createRemoteComponent("RichTextEditor");
@@ -34,6 +36,8 @@ const MoreActionsContent = ({
   onViewAdmissionDetails,
   onTransferWardBed,
   onTransferDoctorDepartment,
+  onCreateBill,
+  onAddAdvance,
   isDischargedPatients,
   isDischarged,
   isInPatients,
@@ -58,6 +62,16 @@ const MoreActionsContent = ({
     onTransferDoctorDepartment?.(record);
   };
 
+  const handleCreateBill = (e) => {
+    e.stopPropagation();
+    onCreateBill?.(record);
+  };
+
+  const handleAddAdvance = (e) => {
+    e.stopPropagation();
+    onAddAdvance?.(record);
+  };
+
   return (
     <div className="more-actions-menu">
       <div
@@ -66,6 +80,22 @@ const MoreActionsContent = ({
       >
         <span className="more-actions-menu-text">View Admission Details</span>
       </div>
+      {isInPatients && !isDischargedPatients && !isDischarged && (
+        <div
+          onClick={handleCreateBill}
+          className="more-actions-menu-item cursor-pointer"
+        >
+          <span className="more-actions-menu-text">Create Bill</span>
+        </div>
+      )}
+      {isInPatients && !isDischargedPatients && !isDischarged && (
+        <div
+          onClick={handleAddAdvance}
+          className="more-actions-menu-item cursor-pointer"
+        >
+          <span className="more-actions-menu-text">Add Advance</span>
+        </div>
+      )}
       {isInPatients && !isDischargedPatients && !isDischarged && (
         <div
           onClick={handleTransferWardBed}
@@ -139,6 +169,10 @@ const PatientsTable = ({
   const dischargeConfirmationModalRef = useRef(null);
   const [admissionDetailsDrawerOpen, setAdmissionDetailsDrawerOpen] = useState(false);
   const [selectedPatientForAdmissionDetails, setSelectedPatientForAdmissionDetails] = useState(null);
+  const [createBillDrawer, setCreateBillDrawer] = useState(false);
+  const [addAdvanceDrawer, setAddAdvanceDrawer] = useState(false);
+  const [selectedPatientForBilling, setSelectedPatientForBilling] = useState(null);
+  const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const showHideMoreActionPopover = (recordId) => {
     setOpenMoreActionsPopover((prev) => (prev === recordId ? null : recordId));
   };
@@ -203,6 +237,32 @@ const PatientsTable = ({
     setOpenMoreActionsPopover(null);
     setPatientForDoctorDept(record);
     setDoctorDeptDrawerOpen(true);
+  };
+
+  const handleCreateBill = (record) => {
+    setOpenMoreActionsPopover(null);
+    setSelectedPatientForBilling(record);
+    setCreateBillDrawer(true);
+  };
+
+  const handleCreateBillDrawer = () => {
+    setCreateBillDrawer(false);
+    setSelectedPatientForBilling(null);
+  };
+
+  const handleAddAdvance = (record) => {
+    setOpenMoreActionsPopover(null);
+    setSelectedPatientForBilling(record);
+    setAddAdvanceDrawer(true);
+  };
+
+  const handleAddAdvanceDrawer = () => {
+    setAddAdvanceDrawer(false);
+    setSelectedPatientForBilling(null);
+  };
+
+  const showHideBackModal = () => {
+    setIsBackModalOpen(!isBackModalOpen);
   };
 
   const applyWardTransferLocally = (payload) => {
@@ -564,6 +624,8 @@ const PatientsTable = ({
                     }}
                     onTransferWardBed={handleTransferWardBed}
                     onTransferDoctorDepartment={handleTransferDoctorDepartment}
+                    onCreateBill={handleCreateBill}
+                    onAddAdvance={handleAddAdvance}
                     isDischargedPatients={isDischargedPatients}
                     isDischarged={record?.isDischarged}
                     isInPatients={isInPatients}
@@ -704,6 +766,41 @@ const PatientsTable = ({
         patientData={patientForDoctorDept}
         onSuccess={applyDoctorTransferLocally}
       />
+      {createBillDrawer && selectedPatientForBilling && (
+        <Drawer
+          closeIcon={false}
+          placement="right"
+          onClose={handleCreateBillDrawer}
+          open={createBillDrawer}
+          width="100%"
+          push={false}
+        >
+          <CreateBill
+            handleCreateBillDrawer={handleCreateBillDrawer}
+            isBackModalOpen={isBackModalOpen}
+            showHideBackModal={showHideBackModal}
+            patientData={transformAdmissionToPatient(selectedPatientForBilling)}
+            admissionId={selectedPatientForBilling?.admissionId || selectedPatientForBilling?.admission_id}
+            admissionDate={selectedPatientForBilling?.admittedOn || selectedPatientForBilling?.admissionDate}
+          />
+        </Drawer>
+      )}
+      {addAdvanceDrawer && selectedPatientForBilling && (
+        <Drawer
+          closeIcon={false}
+          placement="right"
+          onClose={handleAddAdvanceDrawer}
+          open={addAdvanceDrawer}
+          width="100%"
+          push={false}
+        >
+          <AddAdvance
+            handleAddAdvanceDrawer={handleAddAdvanceDrawer}
+            patientData={transformAdmissionToPatient(selectedPatientForBilling)}
+            isReceptionistDashboard={false}
+          />
+        </Drawer>
+      )}
     </div>
   );
 };

@@ -93,6 +93,7 @@ const CreateBill = ({
   isPreviewFromTable,
   editBillData,
   admissionId,
+  admissionDate,
   onBillCreated,
   setEditedBillData,
 }) => {
@@ -157,6 +158,9 @@ const CreateBill = ({
   const [billData, setBillData] = useState(editBillData || {});
   const [addAdvanceDrawer, setAddAdvanceDrawer] = useState(false);
   const [totalAdvanceBalance, setTotalAdvanceBalance] = useState(null);
+  const [billDate, setBillDate] = useState(
+    editBillData?.date ? dayjs(editBillData.date) : dayjs()
+  );
 
   // Search patient related states
   const [patientDetails, setPatientDetails] = useState(
@@ -445,7 +449,6 @@ const CreateBill = ({
         });
       });
     searchQuery &&
-      !isReceptionist &&
       data.push({
         key: JSON.stringify({
           change: 1,
@@ -1010,7 +1013,7 @@ const CreateBill = ({
       paidAmount: paidAmount,
       includeInRx: includeInRx,
       isForm3C: shouldAddBillTo3C,
-      date: moment().format("YYYY-MM-DD"),
+      date: billDate.format("YYYY-MM-DD"),
       notes: patientBillNotes,
       // dueFromPreviousBill: patientDueAmount,
       appointmentId: pam_id || patientData?.pam_id,
@@ -1813,14 +1816,26 @@ const CreateBill = ({
                 </div>
                 <div>
                   <div style={{ paddingBottom: "5px" }}>Bill Date</div>
-                  <Input
+                  <DatePicker
                     className="input-create-bill"
                     style={{ width: 125, height: 38 }}
-                    value={moment().format("DD-MM-YYYY")}
-                    onInput={(e) => {
-                      e.target.value = e.target.value.replace(/[^0-9]/g, "");
+                    value={billDate}
+                    onChange={(date) => {
+                      if (date) {
+                        setBillDate(date);
+                      }
                     }}
-                    disabled={true}
+                    format="DD-MM-YYYY"
+                    disabledDate={(current) => {
+                      if (!current) return false;
+                      // For IPD bills, disable dates before admission date
+                      if (isIpdBill && admissionDate) {
+                        const admissionDateDayjs = dayjs(admissionDate);
+                        return current < admissionDateDayjs.startOf("day");
+                      }
+                      // For OPD bills, disable past dates (before today)
+                      return current < dayjs().startOf("day");
+                    }}
                   />
                 </div>
                 <div>
@@ -1933,7 +1948,7 @@ const CreateBill = ({
                           >
                             <Select
                               placeholder="Select"
-                              value={payment.paymentMode}
+                              value={totalAdvanceBalance ? "Advance Deposit" : payment.paymentMode}
                               onChange={(value) =>
                                 handleModeChange(value, index, "paymentMode")
                               }
