@@ -39,6 +39,7 @@ import rxDisplayArea from "../../assets/images/rx-display-area.svg";
 import { LETTERHEAD_FORMATS } from "../PDFGenerator";
 import { Cropper } from "react-cropper";
 import "cropperjs/dist/cropper.css";
+import useResolvedAssetUrl from "../../hooks/useResolvedAssetUrl";
 
 const RowContext = React.createContext({});
 
@@ -136,6 +137,27 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
   const cropperHeaderRef = React.createRef();
   const { headerFooter } = draftSettings[moduleType] || {};
   const { header, footer } = headerFooter || {};
+  const resolvedHeaderImg = useResolvedAssetUrl({
+    moduleType,
+    assetKey: "headerImg",
+    assetValue: header?.headerImg,
+    fileType: "fileHeader",
+    settingsPath: ["headerFooter", "header", "headerImg"],
+  });
+  const resolvedFooterImg = useResolvedAssetUrl({
+    moduleType,
+    assetKey: "footerImg",
+    assetValue: footer?.footerImg,
+    fileType: "fileFooter",
+    settingsPath: ["headerFooter", "footer", "footerImg"],
+  });
+  const resolvedLogo = useResolvedAssetUrl({
+    moduleType,
+    assetKey: "logo",
+    assetValue: header?.logo,
+    fileType: "fileLogo",
+    settingsPath: ["headerFooter", "header", "logo"],
+  });
 
   // Helper functions to update files in Redux
   const setFileLogo = useCallback(
@@ -395,7 +417,7 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
           updateHeaderFooter({
             header: {
               ...headerFooterSettings.header,
-              logo: fileUrl,
+              logo: filename,
             },
           });
 
@@ -942,7 +964,7 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
       updateHeaderFooter({
         footer: {
           ...headerFooterSettings.footer,
-          footerImg: fileUrl,
+          footerImg: filename,
         },
       });
 
@@ -1019,7 +1041,7 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
       updateHeaderFooter({
         header: {
           ...headerFooterSettings.header,
-          headerImg: fileUrl,
+          headerImg: filename,
         },
       });
 
@@ -1203,15 +1225,14 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
 
                 <div className="upload-headfoot upload-headfoot2 p-3">
                   <div className="d-flex align-items-center justify-content-between">
-                    {(fileLogo && fileLogo?.imageShow) ||
-                    headerSettings.logo ? (
+                    {(fileLogo && fileLogo?.imageShow) || resolvedLogo ? (
                       <img
                         style={{
                           height: 62,
                           objectFit: "contain",
                           overflow: "hidden",
                         }}
-                        src={fileLogo?.showFile || headerSettings.logo}
+                        src={fileLogo?.showFile || resolvedLogo}
                         alt="Logo"
                       />
                     ) : (
@@ -1234,8 +1255,7 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
                       />
                       <span>
                         <i className="icon-upload me-2"></i>
-                        {(fileLogo && fileLogo?.imageShow) ||
-                        headerSettings.logo
+                        {(fileLogo && fileLogo?.imageShow) || resolvedLogo
                           ? "Change"
                           : "Upload"}
                       </span>
@@ -1287,7 +1307,7 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
 
                 <div className="upload-headfoot">
                   {(fileHeader && fileHeader?.imageShow) ||
-                  header?.headerImg ? (
+                  resolvedHeaderImg ? (
                     <>
                       <img
                         style={{
@@ -1295,7 +1315,7 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
                           objectFit: "contain",
                           overflow: "hidden",
                         }}
-                        src={fileHeader?.showFile || header?.headerImg}
+                        src={fileHeader?.showFile || resolvedHeaderImg}
                         alt="Header"
                       />
                       <Button
@@ -1420,7 +1440,7 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
 
                 <div className="upload-headfoot mt-3">
                   {(fileFooter && fileFooter?.imageShow) ||
-                  footer?.footerImg ? (
+                  resolvedFooterImg ? (
                     <>
                       <img
                         style={{
@@ -1428,7 +1448,7 @@ function IPDHeaderFooterLayout({ moduleType, updateFooterImageHeight }) {
                           objectFit: "contain",
                           overflow: "hidden",
                         }}
-                        src={fileFooter?.showFile || footer?.footerImg}
+                        src={fileFooter?.showFile || resolvedFooterImg}
                         alt="Footer"
                       />
                       <Button

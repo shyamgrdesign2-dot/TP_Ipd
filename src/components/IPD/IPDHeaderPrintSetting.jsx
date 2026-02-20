@@ -68,7 +68,6 @@ function IPDHeaderPrintSetting({ moduleType, moduleTitle, returnPath }) {
         message,
         ...settingsPayload
       } = draftSettings;
-
       const action = await dispatch(
         updatePrintSettings({
           printSettings: { ...settingsPayload },

@@ -28,6 +28,7 @@ import {
   getSasExpiryInfo,
   sanitizePrintSettingsForPdf,
 } from "../../../utils/printSettings";
+import useResolvedAssetUrl from "../../../hooks/useResolvedAssetUrl";
 
 const DischargeSummaryReadonly = forwardRef((props, ref) => {
   const isIpdDynamicDischargeHeadingEnabled = useFeatureIsOn(
@@ -45,10 +46,47 @@ const DischargeSummaryReadonly = forwardRef((props, ref) => {
     (state) => state.dischargeSummary
   );
   const { dischargeSummary: currentSettings } = printSettings;
-  const sanitizedSettings = useMemo(
-    () => sanitizePrintSettingsForPdf(currentSettings),
-    [currentSettings]
-  );
+  const resolvedHeaderImg = useResolvedAssetUrl({
+    moduleType: "dischargeSummary",
+    assetKey: "headerImg",
+    assetValue: currentSettings?.headerFooter?.header?.headerImg,
+    fileType: "fileHeader",
+    settingsPath: ["headerFooter", "header", "headerImg"],
+  });
+  const resolvedFooterImg = useResolvedAssetUrl({
+    moduleType: "dischargeSummary",
+    assetKey: "footerImg",
+    assetValue: currentSettings?.headerFooter?.footer?.footerImg,
+    fileType: "fileFooter",
+    settingsPath: ["headerFooter", "footer", "footerImg"],
+  });
+  const resolvedLogo = useResolvedAssetUrl({
+    moduleType: "dischargeSummary",
+    assetKey: "logo",
+    assetValue: currentSettings?.headerFooter?.header?.logo,
+    fileType: "fileLogo",
+    settingsPath: ["headerFooter", "header", "logo"],
+  });
+  const sanitizedSettings = useMemo(() => {
+    if (!currentSettings) return currentSettings;
+    const next = JSON.parse(JSON.stringify(currentSettings));
+    if (resolvedHeaderImg) {
+      if (!next.headerFooter) next.headerFooter = {};
+      if (!next.headerFooter.header) next.headerFooter.header = {};
+      next.headerFooter.header.headerImg = resolvedHeaderImg;
+    }
+    if (resolvedFooterImg) {
+      if (!next.headerFooter) next.headerFooter = {};
+      if (!next.headerFooter.footer) next.headerFooter.footer = {};
+      next.headerFooter.footer.footerImg = resolvedFooterImg;
+    }
+    if (resolvedLogo) {
+      if (!next.headerFooter) next.headerFooter = {};
+      if (!next.headerFooter.header) next.headerFooter.header = {};
+      next.headerFooter.header.logo = resolvedLogo;
+    }
+    return sanitizePrintSettingsForPdf(next);
+  }, [currentSettings, resolvedHeaderImg, resolvedFooterImg, resolvedLogo]);
   useEffect(() => {
     const header = currentSettings?.headerFooter?.header || {};
     const other = currentSettings?.headerFooter?.otherSettings || {};
