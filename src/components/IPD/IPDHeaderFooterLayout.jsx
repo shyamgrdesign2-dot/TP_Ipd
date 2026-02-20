@@ -40,6 +40,7 @@ import { LETTERHEAD_FORMATS } from "../PDFGenerator";
 import { Cropper } from "react-cropper";
 import "cropperjs/dist/cropper.css";
 import useResolvedAssetUrl from "../../hooks/useResolvedAssetUrl";
+import { useEffect } from "react";
 
 const RowContext = React.createContext({});
 

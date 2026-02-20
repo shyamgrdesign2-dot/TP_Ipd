@@ -2,12 +2,63 @@ import { pdf } from "@react-pdf/renderer";
 import { PDFGenerator } from "../../../components/PDFGenerator";
 import { downloadDocument, printDocument } from "../dischargeSummary/utils/helper";
 import { getPatientInformation } from "../../../utils/utils";
+import { sanitizePrintSettingsForPdf } from "../../../utils/printSettings";
+import { store } from "../../../redux/store";
+
+const isHttpUrl = (value) => typeof value === "string" && /^https?:\/\//i.test(value);
+
+const prepareSettingsForPdf = (documentType, settings) => {
+  if (!settings) return settings;
+  const state = store.getState();
+  const fileStates = state?.printSettings?.fileStates || {};
+  const moduleType = settingsKeyByDocType[documentType];
+  const moduleFiles = moduleType ? fileStates[moduleType] || {} : {};
+
+  const resolveAsset = (pathVal, fileObj) =>
+    (fileObj && isHttpUrl(fileObj.showFile) && fileObj.showFile) || pathVal;
+
+  const next = JSON.parse(JSON.stringify(settings));
+  const header =
+    next?.headerFooter?.header || next?.header_footer?.header || next?.headerFooter?.header || {};
+  const footer =
+    next?.headerFooter?.footer || next?.header_footer?.footer || next?.headerFooter?.footer || {};
+
+  const fileHeader = moduleFiles.fileHeader;
+  const fileFooter = moduleFiles.fileFooter;
+  const fileLogo = moduleFiles.fileLogo;
+
+  if (fileHeader) {
+    if (fileHeader.showFile) header.headerImg = resolveAsset(header.headerImg, fileHeader);
+  }
+  if (fileLogo) {
+    if (fileLogo.showFile) header.logo = resolveAsset(header.logo, fileLogo);
+  }
+  if (fileFooter) {
+    if (fileFooter.showFile) footer.footerImg = resolveAsset(footer.footerImg, fileFooter);
+    if (fileFooter.renderedFooterImageHeight != null) {
+      footer.renderedFooterImageHeight = fileFooter.renderedFooterImageHeight;
+    }
+  }
+
+  if (next.headerFooter) {
+    next.headerFooter.header = { ...(next.headerFooter.header || {}), ...header };
+    next.headerFooter.footer = { ...(next.headerFooter.footer || {}), ...footer };
+  }
+
+  if (next.header_footer) {
+    next.header_footer.header = { ...(next.header_footer.header || {}), ...header };
+    next.header_footer.footer = { ...(next.header_footer.footer || {}), ...footer };
+  }
+
+  return sanitizePrintSettingsForPdf(next);
+};
 
 export const generatePdfBlob = async (documentType, settings, data, patientDetails, frequencyList, timingList) => {
   if (!settings) throw new Error("Missing print settings");
+  const prepared = prepareSettingsForPdf(documentType, settings);
   const element = (
     <PDFGenerator
-      settings={settings}
+      settings={prepared}
       data={data}
       documentType={documentType}
       patientData={patientDetails ? getPatientInformation(patientDetails) : undefined}
@@ -101,5 +152,3 @@ export const downloadModule = async (
   if (!hasPrintableData(data)) return;
   await downloadWithGenerator(documentType, settings, data, patientDetails, frequencyList, timingList);
 };
-
-

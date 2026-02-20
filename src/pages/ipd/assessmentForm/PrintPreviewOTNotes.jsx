@@ -16,6 +16,8 @@ import {
 } from "../dischargeSummary/utils/helper";
 import { getPatientInformation } from "../../../utils/utils";
 import usePrintPreviewSetup from "../../../hooks/usePrintPreviewSetup";
+import useResolvedAssetUrl from "../../../hooks/useResolvedAssetUrl";
+import { sanitizePrintSettingsForPdf } from "../../../utils/printSettings";
 
 const PrintPreviewOTNotes = () => {
   const navigate = useNavigate();
@@ -41,8 +43,65 @@ const PrintPreviewOTNotes = () => {
           ?.renderedFooterImageHeight
     ) ||
     currentSettings?.headerFooter?.footer?.renderedFooterImageHeight;
-  const footerImg = currentSettings?.headerFooter?.footer?.footerImg || null;
-  const footerReady = !footerImg || footerHeight != null;
+  const resolvedHeaderImg = useResolvedAssetUrl({
+    moduleType: "otNotes",
+    assetKey: "headerImg",
+    assetValue: currentSettings?.headerFooter?.header?.headerImg,
+    fileType: "fileHeader",
+    settingsPath: ["headerFooter", "header", "headerImg"],
+  });
+  const resolvedFooterImg = useResolvedAssetUrl({
+    moduleType: "otNotes",
+    assetKey: "footerImg",
+    assetValue: currentSettings?.headerFooter?.footer?.footerImg,
+    fileType: "fileFooter",
+    settingsPath: ["headerFooter", "footer", "footerImg"],
+  });
+  const resolvedLogo = useResolvedAssetUrl({
+    moduleType: "otNotes",
+    assetKey: "logo",
+    assetValue: currentSettings?.headerFooter?.header?.logo,
+    fileType: "fileLogo",
+    settingsPath: ["headerFooter", "header", "logo"],
+  });
+
+  const sanitizedSettings = useMemo(() => {
+    if (!currentSettings) return currentSettings;
+    const next = JSON.parse(JSON.stringify(currentSettings));
+    if (resolvedHeaderImg) {
+      if (!next.headerFooter) next.headerFooter = {};
+      if (!next.headerFooter.header) next.headerFooter.header = {};
+      next.headerFooter.header.headerImg = resolvedHeaderImg;
+    }
+    if (resolvedFooterImg) {
+      if (!next.headerFooter) next.headerFooter = {};
+      if (!next.headerFooter.footer) next.headerFooter.footer = {};
+      next.headerFooter.footer.footerImg = resolvedFooterImg;
+    }
+    if (resolvedLogo) {
+      if (!next.headerFooter) next.headerFooter = {};
+      if (!next.headerFooter.header) next.headerFooter.header = {};
+      next.headerFooter.header.logo = resolvedLogo;
+    }
+    return sanitizePrintSettingsForPdf(next);
+  }, [currentSettings, resolvedHeaderImg, resolvedFooterImg, resolvedLogo]);
+
+  const sanitizedWithFooterDimensions = useMemo(() => {
+    if (!sanitizedSettings) return sanitizedSettings;
+    if (!footerHeight) return sanitizedSettings;
+    const headerFooter = sanitizedSettings.headerFooter || {};
+    const footer = headerFooter.footer || {};
+    if (!footer.footerImg) return sanitizedSettings;
+    return {
+      ...sanitizedSettings,
+      headerFooter: {
+        ...headerFooter,
+        footer: { ...footer, renderedFooterImageHeight: footerHeight },
+      },
+    };
+  }, [sanitizedSettings, footerHeight]);
+
+  const footerReady = !resolvedFooterImg || footerHeight != null;
 
   useEffect(() => {
     setDivWidth(divRef.current?.offsetWidth);
@@ -79,14 +138,14 @@ const PrintPreviewOTNotes = () => {
 
   useEffect(() => {
     if (
-      currentSettings &&
+      sanitizedWithFooterDimensions &&
       resolvedOtNotesData &&
       Object.keys(resolvedOtNotesData || {}).length &&
       footerReady
     ) {
-      makePDFUrl(currentSettings, resolvedOtNotesData);
+      makePDFUrl(sanitizedWithFooterDimensions, resolvedOtNotesData);
     }
-  }, [currentSettings, resolvedOtNotesData, footerReady]);
+  }, [sanitizedWithFooterDimensions, resolvedOtNotesData, footerReady]);
 
   const makePDFUrl = async (settings, data) => {
     try {

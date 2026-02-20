@@ -1,6 +1,6 @@
 import { Button, Col, Row, Spin } from "antd";
 import { isMobile } from "react-device-detect";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Document, Page } from "react-pdf";
 import { pdf } from "@react-pdf/renderer";
 
@@ -24,6 +24,8 @@ import {
 } from "../dischargeSummary/utils/helper";
 import { getPatientInformation } from "../../../utils/utils";
 import usePrintPreviewSetup from "../../../hooks/usePrintPreviewSetup";
+import useResolvedAssetUrl from "../../../hooks/useResolvedAssetUrl";
+import { sanitizePrintSettingsForPdf } from "../../../utils/printSettings";
 
 const PreviewAdmissionAssessment = () => {
   const navigate = useNavigate();
@@ -47,7 +49,69 @@ const PreviewAdmissionAssessment = () => {
     ) ||
     currentSettings?.headerFooter?.footer?.renderedFooterImageHeight;
   const footerImg = currentSettings?.headerFooter?.footer?.footerImg || null;
-  const footerReady = !footerImg || footerHeight != null;
+
+  const resolvedHeaderImg = useResolvedAssetUrl({
+    moduleType: "assessments",
+    assetKey: "headerImg",
+    assetValue: currentSettings?.headerFooter?.header?.headerImg,
+    fileType: "fileHeader",
+    settingsPath: ["headerFooter", "header", "headerImg"],
+  });
+  const resolvedFooterImg = useResolvedAssetUrl({
+    moduleType: "assessments",
+    assetKey: "footerImg",
+    assetValue: currentSettings?.headerFooter?.footer?.footerImg,
+    fileType: "fileFooter",
+    settingsPath: ["headerFooter", "footer", "footerImg"],
+  });
+  const resolvedLogo = useResolvedAssetUrl({
+    moduleType: "assessments",
+    assetKey: "logo",
+    assetValue: currentSettings?.headerFooter?.header?.logo,
+    fileType: "fileLogo",
+    settingsPath: ["headerFooter", "header", "logo"],
+  });
+
+  const sanitizedSettings = useMemo(() => {
+    if (!currentSettings) return currentSettings;
+    const next = JSON.parse(JSON.stringify(currentSettings));
+    if (resolvedHeaderImg) {
+      if (!next.headerFooter) next.headerFooter = {};
+      if (!next.headerFooter.header) next.headerFooter.header = {};
+      next.headerFooter.header.headerImg = resolvedHeaderImg;
+    }
+    if (resolvedFooterImg) {
+      if (!next.headerFooter) next.headerFooter = {};
+      if (!next.headerFooter.footer) next.headerFooter.footer = {};
+      next.headerFooter.footer.footerImg = resolvedFooterImg;
+    }
+    if (resolvedLogo) {
+      if (!next.headerFooter) next.headerFooter = {};
+      if (!next.headerFooter.header) next.headerFooter.header = {};
+      next.headerFooter.header.logo = resolvedLogo;
+    }
+    return sanitizePrintSettingsForPdf(next);
+  }, [currentSettings, resolvedHeaderImg, resolvedFooterImg, resolvedLogo]);
+
+  const sanitizedWithFooterDimensions = useMemo(() => {
+    if (!sanitizedSettings) return sanitizedSettings;
+    if (!footerHeight) return sanitizedSettings;
+    const headerFooter = sanitizedSettings.headerFooter || {};
+    const footer = headerFooter.footer || {};
+    if (!footer.footerImg) return sanitizedSettings;
+    return {
+      ...sanitizedSettings,
+      headerFooter: {
+        ...headerFooter,
+        footer: {
+          ...footer,
+          renderedFooterImageHeight: footerHeight,
+        },
+      },
+    };
+  }, [sanitizedSettings, footerHeight]);
+
+  const footerReady = !resolvedFooterImg || footerHeight != null;
   //   const patientData = dischargeSummaryData?.patientInformation || {};
 
   useEffect(() => {
@@ -79,16 +143,20 @@ const PreviewAdmissionAssessment = () => {
   }, []);
 
   useEffect(() => {
-    if (currentSettings && Object.keys(assessmentsData).length && footerReady) {
+    if (
+      sanitizedWithFooterDimensions &&
+      Object.keys(assessmentsData).length &&
+      footerReady
+    ) {
       makePDFUrl();
     }
-  }, [currentSettings, assessmentsData, footerReady]);
+  }, [sanitizedWithFooterDimensions, assessmentsData, footerReady]);
 
   const makePDFUrl = async () => {
     try {
       const blob = await pdf(
         <PDFGenerator
-          settings={currentSettings}
+          settings={sanitizedWithFooterDimensions}
           data={assessmentsData}
           documentType="assessments"
           patientData={getPatientInformation(patientDetails)}
