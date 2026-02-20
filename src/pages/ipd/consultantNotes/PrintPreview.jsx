@@ -33,6 +33,16 @@ const PrintPreview = () => {
   const { consultantNotes } = useSelector((state) => state.consultantNotes);
   const { consultationNotes: currentSettings } = printSettings;
   const { frequencyList, timingList } = useSelector((state) => state.doctors);
+  const footerHeight =
+    useSelector(
+      (state) =>
+        state.printSettings.fileStates?.consultationNotes?.fileFooter
+          ?.renderedFooterImageHeight
+    ) ||
+    currentSettings?.headerFooter?.footer?.renderedFooterImageHeight;
+  const footerImg =
+    currentSettings?.headerFooter?.footer?.footerImg || null;
+  const footerReady = !footerImg || footerHeight != null;
 
   useEffect(() => {
     setDivWidth(divRef.current?.offsetWidth);
@@ -79,10 +89,10 @@ const PrintPreview = () => {
   }, [consultantNotes, currentSettings]);
 
   useEffect(() => {
-    if (currentSettings && consultantNotes.length > 0) {
+    if (currentSettings && consultantNotes.length > 0 && footerReady) {
       makePDFUrl();
     }
-  }, [currentSettings, consultantNotes, makePDFUrl]);
+  }, [currentSettings, consultantNotes, makePDFUrl, footerReady]);
 
   const handleDrawerConfigureSettings = () => {
     navigate("/ipd/consultant-notes/configure-print-settings", {

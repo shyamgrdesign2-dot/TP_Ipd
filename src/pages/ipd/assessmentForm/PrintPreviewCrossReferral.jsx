@@ -32,6 +32,15 @@ const PrintPreviewCrossReferral = () => {
   const { crossReferralData } = useSelector((state) => state.crossReferral);
 
   const { crossReferral: currentSettings } = printSettings;
+  const footerHeight =
+    useSelector(
+      (state) =>
+        state.printSettings.fileStates?.crossReferral?.fileFooter
+          ?.renderedFooterImageHeight
+    ) ||
+    currentSettings?.headerFooter?.footer?.renderedFooterImageHeight;
+  const footerImg = currentSettings?.headerFooter?.footer?.footerImg || null;
+  const footerReady = !footerImg || footerHeight != null;
 
   useEffect(() => {
     setDivWidth(divRef.current?.offsetWidth);
@@ -62,10 +71,10 @@ const PrintPreviewCrossReferral = () => {
   }, []);
 
   useEffect(() => {
-    if (currentSettings && Object.keys(crossReferralData).length) {
+    if (currentSettings && Object.keys(crossReferralData).length && footerReady) {
       makePDFUrl();
     }
-  }, [currentSettings, crossReferralData]);
+  }, [currentSettings, crossReferralData, footerReady]);
 
   const makePDFUrl = async () => {
     try {

@@ -59,6 +59,14 @@ const PreviewDischargeSummary = () => {
     fileType: "fileFooter",
     settingsPath: ["headerFooter", "footer", "footerImg"],
   });
+  const footerHeight =
+    useSelector(
+      (state) =>
+        state.printSettings.fileStates?.dischargeSummary?.fileFooter
+          ?.renderedFooterImageHeight
+    ) ||
+    currentSettings?.headerFooter?.footer?.renderedFooterImageHeight;
+  const footerReady = !resolvedFooterImg || footerHeight != null;
   const resolvedLogo = useResolvedAssetUrl({
     moduleType: "dischargeSummary",
     assetKey: "logo",
@@ -143,10 +151,11 @@ const PreviewDischargeSummary = () => {
   }, []);
 
   useEffect(() => {
-    if (sanitizedSettings && Object.keys(dischargeSummaryData).length) {
-      makePDFUrl();
-    }
-  }, [sanitizedSettings, dischargeSummaryData]);
+    if (!sanitizedSettings) return;
+    if (!Object.keys(dischargeSummaryData).length) return;
+    if (!footerReady) return;
+    makePDFUrl();
+  }, [sanitizedSettings, dischargeSummaryData, footerReady]);
 
   const makePDFUrl = async () => {
     try {

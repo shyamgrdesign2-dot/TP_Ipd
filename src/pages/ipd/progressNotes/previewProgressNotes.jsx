@@ -31,6 +31,15 @@ const PreviewProgressNotes = () => {
     (state) => state.progressNotes
   );
   const { progressNotes: currentSettings } = printSettings;
+  const footerHeight =
+    useSelector(
+      (state) =>
+        state.printSettings.fileStates?.progressNotes?.fileFooter
+          ?.renderedFooterImageHeight
+    ) ||
+    currentSettings?.headerFooter?.footer?.renderedFooterImageHeight;
+  const footerImg = currentSettings?.headerFooter?.footer?.footerImg || null;
+  const footerReady = !footerImg || footerHeight != null;
 
   // const patientData = progressNotesData?.patientInformation || {};
   const patientInformation = getPatientInformation(patientDetails);
@@ -57,10 +66,10 @@ const PreviewProgressNotes = () => {
   }, [stateProgressNotesData, storeProgressNotes]);
 
   useEffect(() => {
-    if (currentSettings && resolvedProgressNotes.length > 0) {
+    if (currentSettings && resolvedProgressNotes.length > 0 && footerReady) {
       makePDFUrl(currentSettings, resolvedProgressNotes);
     }
-  }, [currentSettings, resolvedProgressNotes]);
+  }, [currentSettings, resolvedProgressNotes, footerReady]);
 
   const makePDFUrl = async (settings, notes) => {
     try {

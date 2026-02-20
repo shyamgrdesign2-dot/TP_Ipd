@@ -4,8 +4,10 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getFileUrlByFilename,
   setFile,
+  setFooterDimensions,
   updatePrintSettings,
 } from "../redux/ipd/printSettingsSlice";
+import { getFooterImageHeight } from "../utils/utils";
 
 const isHttpUrl = (value) =>
   typeof value === "string" && /^https?:\/\//i.test(value);
@@ -69,6 +71,8 @@ const useResolvedAssetUrl = ({
   const fileState = moduleFileStates[fileType];
   const resolvedUrl = moduleFileStates[`${assetKey}Url`];
   const hasHealed = moduleFileStates[`${assetKey}Healed`];
+  const cachedFooterHeight =
+    moduleFileStates?.fileFooter?.renderedFooterImageHeight;
 
   useEffect(() => {
     if (!assetValue || hasHealed) return;
@@ -110,6 +114,32 @@ const useResolvedAssetUrl = ({
             },
           })
         );
+
+        // Pre-compute footer height once we have a usable URL
+        if (
+          assetKey === "footerImg" &&
+          moduleType &&
+          fileUrl &&
+          cachedFooterHeight == null
+        ) {
+          getFooterImageHeight(fileUrl)
+            .then((height) => {
+              if (height == null) return;
+              dispatch(
+                setFooterDimensions({
+                  moduleType,
+                  dimensions: {
+                    renderedFooterImageHeight: height,
+                    showFile: fileUrl,
+                    imageShow: true,
+                  },
+                })
+              );
+            })
+            .catch((error) =>
+              console.error("Failed to compute footer height", error)
+            );
+        }
 
         const doctorId =
           doctorIdFromState ||

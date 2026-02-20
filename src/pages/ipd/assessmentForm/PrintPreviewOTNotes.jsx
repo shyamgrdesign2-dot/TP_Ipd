@@ -34,6 +34,15 @@ const PrintPreviewOTNotes = () => {
   const { printSettings } = useSelector((state) => state.printSettings);
   const { otNotesData: storeOtNotesData } = useSelector((state) => state.otNotes);
   const { otNotes: currentSettings } = printSettings;
+  const footerHeight =
+    useSelector(
+      (state) =>
+        state.printSettings.fileStates?.otNotes?.fileFooter
+          ?.renderedFooterImageHeight
+    ) ||
+    currentSettings?.headerFooter?.footer?.renderedFooterImageHeight;
+  const footerImg = currentSettings?.headerFooter?.footer?.footerImg || null;
+  const footerReady = !footerImg || footerHeight != null;
 
   useEffect(() => {
     setDivWidth(divRef.current?.offsetWidth);
@@ -72,11 +81,12 @@ const PrintPreviewOTNotes = () => {
     if (
       currentSettings &&
       resolvedOtNotesData &&
-      Object.keys(resolvedOtNotesData || {}).length
+      Object.keys(resolvedOtNotesData || {}).length &&
+      footerReady
     ) {
       makePDFUrl(currentSettings, resolvedOtNotesData);
     }
-  }, [currentSettings, resolvedOtNotesData]);
+  }, [currentSettings, resolvedOtNotesData, footerReady]);
 
   const makePDFUrl = async (settings, data) => {
     try {

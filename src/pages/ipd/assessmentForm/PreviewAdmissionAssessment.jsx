@@ -39,6 +39,15 @@ const PreviewAdmissionAssessment = () => {
   const { assessmentsData } = useSelector((state) => state.assessment);
   const { assessments: currentSettings } = printSettings;
   const { frequencyList, timingList } = useSelector((state) => state.doctors);
+  const footerHeight =
+    useSelector(
+      (state) =>
+        state.printSettings.fileStates?.assessments?.fileFooter
+          ?.renderedFooterImageHeight
+    ) ||
+    currentSettings?.headerFooter?.footer?.renderedFooterImageHeight;
+  const footerImg = currentSettings?.headerFooter?.footer?.footerImg || null;
+  const footerReady = !footerImg || footerHeight != null;
   //   const patientData = dischargeSummaryData?.patientInformation || {};
 
   useEffect(() => {
@@ -70,10 +79,10 @@ const PreviewAdmissionAssessment = () => {
   }, []);
 
   useEffect(() => {
-    if (currentSettings && Object.keys(assessmentsData).length) {
+    if (currentSettings && Object.keys(assessmentsData).length && footerReady) {
       makePDFUrl();
     }
-  }, [currentSettings, assessmentsData]);
+  }, [currentSettings, assessmentsData, footerReady]);
 
   const makePDFUrl = async () => {
     try {

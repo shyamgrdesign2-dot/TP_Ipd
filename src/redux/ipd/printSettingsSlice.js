@@ -499,6 +499,36 @@ const printSettingsSlice = createSlice({
       const { moduleType } = action.payload;
       delete state.fileStates[moduleType];
     },
+
+    // Cache footer dimensions so PDF rendering has height upfront
+    setFooterDimensions: (state, action) => {
+      const { moduleType, dimensions } = action.payload || {};
+      if (!moduleType || !dimensions) return;
+
+      // Update file state cache
+      if (!state.fileStates[moduleType]) {
+        state.fileStates[moduleType] = {};
+      }
+      const existingFooter = state.fileStates[moduleType].fileFooter || {};
+      state.fileStates[moduleType].fileFooter = {
+        ...existingFooter,
+        ...dimensions,
+      };
+
+      // Also mirror into draft and saved settings so downstream consumers (printModule, previews) pick it up
+      const updateFooterInSettings = (settingsObj) => {
+        if (!settingsObj?.[moduleType]) return;
+        const footer =
+          settingsObj[moduleType]?.headerFooter?.footer || {};
+        settingsObj[moduleType].headerFooter = {
+          ...(settingsObj[moduleType].headerFooter || {}),
+          footer: { ...footer, ...dimensions },
+        };
+      };
+
+      updateFooterInSettings(state.draftSettings);
+      updateFooterInSettings(state.printSettings);
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -596,6 +626,7 @@ export const {
   setFileStates,
   setFile,
   clearFileStates,
+  setFooterDimensions,
 } = printSettingsSlice.actions;
 
 export default printSettingsSlice.reducer;

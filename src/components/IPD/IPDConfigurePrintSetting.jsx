@@ -346,6 +346,8 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
     fileType: "fileFooter",
     settingsPath: ["headerFooter", "footer", "footerImg"],
   });
+  const footerReady =
+    !resolvedFooterImg || fileFooter?.renderedFooterImageHeight != null;
   const resolvedLogo = useResolvedAssetUrl({
     moduleType,
     assetKey: "logo",
@@ -451,9 +453,8 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
   );
 
   useEffect(() => {
-    if (!sanitizedSettingsWithFooterDimensions) {
-      return;
-    }
+    if (!sanitizedSettingsWithFooterDimensions) return;
+    if (!footerReady) return;
 
     if (previewDebounceRef.current) {
       clearTimeout(previewDebounceRef.current);
@@ -470,7 +471,7 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
         previewDebounceRef.current = null;
       }
     };
-  }, [sanitizedSettingsWithFooterDimensions, makePDFUrl]);
+  }, [sanitizedSettingsWithFooterDimensions, makePDFUrl, footerReady]);
 
   useEffect(() => {
     return () => {
