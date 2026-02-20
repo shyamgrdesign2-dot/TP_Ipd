@@ -4,6 +4,7 @@ import React, {
   forwardRef,
   useEffect,
   useImperativeHandle,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -23,6 +24,11 @@ import DischargeSummaryLoading from "./components/DischargeSummaryLoading/Discha
 import { getPatientInformation } from "../../../utils/utils";
 import { useLocation } from "react-router-dom";
 import { GB_IPD_DYNAMIC_DISCHARGE_HEADING } from "../../../utils/constants";
+import {
+  getSasExpiryInfo,
+  sanitizePrintSettingsForPdf,
+} from "../../../utils/printSettings";
+import useResolvedAssetUrl from "../../../hooks/useResolvedAssetUrl";
 
 const DischargeSummaryReadonly = forwardRef((props, ref) => {
   const isIpdDynamicDischargeHeadingEnabled = useFeatureIsOn(
@@ -40,6 +46,80 @@ const DischargeSummaryReadonly = forwardRef((props, ref) => {
     (state) => state.dischargeSummary
   );
   const { dischargeSummary: currentSettings } = printSettings;
+  const resolvedHeaderImg = useResolvedAssetUrl({
+    moduleType: "dischargeSummary",
+    assetKey: "headerImg",
+    assetValue: currentSettings?.headerFooter?.header?.headerImg,
+    fileType: "fileHeader",
+    settingsPath: ["headerFooter", "header", "headerImg"],
+  });
+  const resolvedFooterImg = useResolvedAssetUrl({
+    moduleType: "dischargeSummary",
+    assetKey: "footerImg",
+    assetValue: currentSettings?.headerFooter?.footer?.footerImg,
+    fileType: "fileFooter",
+    settingsPath: ["headerFooter", "footer", "footerImg"],
+  });
+  const footerHeight =
+    useSelector(
+      (state) =>
+        state.printSettings.fileStates?.dischargeSummary?.fileFooter
+          ?.renderedFooterImageHeight
+    ) ||
+    currentSettings?.headerFooter?.footer?.renderedFooterImageHeight;
+  const footerReady = !resolvedFooterImg || footerHeight != null;
+  const resolvedLogo = useResolvedAssetUrl({
+    moduleType: "dischargeSummary",
+    assetKey: "logo",
+    assetValue: currentSettings?.headerFooter?.header?.logo,
+    fileType: "fileLogo",
+    settingsPath: ["headerFooter", "header", "logo"],
+  });
+  const sanitizedSettings = useMemo(() => {
+    if (!currentSettings) return currentSettings;
+    const next = JSON.parse(JSON.stringify(currentSettings));
+    if (resolvedHeaderImg) {
+      if (!next.headerFooter) next.headerFooter = {};
+      if (!next.headerFooter.header) next.headerFooter.header = {};
+      next.headerFooter.header.headerImg = resolvedHeaderImg;
+    }
+    if (resolvedFooterImg) {
+      if (!next.headerFooter) next.headerFooter = {};
+      if (!next.headerFooter.footer) next.headerFooter.footer = {};
+      next.headerFooter.footer.footerImg = resolvedFooterImg;
+    }
+    if (resolvedLogo) {
+      if (!next.headerFooter) next.headerFooter = {};
+      if (!next.headerFooter.header) next.headerFooter.header = {};
+      next.headerFooter.header.logo = resolvedLogo;
+    }
+    return sanitizePrintSettingsForPdf(next);
+  }, [currentSettings, resolvedHeaderImg, resolvedFooterImg, resolvedLogo]);
+  useEffect(() => {
+    const header = currentSettings?.headerFooter?.header || {};
+    const other = currentSettings?.headerFooter?.otherSettings || {};
+    const candidates = [
+      { label: "header.logo", url: header.logo },
+      { label: "header.headerImg", url: header.headerImg },
+      { label: "otherSettings.signatureImg", url: other.signatureImg },
+      { label: "otherSettings.watermarkImg", url: other.watermarkImg },
+    ];
+    const info = candidates
+      .map((item) => {
+        const result = getSasExpiryInfo(item.url);
+        if (!result) return null;
+        return {
+          label: item.label,
+          url: result.url,
+          expiry: result.expiry.toISOString(),
+          expired: result.expired,
+        };
+      })
+      .filter(Boolean);
+    if (info.length) {
+      console.log("[DischargeSummary Readonly] SAS image URLs", info);
+    }
+  }, [currentSettings]);
   const { frequencyList, timingList } = useSelector((state) => state.doctors);
   const patientData = dischargeSummaryData?.patientInformation || {};
   const isLoading = !Object.keys(dischargeSummaryData).length || !pdfUrl;
@@ -49,16 +129,17 @@ const DischargeSummaryReadonly = forwardRef((props, ref) => {
   }, [divRef]);
 
   useEffect(() => {
-    if (currentSettings && Object.keys(dischargeSummaryData).length) {
-      makePDFUrl();
-    }
-  }, [currentSettings, dischargeSummaryData]);
+    if (!sanitizedSettings) return;
+    if (!Object.keys(dischargeSummaryData).length) return;
+    if (!footerReady) return;
+    makePDFUrl();
+  }, [sanitizedSettings, dischargeSummaryData, footerReady]);
 
   const makePDFUrl = async () => {
     try {
       const blob = await pdf(
         <PDFGenerator
-          settings={currentSettings}
+          settings={sanitizedSettings}
           data={dischargeSummaryData}
           documentType="dischargeSummary"
           patientData={getPatientInformation(patientDetails)}
@@ -104,7 +185,16 @@ const DischargeSummaryReadonly = forwardRef((props, ref) => {
             className={`rounded-20px bg-white ${isLoading ? "ds-loading-wrapper" : ""}`}
           >
             {isLoading ? (
-              <DischargeSummaryLoading />
+              // <DischargeSummaryLoading />
+              <Spin
+                style={{
+                  position: "absolute",
+                  zIndex: 0,
+                  left: "50%",
+                  top: "50%",
+                }}
+                tip="Loading PDF..."
+              />
             ) : (
               <div ref={divRef} className="printheight">
                 <div className="position-relative h-100">

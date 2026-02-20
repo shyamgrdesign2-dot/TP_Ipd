@@ -25,6 +25,8 @@ import { Document, Page } from "react-pdf";
 import { pdf } from "@react-pdf/renderer";
 import { getPatientInformation } from "../../utils/utils";
 import usePrintPreviewSetup from "../../hooks/usePrintPreviewSetup";
+import { sanitizePrintSettingsForPdf } from "../../utils/printSettings";
+import useResolvedAssetUrl from "../../hooks/useResolvedAssetUrl";
 
 // Document type mapping for PDF generation
 const DOCUMENT_TYPE_MAPPING = {
@@ -330,15 +332,60 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
     setPrintBlob(blob);
   }
   const currentSettings = getCurrentModuleSettings();
-  const settingsWithFooterDimensions = React.useMemo(() => {
+  const resolvedHeaderImg = useResolvedAssetUrl({
+    moduleType,
+    assetKey: "headerImg",
+    assetValue: currentSettings?.headerFooter?.header?.headerImg,
+    fileType: "fileHeader",
+    settingsPath: ["headerFooter", "header", "headerImg"],
+  });
+  const resolvedFooterImg = useResolvedAssetUrl({
+    moduleType,
+    assetKey: "footerImg",
+    assetValue: currentSettings?.headerFooter?.footer?.footerImg,
+    fileType: "fileFooter",
+    settingsPath: ["headerFooter", "footer", "footerImg"],
+  });
+  const footerReady =
+    !resolvedFooterImg || fileFooter?.renderedFooterImageHeight != null;
+  const resolvedLogo = useResolvedAssetUrl({
+    moduleType,
+    assetKey: "logo",
+    assetValue: currentSettings?.headerFooter?.header?.logo,
+    fileType: "fileLogo",
+    settingsPath: ["headerFooter", "header", "logo"],
+  });
+
+  const settingsWithResolvedAssets = React.useMemo(() => {
     if (!currentSettings) return currentSettings;
+    const next = JSON.parse(JSON.stringify(currentSettings));
+    if (resolvedHeaderImg) {
+      if (!next.headerFooter) next.headerFooter = {};
+      if (!next.headerFooter.header) next.headerFooter.header = {};
+      next.headerFooter.header.headerImg = resolvedHeaderImg;
+    }
+    if (resolvedFooterImg) {
+      if (!next.headerFooter) next.headerFooter = {};
+      if (!next.headerFooter.footer) next.headerFooter.footer = {};
+      next.headerFooter.footer.footerImg = resolvedFooterImg;
+    }
+    if (resolvedLogo) {
+      if (!next.headerFooter) next.headerFooter = {};
+      if (!next.headerFooter.header) next.headerFooter.header = {};
+      next.headerFooter.header.logo = resolvedLogo;
+    }
+    return next;
+  }, [currentSettings, resolvedHeaderImg, resolvedFooterImg, resolvedLogo]);
+
+  const settingsWithFooterDimensions = React.useMemo(() => {
+    if (!settingsWithResolvedAssets) return settingsWithResolvedAssets;
     const renderedFooterImageHeight = fileFooter?.renderedFooterImageHeight;
-    if (!renderedFooterImageHeight) return currentSettings;
-    const headerFooter = currentSettings.headerFooter || {};
+    if (!renderedFooterImageHeight) return settingsWithResolvedAssets;
+    const headerFooter = settingsWithResolvedAssets.headerFooter || {};
     const footerSettings = headerFooter.footer || {};
-    if (!footerSettings.footerImg) return currentSettings;
+    if (!footerSettings.footerImg) return settingsWithResolvedAssets;
     return {
-      ...currentSettings,
+      ...settingsWithResolvedAssets,
       headerFooter: {
         ...headerFooter,
         footer: {
@@ -347,7 +394,15 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
         },
       },
     };
-  }, [currentSettings, fileFooter?.renderedFooterImageHeight, fileFooter?.showFile]);
+  }, [
+    settingsWithResolvedAssets,
+    fileFooter?.renderedFooterImageHeight,
+    fileFooter?.showFile,
+  ]);
+  const sanitizedSettingsWithFooterDimensions = React.useMemo(
+    () => sanitizePrintSettingsForPdf(settingsWithFooterDimensions),
+    [settingsWithFooterDimensions]
+  );
 
   const makePDFUrl = useCallback(
     async (settings) => {
@@ -398,9 +453,8 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
   );
 
   useEffect(() => {
-    if (!settingsWithFooterDimensions) {
-      return;
-    }
+    if (!sanitizedSettingsWithFooterDimensions) return;
+    if (!footerReady) return;
 
     if (previewDebounceRef.current) {
       clearTimeout(previewDebounceRef.current);
@@ -408,7 +462,7 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
 
     previewDebounceRef.current = setTimeout(() => {
       previewDebounceRef.current = null;
-      makePDFUrl(settingsWithFooterDimensions);
+      makePDFUrl(sanitizedSettingsWithFooterDimensions);
     }, 400);
 
     return () => {
@@ -417,7 +471,7 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
         previewDebounceRef.current = null;
       }
     };
-  }, [settingsWithFooterDimensions, makePDFUrl]);
+  }, [sanitizedSettingsWithFooterDimensions, makePDFUrl, footerReady]);
 
   useEffect(() => {
     return () => {

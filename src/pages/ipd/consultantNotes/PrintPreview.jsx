@@ -1,6 +1,6 @@
 import { Button, Col, Row, Spin } from "antd";
 import { isMobile } from "react-device-detect";
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Document, Page } from "react-pdf";
 import { pdf } from "@react-pdf/renderer";
 
@@ -17,6 +17,8 @@ import { getConsultantNotes } from "../../../redux/ipd/consultantNotesSlice";
 import { getPrintSettings } from "../../../redux/ipd/printSettingsSlice";
 import { getPatientInformation } from "../../../utils/utils";
 import usePrintPreviewSetup from "../../../hooks/usePrintPreviewSetup";
+import useResolvedAssetUrl from "../../../hooks/useResolvedAssetUrl";
+import { sanitizePrintSettingsForPdf } from "../../../utils/printSettings";
 
 const PrintPreview = () => {
   const navigate = useNavigate();
@@ -33,6 +35,72 @@ const PrintPreview = () => {
   const { consultantNotes } = useSelector((state) => state.consultantNotes);
   const { consultationNotes: currentSettings } = printSettings;
   const { frequencyList, timingList } = useSelector((state) => state.doctors);
+  const footerHeight =
+    useSelector(
+      (state) =>
+        state.printSettings.fileStates?.consultationNotes?.fileFooter
+          ?.renderedFooterImageHeight
+    ) ||
+    currentSettings?.headerFooter?.footer?.renderedFooterImageHeight;
+  const resolvedHeaderImg = useResolvedAssetUrl({
+    moduleType: "consultationNotes",
+    assetKey: "headerImg",
+    assetValue: currentSettings?.headerFooter?.header?.headerImg,
+    fileType: "fileHeader",
+    settingsPath: ["headerFooter", "header", "headerImg"],
+  });
+  const resolvedFooterImg = useResolvedAssetUrl({
+    moduleType: "consultationNotes",
+    assetKey: "footerImg",
+    assetValue: currentSettings?.headerFooter?.footer?.footerImg,
+    fileType: "fileFooter",
+    settingsPath: ["headerFooter", "footer", "footerImg"],
+  });
+  const resolvedLogo = useResolvedAssetUrl({
+    moduleType: "consultationNotes",
+    assetKey: "logo",
+    assetValue: currentSettings?.headerFooter?.header?.logo,
+    fileType: "fileLogo",
+    settingsPath: ["headerFooter", "header", "logo"],
+  });
+
+  const sanitizedSettings = useMemo(() => {
+    if (!currentSettings) return currentSettings;
+    const next = JSON.parse(JSON.stringify(currentSettings));
+    if (resolvedHeaderImg) {
+      if (!next.headerFooter) next.headerFooter = {};
+      if (!next.headerFooter.header) next.headerFooter.header = {};
+      next.headerFooter.header.headerImg = resolvedHeaderImg;
+    }
+    if (resolvedFooterImg) {
+      if (!next.headerFooter) next.headerFooter = {};
+      if (!next.headerFooter.footer) next.headerFooter.footer = {};
+      next.headerFooter.footer.footerImg = resolvedFooterImg;
+    }
+    if (resolvedLogo) {
+      if (!next.headerFooter) next.headerFooter = {};
+      if (!next.headerFooter.header) next.headerFooter.header = {};
+      next.headerFooter.header.logo = resolvedLogo;
+    }
+    return sanitizePrintSettingsForPdf(next);
+  }, [currentSettings, resolvedHeaderImg, resolvedFooterImg, resolvedLogo]);
+
+  const sanitizedWithFooterDimensions = useMemo(() => {
+    if (!sanitizedSettings) return sanitizedSettings;
+    if (!footerHeight) return sanitizedSettings;
+    const headerFooter = sanitizedSettings.headerFooter || {};
+    const footer = headerFooter.footer || {};
+    if (!footer.footerImg) return sanitizedSettings;
+    return {
+      ...sanitizedSettings,
+      headerFooter: {
+        ...headerFooter,
+        footer: { ...footer, renderedFooterImageHeight: footerHeight },
+      },
+    };
+  }, [sanitizedSettings, footerHeight]);
+
+  const footerReady = !resolvedFooterImg || footerHeight != null;
 
   useEffect(() => {
     setDivWidth(divRef.current?.offsetWidth);
@@ -64,7 +132,7 @@ const PrintPreview = () => {
     try {
       const blob = await pdf(
         <PDFGenerator
-          settings={currentSettings}
+          settings={sanitizedWithFooterDimensions}
           data={consultantNotes}
           documentType="consultationNotes"
           patientData={getPatientInformation(patientDetails)}
@@ -76,13 +144,13 @@ const PrintPreview = () => {
     } catch (error) {
       console.error("Error generating PDF:", error);
     }
-  }, [consultantNotes, currentSettings]);
+  }, [consultantNotes, sanitizedWithFooterDimensions, frequencyList, timingList, patientDetails]);
 
   useEffect(() => {
-    if (currentSettings && consultantNotes.length > 0) {
+    if (sanitizedWithFooterDimensions && consultantNotes.length > 0 && footerReady) {
       makePDFUrl();
     }
-  }, [currentSettings, consultantNotes, makePDFUrl]);
+  }, [sanitizedWithFooterDimensions, consultantNotes, makePDFUrl, footerReady]);
 
   const handleDrawerConfigureSettings = () => {
     navigate("/ipd/consultant-notes/configure-print-settings", {

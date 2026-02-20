@@ -1,6 +1,6 @@
 import { Button, Col, Row, Spin } from "antd";
 import { isMobile } from "react-device-detect";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Document, Page } from "react-pdf";
 import { pdf } from "@react-pdf/renderer";
 
@@ -17,6 +17,8 @@ import {
 } from "../dischargeSummary/utils/helper";
 import { getPatientInformation } from "../../../utils/utils";
 import usePrintPreviewSetup from "../../../hooks/usePrintPreviewSetup";
+import useResolvedAssetUrl from "../../../hooks/useResolvedAssetUrl";
+import { sanitizePrintSettingsForPdf } from "../../../utils/printSettings";
 
 const PrintPreviewCrossReferral = () => {
   const navigate = useNavigate();
@@ -32,6 +34,72 @@ const PrintPreviewCrossReferral = () => {
   const { crossReferralData } = useSelector((state) => state.crossReferral);
 
   const { crossReferral: currentSettings } = printSettings;
+  const footerHeight =
+    useSelector(
+      (state) =>
+        state.printSettings.fileStates?.crossReferral?.fileFooter
+          ?.renderedFooterImageHeight
+    ) ||
+    currentSettings?.headerFooter?.footer?.renderedFooterImageHeight;
+  const resolvedHeaderImg = useResolvedAssetUrl({
+    moduleType: "crossReferral",
+    assetKey: "headerImg",
+    assetValue: currentSettings?.headerFooter?.header?.headerImg,
+    fileType: "fileHeader",
+    settingsPath: ["headerFooter", "header", "headerImg"],
+  });
+  const resolvedFooterImg = useResolvedAssetUrl({
+    moduleType: "crossReferral",
+    assetKey: "footerImg",
+    assetValue: currentSettings?.headerFooter?.footer?.footerImg,
+    fileType: "fileFooter",
+    settingsPath: ["headerFooter", "footer", "footerImg"],
+  });
+  const resolvedLogo = useResolvedAssetUrl({
+    moduleType: "crossReferral",
+    assetKey: "logo",
+    assetValue: currentSettings?.headerFooter?.header?.logo,
+    fileType: "fileLogo",
+    settingsPath: ["headerFooter", "header", "logo"],
+  });
+
+  const sanitizedSettings = useMemo(() => {
+    if (!currentSettings) return currentSettings;
+    const next = JSON.parse(JSON.stringify(currentSettings));
+    if (resolvedHeaderImg) {
+      if (!next.headerFooter) next.headerFooter = {};
+      if (!next.headerFooter.header) next.headerFooter.header = {};
+      next.headerFooter.header.headerImg = resolvedHeaderImg;
+    }
+    if (resolvedFooterImg) {
+      if (!next.headerFooter) next.headerFooter = {};
+      if (!next.headerFooter.footer) next.headerFooter.footer = {};
+      next.headerFooter.footer.footerImg = resolvedFooterImg;
+    }
+    if (resolvedLogo) {
+      if (!next.headerFooter) next.headerFooter = {};
+      if (!next.headerFooter.header) next.headerFooter.header = {};
+      next.headerFooter.header.logo = resolvedLogo;
+    }
+    return sanitizePrintSettingsForPdf(next);
+  }, [currentSettings, resolvedHeaderImg, resolvedFooterImg, resolvedLogo]);
+
+  const sanitizedWithFooterDimensions = useMemo(() => {
+    if (!sanitizedSettings) return sanitizedSettings;
+    if (!footerHeight) return sanitizedSettings;
+    const headerFooter = sanitizedSettings.headerFooter || {};
+    const footer = headerFooter.footer || {};
+    if (!footer.footerImg) return sanitizedSettings;
+    return {
+      ...sanitizedSettings,
+      headerFooter: {
+        ...headerFooter,
+        footer: { ...footer, renderedFooterImageHeight: footerHeight },
+      },
+    };
+  }, [sanitizedSettings, footerHeight]);
+
+  const footerReady = !resolvedFooterImg || footerHeight != null;
 
   useEffect(() => {
     setDivWidth(divRef.current?.offsetWidth);
@@ -62,16 +130,16 @@ const PrintPreviewCrossReferral = () => {
   }, []);
 
   useEffect(() => {
-    if (currentSettings && Object.keys(crossReferralData).length) {
+    if (sanitizedWithFooterDimensions && Object.keys(crossReferralData).length && footerReady) {
       makePDFUrl();
     }
-  }, [currentSettings, crossReferralData]);
+  }, [sanitizedWithFooterDimensions, crossReferralData, footerReady]);
 
   const makePDFUrl = async () => {
     try {
       const blob = await pdf(
         <PDFGenerator
-          settings={currentSettings}
+          settings={sanitizedWithFooterDimensions}
           data={crossReferralData}
           documentType="crossReferral"
           patientData={getPatientInformation(patientDetails)}

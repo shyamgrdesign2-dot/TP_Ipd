@@ -2528,3 +2528,26 @@ export const showSuccessToast = ({ title, duration = 3, className = "" }) => {
     ),
   });
 };
+
+const getImageDimensions = (url) => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
+    img.onerror = reject;
+    img.src = url;
+  });
+};
+
+export const getFooterImageHeight = async (url, pageWidthInPts = 595, horizontalPaddingInPx = 60) => {
+  const PX_TO_PT = 0.75;
+  const pageXPadding = PX_TO_PT * horizontalPaddingInPx;
+
+  try {
+    const { height, width } = await getImageDimensions(url);
+    const calculated = (height / width) * (pageWidthInPts - pageXPadding);
+    return Number.isFinite(calculated) && calculated > 0 ? calculated : 0;
+  } catch (err) {
+    console.error(err);
+    return 0;
+  }
+};

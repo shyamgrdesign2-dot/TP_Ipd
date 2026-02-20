@@ -15,6 +15,8 @@ import {
   printDocument,
 } from "../dischargeSummary/utils/helper";
 import usePrintPreviewSetup from "../../../hooks/usePrintPreviewSetup";
+import useResolvedAssetUrl from "../../../hooks/useResolvedAssetUrl";
+import { sanitizePrintSettingsForPdf } from "../../../utils/printSettings";
 
 const PreviewProgressNotes = () => {
   const navigate = useNavigate();
@@ -31,6 +33,76 @@ const PreviewProgressNotes = () => {
     (state) => state.progressNotes
   );
   const { progressNotes: currentSettings } = printSettings;
+  const footerHeight =
+    useSelector(
+      (state) =>
+        state.printSettings.fileStates?.progressNotes?.fileFooter
+          ?.renderedFooterImageHeight
+    ) ||
+    currentSettings?.headerFooter?.footer?.renderedFooterImageHeight;
+
+  const resolvedHeaderImg = useResolvedAssetUrl({
+    moduleType: "progressNotes",
+    assetKey: "headerImg",
+    assetValue: currentSettings?.headerFooter?.header?.headerImg,
+    fileType: "fileHeader",
+    settingsPath: ["headerFooter", "header", "headerImg"],
+  });
+  const resolvedFooterImg = useResolvedAssetUrl({
+    moduleType: "progressNotes",
+    assetKey: "footerImg",
+    assetValue: currentSettings?.headerFooter?.footer?.footerImg,
+    fileType: "fileFooter",
+    settingsPath: ["headerFooter", "footer", "footerImg"],
+  });
+  const resolvedLogo = useResolvedAssetUrl({
+    moduleType: "progressNotes",
+    assetKey: "logo",
+    assetValue: currentSettings?.headerFooter?.header?.logo,
+    fileType: "fileLogo",
+    settingsPath: ["headerFooter", "header", "logo"],
+  });
+
+  const sanitizedSettings = useMemo(() => {
+    if (!currentSettings) return currentSettings;
+    const next = JSON.parse(JSON.stringify(currentSettings));
+    if (resolvedHeaderImg) {
+      if (!next.headerFooter) next.headerFooter = {};
+      if (!next.headerFooter.header) next.headerFooter.header = {};
+      next.headerFooter.header.headerImg = resolvedHeaderImg;
+    }
+    if (resolvedFooterImg) {
+      if (!next.headerFooter) next.headerFooter = {};
+      if (!next.headerFooter.footer) next.headerFooter.footer = {};
+      next.headerFooter.footer.footerImg = resolvedFooterImg;
+    }
+    if (resolvedLogo) {
+      if (!next.headerFooter) next.headerFooter = {};
+      if (!next.headerFooter.header) next.headerFooter.header = {};
+      next.headerFooter.header.logo = resolvedLogo;
+    }
+    return sanitizePrintSettingsForPdf(next);
+  }, [currentSettings, resolvedHeaderImg, resolvedFooterImg, resolvedLogo]);
+
+  const sanitizedWithFooterDimensions = useMemo(() => {
+    if (!sanitizedSettings) return sanitizedSettings;
+    if (!footerHeight) return sanitizedSettings;
+    const headerFooter = sanitizedSettings.headerFooter || {};
+    const footer = headerFooter.footer || {};
+    if (!footer.footerImg) return sanitizedSettings;
+    return {
+      ...sanitizedSettings,
+      headerFooter: {
+        ...headerFooter,
+        footer: {
+          ...footer,
+          renderedFooterImageHeight: footerHeight,
+        },
+      },
+    };
+  }, [sanitizedSettings, footerHeight]);
+
+  const footerReady = !resolvedFooterImg || footerHeight != null;
 
   // const patientData = progressNotesData?.patientInformation || {};
   const patientInformation = getPatientInformation(patientDetails);
@@ -57,10 +129,14 @@ const PreviewProgressNotes = () => {
   }, [stateProgressNotesData, storeProgressNotes]);
 
   useEffect(() => {
-    if (currentSettings && resolvedProgressNotes.length > 0) {
-      makePDFUrl(currentSettings, resolvedProgressNotes);
+    if (
+      sanitizedWithFooterDimensions &&
+      resolvedProgressNotes.length > 0 &&
+      footerReady
+    ) {
+      makePDFUrl(sanitizedWithFooterDimensions, resolvedProgressNotes);
     }
-  }, [currentSettings, resolvedProgressNotes]);
+  }, [sanitizedWithFooterDimensions, resolvedProgressNotes, footerReady]);
 
   const makePDFUrl = async (settings, notes) => {
     try {
