@@ -102,6 +102,9 @@ function DischargedPatients() {
     patientsLoading,
     patientsError,
     hasMore,
+    billingByAdmissionId,
+    billDataByAdmissionId,
+    billingLoading,
     filterParams,
     fetchAttempted,
     loadingMore,
@@ -323,6 +326,9 @@ function DischargedPatients() {
             lastElementRef={lastElementRef}
             filterParams={filterParams}
             isDischargedPatients={true}
+            billingByAdmissionId={billingByAdmissionId}
+            billDataByAdmissionId={billDataByAdmissionId}
+            billingLoading={billingLoading}
           />
         </div>
       </div>

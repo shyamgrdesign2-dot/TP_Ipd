@@ -1,7 +1,37 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 import IpdService from "../../api/services/IpdService";
+import { fetchBillsByAdmissionIds } from "../../pages/opdBilling/service";
 import { formatPatientsForTable } from "../../pages/ipd/inPatients/staticData";
+
+// Async thunk for fetching billing status by admission IDs
+export const fetchBillingByAdmissionIds = createAsyncThunk(
+  "ipd/fetchBillingByAdmissionIds",
+  async ({ admissionIds }, { rejectWithValue }) => {
+    if (!admissionIds?.length) return { billingByAdmissionId: {}, billDataByAdmissionId: {} };
+    try {
+      const response = await fetchBillsByAdmissionIds(admissionIds);
+      const billingByAdmissionId = {};
+      const billDataByAdmissionId = {};
+      (admissionIds || []).forEach((id) => {
+        const bills = response?.[id]?.bills;
+        const hasBill = Array.isArray(bills) && bills.length > 0;
+        billingByAdmissionId[id] = hasBill ? "billed" : "unbilled";
+        if (hasBill && bills[0]) {
+          billDataByAdmissionId[id] = bills[0];
+        }
+      });
+      return { admissionIds, billingByAdmissionId, billDataByAdmissionId };
+    } catch (error) {
+      console.log("API failed for billing by admission IDs", error);
+      const billingByAdmissionId = {};
+      (admissionIds || []).forEach((id) => {
+        billingByAdmissionId[id] = "unbilled";
+      });
+      return { admissionIds, billingByAdmissionId, billDataByAdmissionId: {} };
+    }
+  }
+);
 
 // Async thunk for fetching patients
 export const fetchPatients = createAsyncThunk(
@@ -20,7 +50,7 @@ export const fetchPatients = createAsyncThunk(
       isDischarged = false,
       sentForApproval = false,
     },
-    { rejectWithValue }
+    { dispatch, rejectWithValue }
   ) => {
     try {
       const response = await IpdService.getPatients({
@@ -36,6 +66,15 @@ export const fetchPatients = createAsyncThunk(
         isDischarged,
         sentForApproval
       });
+
+      // Extract admission IDs and fetch billing status (render admissions first, then merge billing)
+      const patients = response?.patients || [];
+      const admissionIds = patients
+        .map((p) => p.admissionId || p.admission_id)
+        .filter(Boolean);
+      if (admissionIds.length > 0) {
+        dispatch(fetchBillingByAdmissionIds({ admissionIds }));
+      }
 
       return response;
     } catch (error) {
@@ -92,6 +131,9 @@ const initialState = {
     error: null,
     hasMore: true,
   },
+  billingByAdmissionId: {},
+  billDataByAdmissionId: {},
+  billingLoading: false,
   filters: {
     ward: [],
     doctor: [],
@@ -135,6 +177,15 @@ const inPatientsSlice = createSlice({
       state.patients.total = 0;
       state.patients.hasMore = true;
       state.filterParams.page = 1;
+      state.billingByAdmissionId = {};
+      state.billDataByAdmissionId = {};
+    },
+    updateBillDataForAdmission: (state, action) => {
+      const { admissionId, billData } = action.payload || {};
+      if (admissionId && billData) {
+        state.billDataByAdmissionId[admissionId] = billData;
+        state.billingByAdmissionId[admissionId] = "billed";
+      }
     },
     updatePatientInList: (state, action) => {
       const { patientId, updates = {}, patientDataUpdates = {} } =
@@ -193,6 +244,30 @@ const inPatientsSlice = createSlice({
         state.patients.error = action.payload || "Failed to fetch patients";
       })
 
+      // Handle fetchBillingByAdmissionIds
+      .addCase(fetchBillingByAdmissionIds.pending, (state) => {
+        state.billingLoading = true;
+      })
+      .addCase(fetchBillingByAdmissionIds.fulfilled, (state, action) => {
+        const { billingByAdmissionId, billDataByAdmissionId } = action.payload || {};
+        if (billingByAdmissionId && typeof billingByAdmissionId === "object") {
+          state.billingByAdmissionId = {
+            ...state.billingByAdmissionId,
+            ...billingByAdmissionId,
+          };
+        }
+        if (billDataByAdmissionId && typeof billDataByAdmissionId === "object") {
+          state.billDataByAdmissionId = {
+            ...state.billDataByAdmissionId,
+            ...billDataByAdmissionId,
+          };
+        }
+        state.billingLoading = false;
+      })
+      .addCase(fetchBillingByAdmissionIds.rejected, (state) => {
+        state.billingLoading = false;
+      })
+
       // Handle fetchFilters
       .addCase(fetchFilters.pending, (state) => {
         state.filters.loading = true;
@@ -224,7 +299,7 @@ const inPatientsSlice = createSlice({
   },
 });
 
-export const { setFilterParams, incrementPage, resetPatients } =
+export const { setFilterParams, incrementPage, resetPatients, updateBillDataForAdmission } =
   inPatientsSlice.actions;
 export const { updatePatientInList } = inPatientsSlice.actions;
 

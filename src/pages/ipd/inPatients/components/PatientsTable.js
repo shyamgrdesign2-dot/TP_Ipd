@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Table, Spin, Popover, message, Drawer } from "antd";
+import { Table, Spin, Popover, message, Drawer, Tag, Skeleton } from "antd";
 import moment from "moment";
 import { useDispatch } from "react-redux";
 import noData from "../../../../assets/images/nodata-found.svg";
@@ -11,7 +11,7 @@ import {
   markPatientAsDischarged,
   sendForDischargeApproval,
 } from "../../../../redux/ipd/ipdSlice";
-import { updatePatientInList } from "../../../../redux/ipd/inPatientsSlice";
+import { updatePatientInList, fetchBillingByAdmissionIds, updateBillDataForAdmission } from "../../../../redux/ipd/inPatientsSlice";
 import { usePatientsData } from "../hooks/usePatientsData";
 import { getTokenData, isEmptyRichText, isZydus, transformAdmissionToPatient } from "../../../../utils/utils";
 import DischargeConfirmationModal from "../../dischargeSummary/components/DischargeConfirmationModal";
@@ -41,7 +41,11 @@ const MoreActionsContent = ({
   isDischargedPatients,
   isDischarged,
   isInPatients,
+  billDataByAdmissionId = {},
 }) => {
+  const admissionId = record?.admissionId || record?.admission_id;
+  const existingBillData = admissionId ? billDataByAdmissionId[admissionId] : null;
+  const createBillMenuText = existingBillData ? "Add/Edit Bill" : "Create Bill";
   const handleViewAdmissionDetails = (e) => {
     e.stopPropagation();
     onViewAdmissionDetails?.(record);
@@ -85,7 +89,7 @@ const MoreActionsContent = ({
           onClick={handleCreateBill}
           className="more-actions-menu-item cursor-pointer"
         >
-          <span className="more-actions-menu-text">Create Bill</span>
+          <span className="more-actions-menu-text">{createBillMenuText}</span>
         </div>
       )}
       {isInPatients && !isDischargedPatients && !isDischarged && (
@@ -141,6 +145,9 @@ const PatientsTable = ({
   fetchParams = {},
   isInPatients = false,
   isDischargeQueue = false,
+  billingByAdmissionId = {},
+  billDataByAdmissionId = {},
+  billingLoading = false,
 }) => {
   const dispatch = useDispatch();
   const [userId, setUserId] = useState(null);
@@ -248,6 +255,12 @@ const PatientsTable = ({
   const handleCreateBillDrawer = () => {
     setCreateBillDrawer(false);
     setSelectedPatientForBilling(null);
+  };
+
+  const handleBillCreated = (admissionId) => {
+    if (admissionId) {
+      dispatch(fetchBillingByAdmissionIds({ admissionIds: [admissionId] }));
+    }
   };
 
   const handleAddAdvance = (record) => {
@@ -433,19 +446,43 @@ const PatientsTable = ({
       dataIndex: "admissionNo",
       key: "admissionNo",
       className: "col-patient-details",
-      render: (text, record) => (
-        <>
-          { isZydus() ?
-            <div>
-              <div>{record?.admissionNo || ""}</div>
-              <small>{record?.mrno}</small>
-            </div> :
-            <div>
-              <div>{record?.admissionId || ""}</div>
-            </div>
+      render: (text, record) => {
+        const admissionId =
+          record?.admissionId ||
+          record?.patientData?.admissionId ||
+          record?.patientData?.admission_id;
+        const billingStatus = admissionId ? billingByAdmissionId[admissionId] : null;
+        const renderBillingTag = () => {
+          if (billingLoading && !billingStatus) {
+            return <Skeleton.Input active size="small" style={{ width: 70, minWidth: 70, display: "inline-block", verticalAlign: "middle" }} />;
           }
-        </>
-      ),
+          if (billingStatus === "billed") {
+            return <Tag color="green">Billed</Tag>;
+          }
+          if (billingStatus === "unbilled") {
+            return <Tag color="orange">Unbilled</Tag>;
+          }
+          return null;
+        };
+        return (
+          <>
+            {isZydus() ? (
+              <div style={{ display: "flex", flexDirection: "row", alignItems: "center", flexWrap: "nowrap", gap: 8 }}>
+                <div>
+                  <div>{record?.admissionNo || ""}</div>
+                  <small>{record?.mrno}</small>
+                </div>
+                <div style={{ flexShrink: 0 }}>{renderBillingTag()}</div>
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "row", alignItems: "center", flexWrap: "nowrap", gap: 8 }}>
+                <div>{record?.admissionId || ""}</div>
+                <div style={{ flexShrink: 0 }}>{renderBillingTag()}</div>
+              </div>
+            )}
+          </>
+        );
+      },
     },
     {
       title: "Ward/Bed No",
@@ -629,6 +666,7 @@ const PatientsTable = ({
                     isDischargedPatients={isDischargedPatients}
                     isDischarged={record?.isDischarged}
                     isInPatients={isInPatients}
+                    billDataByAdmissionId={billDataByAdmissionId}
                   />
                 }
                 trigger="click"
@@ -782,6 +820,25 @@ const PatientsTable = ({
             patientData={transformAdmissionToPatient(selectedPatientForBilling)}
             admissionId={selectedPatientForBilling?.admissionId || selectedPatientForBilling?.admission_id}
             admissionDate={selectedPatientForBilling?.admittedOn || selectedPatientForBilling?.admissionDate}
+            editBillData={
+              (() => {
+                const admId = selectedPatientForBilling?.admissionId || selectedPatientForBilling?.admission_id;
+                const rawBill = admId ? billDataByAdmissionId[admId] : null;
+                if (!rawBill) return undefined;
+                return { ...rawBill, admission: selectedPatientForBilling };
+              })()
+            }
+            setEditedBillData={(updatedBill) => {
+              const admId = selectedPatientForBilling?.admissionId || selectedPatientForBilling?.admission_id;
+              if (admId && updatedBill) {
+                dispatch(updateBillDataForAdmission({ admissionId: admId, billData: updatedBill }));
+              }
+            }}
+            onBillCreated={() =>
+              handleBillCreated(
+                selectedPatientForBilling?.admissionId || selectedPatientForBilling?.admission_id
+              )
+            }
           />
         </Drawer>
       )}

@@ -105,6 +105,9 @@ function ApproveToDischargePatients() {
     patientsLoading,
     patientsError,
     hasMore,
+    billingByAdmissionId,
+    billDataByAdmissionId,
+    billingLoading,
     filterParams,
     loadingMore,
     fetchData,
@@ -380,6 +383,9 @@ function ApproveToDischargePatients() {
             filterParams={filterParams}
             fetchParams={fetchParams}
             isDischargeQueue={true}
+            billingByAdmissionId={billingByAdmissionId}
+            billDataByAdmissionId={billDataByAdmissionId}
+            billingLoading={billingLoading}
           />
         </div>
       </div>

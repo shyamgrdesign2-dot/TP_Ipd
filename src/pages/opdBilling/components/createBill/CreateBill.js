@@ -403,15 +403,13 @@ const CreateBill = ({
       setAddBillTo3C( editBillData?.isForm3C ? editBillData?.isForm3C : isIpdBill ? advancedSettings?.ipdSetting?.defaultForm3cFlag : advancedSettings?.defaultForm3cFlag);
       setPaymentModes([
         {
-          paymentMode: isIpdBill
-            ? advancedSettings?.ipdSetting?.defaultPaymentMode
-            : advancedSettings?.defaultPaymentMode,
+          paymentMode: totalAdvanceBalance ? "Advance Deposit" : isIpdBill ? advancedSettings?.ipdSetting?.defaultPaymentMode: advancedSettings?.defaultPaymentMode,
           amount: undefined,
           refId: "",
         },
       ]);
     }
-  }, [advancedSettings, editBillData]);
+  }, [advancedSettings, editBillData, totalAdvanceBalance]);
 
   useEffect(() => {
     if (editBillData?.paymentModes) {
@@ -1948,7 +1946,7 @@ const CreateBill = ({
                           >
                             <Select
                               placeholder="Select"
-                              value={totalAdvanceBalance ? "Advance Deposit" : payment.paymentMode}
+                              value={payment.paymentMode}
                               onChange={(value) =>
                                 handleModeChange(value, index, "paymentMode")
                               }
