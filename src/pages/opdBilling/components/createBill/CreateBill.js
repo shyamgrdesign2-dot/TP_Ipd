@@ -396,26 +396,20 @@ const CreateBill = ({
       setPatientWalletBalance(patientWalletBalanceRes?.advanceDepositBalance);
     // }
   };
+
   useEffect(() => {
     if (advancedSettings && Object.keys(advancedSettings)?.length) {
       setIncludeInRx( editBillData?.includeInRx || advancedSettings.defaultRxFlag);
       setAddBillTo3C( editBillData?.isForm3C ? editBillData?.isForm3C : isIpdBill ? advancedSettings?.ipdSetting?.defaultForm3cFlag : advancedSettings?.defaultForm3cFlag);
-      setPatientWalletBalance(totalAdvanceBalance);
-      if (!editBillData){
-        setPaymentModes([
-          {
-            paymentMode: totalAdvanceBalance ? "Advance Deposit" : isIpdBill ? advancedSettings?.ipdSetting?.defaultPaymentMode: advancedSettings?.defaultPaymentMode,
-            amount: undefined,
-            refId: "",
-          },
-        ]);
-      } else {
-        setTimeout(() => {
-          setPaymentModes(editBillData?.paymentModes);
-        }, 100);
-      }
+          setPaymentModes([
+            {
+              paymentMode: isIpdBill ? advancedSettings?.ipdSetting?.defaultPaymentMode: advancedSettings?.defaultPaymentMode,
+              amount: undefined,
+              refId: "",
+            },
+          ]);
     }
-  }, [advancedSettings, editBillData, totalAdvanceBalance]);
+  }, [advancedSettings, editBillData]);
 
   // useEffect(() => {
   //   if (editBillData?.paymentModes) {
@@ -424,6 +418,29 @@ const CreateBill = ({
   //     }, 100);
   //   }
   // }, []);
+
+  useEffect(() => {
+    setPatientWalletBalance(totalAdvanceBalance);
+    if(!editBillData && totalAdvanceBalance ){
+        setPaymentModes((prevPaymentModes) => {
+          const newPaymentMode = totalAdvanceBalance ? "Advance Deposit" : isIpdBill ? advancedSettings?.ipdSetting?.defaultPaymentMode: advancedSettings?.defaultPaymentMode;
+          if (prevPaymentModes && prevPaymentModes.length > 0) {
+            return prevPaymentModes.map((mode, index) => 
+              index === 0 
+                ? { ...mode, paymentMode: newPaymentMode }
+                : mode
+            );
+          }
+          return [
+            {
+              paymentMode: newPaymentMode,
+              amount: undefined,
+              refId: "",
+            },
+          ];
+        });
+    }
+  }, [totalAdvanceBalance]);
 
   useEffect(() => {
     const timeOutId = setTimeout(() => {
