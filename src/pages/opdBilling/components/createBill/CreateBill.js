@@ -392,32 +392,38 @@ const CreateBill = ({
     const patientWalletBalanceRes = await fetchPatientWalletBalance(
       patientUniqueId
     );
-    if (patientWalletBalanceRes?.advanceDepositBalance) {
+    // if (patientWalletBalanceRes?.advanceDepositBalance) {
       setPatientWalletBalance(patientWalletBalanceRes?.advanceDepositBalance);
-    }
+    // }
   };
-
   useEffect(() => {
     if (advancedSettings && Object.keys(advancedSettings)?.length) {
       setIncludeInRx( editBillData?.includeInRx || advancedSettings.defaultRxFlag);
       setAddBillTo3C( editBillData?.isForm3C ? editBillData?.isForm3C : isIpdBill ? advancedSettings?.ipdSetting?.defaultForm3cFlag : advancedSettings?.defaultForm3cFlag);
-      setPaymentModes([
-        {
-          paymentMode: totalAdvanceBalance ? "Advance Deposit" : isIpdBill ? advancedSettings?.ipdSetting?.defaultPaymentMode: advancedSettings?.defaultPaymentMode,
-          amount: undefined,
-          refId: "",
-        },
-      ]);
+      setPatientWalletBalance(totalAdvanceBalance);
+      if (!editBillData){
+        setPaymentModes([
+          {
+            paymentMode: totalAdvanceBalance ? "Advance Deposit" : isIpdBill ? advancedSettings?.ipdSetting?.defaultPaymentMode: advancedSettings?.defaultPaymentMode,
+            amount: undefined,
+            refId: "",
+          },
+        ]);
+      } else {
+        setTimeout(() => {
+          setPaymentModes(editBillData?.paymentModes);
+        }, 100);
+      }
     }
   }, [advancedSettings, editBillData, totalAdvanceBalance]);
 
-  useEffect(() => {
-    if (editBillData?.paymentModes) {
-      setTimeout(() => {
-        setPaymentModes(editBillData?.paymentModes);
-      }, 100);
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (editBillData?.paymentModes) {
+  //     setTimeout(() => {
+  //       setPaymentModes(editBillData?.paymentModes);
+  //     }, 100);
+  //   }
+  // }, []);
 
   useEffect(() => {
     const timeOutId = setTimeout(() => {
@@ -634,7 +640,7 @@ const CreateBill = ({
 
   const columns = [
     {
-      title: "ITEMS",
+      title: "ITEMS/SERVICES",
       dataIndex: "name",
       width: isIpdBill ? "23%" : "26%",
       render: (_, record, index) => (
@@ -1826,13 +1832,14 @@ const CreateBill = ({
                     format="DD-MM-YYYY"
                     disabledDate={(current) => {
                       if (!current) return false;
-                      // For IPD bills, disable dates before admission date
+                      const today = dayjs().startOf("day");
+                      // For IPD bills, disable dates before admission date and after current date
                       if (isIpdBill && admissionDate) {
-                        const admissionDateDayjs = dayjs(admissionDate);
-                        return current < admissionDateDayjs.startOf("day");
+                        const admissionDateDayjs = dayjs(admissionDate).startOf("day");
+                        return current < admissionDateDayjs || current > today;
                       }
                       // For OPD bills, disable past dates (before today)
-                      return current < dayjs().startOf("day");
+                      return current < today;
                     }}
                   />
                 </div>

@@ -84,22 +84,22 @@ const MoreActionsContent = ({
       >
         <span className="more-actions-menu-text">View Admission Details</span>
       </div>
-      {isInPatients && !isDischargedPatients && !isDischarged && (
+      {/* {isInPatients && !isDischargedPatients && !isDischarged && ( */}
         <div
           onClick={handleCreateBill}
           className="more-actions-menu-item cursor-pointer"
         >
           <span className="more-actions-menu-text">{createBillMenuText}</span>
         </div>
-      )}
-      {isInPatients && !isDischargedPatients && !isDischarged && (
+      {/* )} */}
+      {/* {isInPatients && !isDischargedPatients && !isDischarged && ( */}
         <div
           onClick={handleAddAdvance}
           className="more-actions-menu-item cursor-pointer"
         >
           <span className="more-actions-menu-text">Add Advance</span>
         </div>
-      )}
+      {/* )} */}
       {isInPatients && !isDischargedPatients && !isDischarged && (
         <div
           onClick={handleTransferWardBed}
@@ -472,12 +472,12 @@ const PatientsTable = ({
                   <div>{record?.admissionNo || ""}</div>
                   <small>{record?.mrno}</small>
                 </div>
-                <div style={{ flexShrink: 0 }}>{renderBillingTag()}</div>
+                {/* <div style={{ flexShrink: 0 }}>{renderBillingTag()}</div> */}
               </div>
             ) : (
               <div style={{ display: "flex", flexDirection: "row", alignItems: "center", flexWrap: "nowrap", gap: 8 }}>
                 <div>{record?.admissionId || ""}</div>
-                <div style={{ flexShrink: 0 }}>{renderBillingTag()}</div>
+                {/* <div style={{ flexShrink: 0 }}>{renderBillingTag()}</div> */}
               </div>
             )}
           </>

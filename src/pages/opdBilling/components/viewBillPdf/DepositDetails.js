@@ -82,7 +82,7 @@ const DepositDetails = ({ pageFormat, depositData, totalAdvanceBalance }) => {
               },
             ]}
           >
-            ITEMS
+            ITEMS/SERVICES
           </Text>
 
           <Text

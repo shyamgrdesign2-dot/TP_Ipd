@@ -194,7 +194,7 @@ const BillDetails = ({
               },
             ]}
           >
-            ITEMS
+            ITEMS/SERVICES
           </Text>
           <Text
             style={[
