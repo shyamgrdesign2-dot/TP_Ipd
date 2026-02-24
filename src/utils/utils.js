@@ -2353,6 +2353,9 @@ export const getPatientInformation = (patientDetails) => {
     abhaId: details?.abha_address || metadata?.abhaId || "",
     abhaRegistrationNumber: details?.abha_number || metadata?.abhaRegistrationNumber || "",
     pmjayId: details?.pmjay_id || metadata?.pmjayId || "",
+    allPatientDetails: {details: {...details}, metadata: {...metadata}, patientDetails: {...patientDetails}},
+    timeOfDischarge: patientDetails?.timeOfDischarge || "",
+    dateOfDischarge: patientDetails?.dateOfDischarge || "",
   };
 };
 

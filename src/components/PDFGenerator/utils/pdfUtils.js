@@ -154,6 +154,34 @@ export const formatDate = (date, format = "DD MMM YYYY") => {
   return `${day} ${month} ${year}`;
 };
 
+const formatWithKnownPatterns = (date, outputFormat = "DD MMM YYYY") => {
+  const dayjs = require("dayjs");
+  const customParseFormat = require("dayjs/plugin/customParseFormat");
+  dayjs.extend(customParseFormat);
+
+  const direct = dayjs(date);
+  if (direct.isValid()) return direct.format(outputFormat);
+
+  const knownFormats = [
+    "DD-MM-YYYY",
+    "DD/MM/YYYY",
+    "YYYY-MM-DD",
+    "YYYY/MM/DD",
+    "MM-DD-YYYY",
+    "MM/DD/YYYY",
+  ];
+
+  for (const fmt of knownFormats) {
+    const parsed = dayjs(date, fmt, true);
+    if (parsed.isValid()) return parsed.format(outputFormat);
+  }
+
+  return formatDate(date, outputFormat);
+};
+
+const formatDischargeDate = (date, outputFormat = "DD MMM YYYY") =>
+  formatWithKnownPatterns(date, outputFormat);
+
 /**
  * Get the value from patient data based on field key
  * @param {string} key - Field key
@@ -169,14 +197,22 @@ const getFieldValue = (key, patientData) => {
       `${patientData.age || ""} Years, ${patientData.gender || ""}`,
     admissionId: () => patientData.admissionId || "",
     mobileNo: () => patientData.contactNumber || "",
-    admissionDate: () => formatDate(patientData.admissionDate),
+    admissionDate: () =>
+      formatWithKnownPatterns(
+        patientData.admissionDate,
+        "DD MMM YYYY hh:mm A"
+      ),
     wardBedNo: () => patientData.wardBedNo || "",
     preparedBy: () => patientData.preparedBy || "",
     preparedOn: () => formatDate(patientData.preparedOn),
     address: () => patientData.address || "",
     dischargeSummaryNo: () => patientData.dischargeSummaryNo || "",
     dischargeType: () => patientData.dischargeType || "",
-    dischargeDate: () => formatDate(patientData.dischargedAt),
+    dischargeDate: () => {
+      const datePart = formatDischargeDate(patientData.dateOfDischarge);
+      const timePart = patientData.timeOfDischarge || "";
+      return [datePart, timePart].filter(Boolean).join(" ");
+    },
     bloodGroup: () => patientData.bloodGroup || "",
     heightWeight: () =>
       `${patientData.height || ""} cm / ${patientData.weight || ""} kg`,
