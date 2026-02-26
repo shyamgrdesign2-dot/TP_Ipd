@@ -182,6 +182,47 @@ const formatWithKnownPatterns = (date, outputFormat = "DD MMM YYYY") => {
 const formatDischargeDate = (date, outputFormat = "DD MMM YYYY") =>
   formatWithKnownPatterns(date, outputFormat);
 
+const formatDischargeTime = (time, outputFormat = "hh:mm A") => {
+  if (!time) return "";
+
+  const dayjs = require("dayjs");
+  const customParseFormat = require("dayjs/plugin/customParseFormat");
+  dayjs.extend(customParseFormat);
+
+  const direct = dayjs(time);
+  if (direct.isValid()) return direct.format(outputFormat);
+
+  const knownFormats = [
+    "HH:mm",
+    "H:mm",
+    "HH:mm:ss",
+    "H:mm:ss",
+    "hh:mm A",
+    "h:mm A",
+    "hh:mm:ss A",
+    "h:mm:ss A",
+    "YYYY-MM-DD HH:mm",
+    "YYYY-MM-DD HH:mm:ss",
+    "YYYY/MM/DD HH:mm",
+    "YYYY/MM/DD HH:mm:ss",
+    "DD-MM-YYYY HH:mm",
+    "DD-MM-YYYY HH:mm:ss",
+    "DD/MM/YYYY HH:mm",
+    "DD/MM/YYYY HH:mm:ss",
+    "MM-DD-YYYY HH:mm",
+    "MM-DD-YYYY HH:mm:ss",
+    "MM/DD/YYYY HH:mm",
+    "MM/DD/YYYY HH:mm:ss",
+  ];
+
+  for (const fmt of knownFormats) {
+    const parsed = dayjs(time, fmt, true);
+    if (parsed.isValid()) return parsed.format(outputFormat);
+  }
+
+  return "";
+};
+
 /**
  * Get the value from patient data based on field key
  * @param {string} key - Field key
@@ -210,7 +251,7 @@ const getFieldValue = (key, patientData) => {
     dischargeType: () => patientData.dischargeType || "",
     dischargeDate: () => {
       const datePart = formatDischargeDate(patientData.dateOfDischarge);
-      const timePart = patientData.timeOfDischarge || "";
+      const timePart = formatDischargeTime(patientData.timeOfDischarge);
       return [datePart, timePart].filter(Boolean).join(" ");
     },
     bloodGroup: () => patientData.bloodGroup || "",
