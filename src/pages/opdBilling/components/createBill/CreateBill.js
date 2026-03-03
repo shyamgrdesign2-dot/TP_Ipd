@@ -164,7 +164,7 @@ const CreateBill = ({
 
   // Search patient related states
   const [patientDetails, setPatientDetails] = useState(
-    editBillData?.patient || null
+    editBillData ? { ...editBillData?.patient, patientId: editBillData?.patientId } : null,
   );
   const [searchQueryName, setSearchQueryName] = useState("");
   const [searchQueryMobile, setSearchQueryMobile] = useState("");
@@ -246,6 +246,11 @@ const CreateBill = ({
     .toFixed(2);
 
   const usedPaymentModes = paymentModes.map((p) => p.paymentMode);
+
+  console.log("harishh", isEditingName &&
+                  (!patientData || Object.keys(patientData).length === 0) &&
+                  (!patientDetails ||
+                    Object.keys(patientDetails).length === 0))
 
   const filteredOptions = PaymentOptions.filter(
     (option) =>

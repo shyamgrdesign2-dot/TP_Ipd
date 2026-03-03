@@ -207,7 +207,7 @@ function PrescriptionPrintView() {
         })
         setCreateBillDrawer(!createBillDrawer);
         if (createBillDrawer) {
-            // setBillData(null); // TODO: intel - Harish - please check this.
+            // setBillData(null);
         }
         if (recentBillDrawer) {
           setRecentBillDrawer(false);

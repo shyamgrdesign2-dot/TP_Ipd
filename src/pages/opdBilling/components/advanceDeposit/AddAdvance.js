@@ -783,7 +783,8 @@ function AddAdvance({
         patientId:
           patientDetails?.patientUniqueId ||
           patientData?.patientUniqueId ||
-          patientData?.patient_unique_id,
+          patientData?.patient_unique_id ||
+          patientData?.patientId,
         transactionType: selectedTab === 2 ? "Refund" : "Deposit",
         paymentModes: selectedTab === 2 ? [...refundModes] : [...advanceModes],
         totalAmount: selectedTab === 2 ? totalRefundAmount : totalAdvanceAmount,
@@ -856,6 +857,7 @@ function AddAdvance({
       sortOrder: sortConfig?.order || "desc",
       patientId:
         patientData?.patient_unique_id ||
+        patientData?.patientId ||
         billData?.patientId ||
         patientData?.patientUniqueId ||
         patientDetails?.patientUniqueId,
@@ -1062,6 +1064,7 @@ function AddAdvance({
                           {patientData?.pm_pid ||
                             patientData?.pmPid ||
                             patientDetails?.patientId ||
+                            patientData?.id ||
                             patientData?.patientUniqueId}
                         </span>
                       </div>
