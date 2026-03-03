@@ -434,13 +434,13 @@ const CreateBill = ({
     }
   }, [advancedSettings, editBillData]);
 
-  // useEffect(() => {
-  //   if (editBillData?.paymentModes) {
-  //     setTimeout(() => {
-  //       setPaymentModes(editBillData?.paymentModes);
-  //     }, 100);
-  //   }
-  // }, []);
+  useEffect(() => {
+    if (editBillData?.paymentModes) {
+      setTimeout(() => {
+        setPaymentModes(editBillData?.paymentModes);
+      }, 300);
+    }
+  }, [editBillData]);
 
   useEffect(() => {
     setPatientWalletBalance(totalAdvanceBalance);
@@ -925,16 +925,18 @@ const CreateBill = ({
   ]?.filter((item) => !!item);
 
   const handleModeChange = (value, index, type) => {
-    const updatedModes = [...paymentModes];
-    updatedModes[index][type] = value;
+    const updatedModes = paymentModes?.map((mode, i) =>
+      i === index ? { ...mode, [type]: value } : mode
+    );
     setPaymentModes(updatedModes);
     setIsEditBillNotUpdated(false);
   };
 
   const handleAmountChange = (value, index) => {
     if (value <= 1000000000) {
-      const updatedModes = [...paymentModes];
-      updatedModes[index].amount = onlyDecimalFormat(value);
+      const updatedModes = paymentModes?.map((mode, i) =>
+        i === index ? { ...mode, amount: onlyDecimalFormat(value) } : mode
+      );
       setPaymentModes(updatedModes);
       setIsEditBillNotUpdated(false);
     }
@@ -1999,7 +2001,7 @@ const CreateBill = ({
                           >
                             <Select
                               placeholder="Select"
-                              value={payment.paymentMode}
+                              value={payment?.paymentMode}
                               onChange={(value) =>
                                 handleModeChange(value, index, "paymentMode")
                               }

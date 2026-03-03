@@ -825,7 +825,7 @@ const PatientsTable = ({
                 const admId = selectedPatientForBilling?.admissionId || selectedPatientForBilling?.admission_id;
                 const rawBill = admId ? billDataByAdmissionId[admId] : null;
                 if (!rawBill) return undefined;
-                return { ...rawBill, admission: selectedPatientForBilling };
+                return { ...rawBill, admission: selectedPatientForBilling, patient: {...rawBill?.patient, patientId: rawBill?.patientId || rawBill?.patient?.patientId}};
               })()
             }
             setEditedBillData={(updatedBill) => {

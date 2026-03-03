@@ -753,7 +753,7 @@ const AdmissionBilling = ({
               patientData={transformedPatientData}
               admissionId={admissionId}
               admissionDate={patientDetails?.admittedOn || patientDetails?.admissionDate}
-              editBillData={billData}
+              editBillData={billData && Object.keys(billData).length > 0 ? {...billData, patient: {...billData?.patient, patientId: billData?.patientId || billData?.patient?.patientId}} : null}
               onBillCreated={handleBillCreated}
             />
           </Drawer>
