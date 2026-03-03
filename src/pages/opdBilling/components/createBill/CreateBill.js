@@ -247,11 +247,6 @@ const CreateBill = ({
 
   const usedPaymentModes = paymentModes.map((p) => p.paymentMode);
 
-  console.log("harishh", isEditingName &&
-                  (!patientData || Object.keys(patientData).length === 0) &&
-                  (!patientDetails ||
-                    Object.keys(patientDetails).length === 0))
-
   const filteredOptions = PaymentOptions.filter(
     (option) =>
       !usedPaymentModes.includes(option.value) &&
