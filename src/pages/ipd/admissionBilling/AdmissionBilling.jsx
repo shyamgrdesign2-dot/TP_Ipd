@@ -128,6 +128,10 @@ const AdmissionBilling = ({
     return patient_data || {};
   }, [patientDetails, patient_data]);
 
+  useEffect(() => {
+    setTotalAdvanceBalance(propTotalAdvanceBalance);
+  }, [propTotalAdvanceBalance]);
+
   // Check if bill exists for this admission and fetch advance balance
   useEffect(() => {
     const checkBillExists = async () => {
