@@ -128,6 +128,10 @@ const AdmissionBilling = ({
     return patient_data || {};
   }, [patientDetails, patient_data]);
 
+  useEffect(() => {
+    setTotalAdvanceBalance(propTotalAdvanceBalance);
+  }, [propTotalAdvanceBalance]);
+
   // Check if bill exists for this admission and fetch advance balance
   useEffect(() => {
     const checkBillExists = async () => {
@@ -606,6 +610,7 @@ const AdmissionBilling = ({
               showHideBackModal={showHideBackModal}
               patientData={transformedPatientData}
               admissionId={admissionId}
+              admissionDate={patientDetails?.admittedOn || patientDetails?.admissionDate}
               onBillCreated={handleBillCreated}
             />
           </Drawer>
@@ -751,7 +756,8 @@ const AdmissionBilling = ({
               showHideBackModal={showHideBackModal}
               patientData={transformedPatientData}
               admissionId={admissionId}
-              editBillData={billData}
+              admissionDate={patientDetails?.admittedOn || patientDetails?.admissionDate}
+              editBillData={billData && Object.keys(billData).length > 0 ? {...billData, patient: {...billData?.patient, patientId: billData?.patientId || billData?.patient?.patientId}} : null}
               onBillCreated={handleBillCreated}
             />
           </Drawer>

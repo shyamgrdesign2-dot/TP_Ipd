@@ -93,6 +93,7 @@ const CreateBill = ({
   isPreviewFromTable,
   editBillData,
   admissionId,
+  admissionDate,
   onBillCreated,
   setEditedBillData,
 }) => {
@@ -105,6 +106,14 @@ const CreateBill = ({
   const isReceptionist = urlParams.has("receptionist");
   const umIds = urlParams.get("um_id")?.split(",") || [];
   const umNames = urlParams.get("um_name")?.split(",") || [];
+  const [isEditBillNotUpdated, setIsEditBillNotUpdated] = useState(() => {
+    if (!editBillData) return false;
+    const originalTotal = (editBillData.billItems || []).reduce(
+      (sum, item) => sum + (Number(item?.amount) || 0),
+      0,
+    );
+    return originalTotal === Number(editBillData?.paidAmount || 0);
+  });
 
   const doctorsList = umIds.map((id, index) => ({
     value: parseInt(id),
@@ -157,10 +166,13 @@ const CreateBill = ({
   const [billData, setBillData] = useState(editBillData || {});
   const [addAdvanceDrawer, setAddAdvanceDrawer] = useState(false);
   const [totalAdvanceBalance, setTotalAdvanceBalance] = useState(null);
+  const [billDate, setBillDate] = useState(
+    editBillData?.date ? dayjs(editBillData.date) : dayjs()
+  );
 
   // Search patient related states
   const [patientDetails, setPatientDetails] = useState(
-    editBillData?.patient || null
+    editBillData ? { ...editBillData?.patient, patientId: editBillData?.patientId } : null,
   );
   const [searchQueryName, setSearchQueryName] = useState("");
   const [searchQueryMobile, setSearchQueryMobile] = useState("");
@@ -174,6 +186,21 @@ const CreateBill = ({
   const [popOverVideo, setPopOverVideo] = useState(false);
   const [videoLink, setVideoLink] = useState(null);
   const { videoList } = useSelector((state) => state.doctors);
+
+  useEffect(() => {
+    if (!editBillData) return;
+    const originalTotal = (editBillData.billItems || []).reduce(
+      (sum, item) => sum + (Number(item?.amount) || 0),
+      0,
+    );
+    const currentTotal = (dataSource || []).reduce(
+      (sum, service) => sum + (Number(service?.amount) || 0),
+      0,
+    );
+    if (currentTotal !== originalTotal) {
+      setIsEditBillNotUpdated(false);
+    }
+  }, [dataSource, editBillData]);
 
   const subTotal = dataSource
     .reduce(
@@ -388,24 +415,22 @@ const CreateBill = ({
     const patientWalletBalanceRes = await fetchPatientWalletBalance(
       patientUniqueId
     );
-    if (patientWalletBalanceRes?.advanceDepositBalance) {
+    // if (patientWalletBalanceRes?.advanceDepositBalance) {
       setPatientWalletBalance(patientWalletBalanceRes?.advanceDepositBalance);
-    }
+    // }
   };
 
   useEffect(() => {
     if (advancedSettings && Object.keys(advancedSettings)?.length) {
       setIncludeInRx( editBillData?.includeInRx || advancedSettings.defaultRxFlag);
       setAddBillTo3C( editBillData?.isForm3C ? editBillData?.isForm3C : isIpdBill ? advancedSettings?.ipdSetting?.defaultForm3cFlag : advancedSettings?.defaultForm3cFlag);
-      setPaymentModes([
-        {
-          paymentMode: isIpdBill
-            ? advancedSettings?.ipdSetting?.defaultPaymentMode
-            : advancedSettings?.defaultPaymentMode,
-          amount: undefined,
-          refId: "",
-        },
-      ]);
+          setPaymentModes([
+            {
+              paymentMode: isIpdBill ? advancedSettings?.ipdSetting?.defaultPaymentMode: advancedSettings?.defaultPaymentMode,
+              amount: undefined,
+              refId: "",
+            },
+          ]);
     }
   }, [advancedSettings, editBillData]);
 
@@ -413,9 +438,32 @@ const CreateBill = ({
     if (editBillData?.paymentModes) {
       setTimeout(() => {
         setPaymentModes(editBillData?.paymentModes);
-      }, 100);
+      }, 300);
     }
-  }, []);
+  }, [editBillData]);
+
+  useEffect(() => {
+    setPatientWalletBalance(totalAdvanceBalance);
+    if(!editBillData && totalAdvanceBalance ){
+        setPaymentModes((prevPaymentModes) => {
+          const newPaymentMode = totalAdvanceBalance ? "Advance Deposit" : isIpdBill ? advancedSettings?.ipdSetting?.defaultPaymentMode: advancedSettings?.defaultPaymentMode;
+          if (prevPaymentModes && prevPaymentModes.length > 0) {
+            return prevPaymentModes.map((mode, index) => 
+              index === 0 
+                ? { ...mode, paymentMode: newPaymentMode }
+                : mode
+            );
+          }
+          return [
+            {
+              paymentMode: newPaymentMode,
+              amount: undefined,
+              refId: "",
+            },
+          ];
+        });
+    }
+  }, [totalAdvanceBalance]);
 
   useEffect(() => {
     const timeOutId = setTimeout(() => {
@@ -445,7 +493,6 @@ const CreateBill = ({
         });
       });
     searchQuery &&
-      !isReceptionist &&
       data.push({
         key: JSON.stringify({
           change: 1,
@@ -633,7 +680,7 @@ const CreateBill = ({
 
   const columns = [
     {
-      title: "ITEMS",
+      title: "ITEMS/SERVICES",
       dataIndex: "name",
       width: isIpdBill ? "23%" : "26%",
       render: (_, record, index) => (
@@ -878,16 +925,20 @@ const CreateBill = ({
   ]?.filter((item) => !!item);
 
   const handleModeChange = (value, index, type) => {
-    const updatedModes = [...paymentModes];
-    updatedModes[index][type] = value;
+    const updatedModes = paymentModes?.map((mode, i) =>
+      i === index ? { ...mode, [type]: value } : mode
+    );
     setPaymentModes(updatedModes);
+    setIsEditBillNotUpdated(false);
   };
 
   const handleAmountChange = (value, index) => {
     if (value <= 1000000000) {
-      const updatedModes = [...paymentModes];
-      updatedModes[index].amount = onlyDecimalFormat(value);
+      const updatedModes = paymentModes?.map((mode, i) =>
+        i === index ? { ...mode, amount: onlyDecimalFormat(value) } : mode
+      );
       setPaymentModes(updatedModes);
+      setIsEditBillNotUpdated(false);
     }
   };
 
@@ -909,11 +960,13 @@ const CreateBill = ({
       ...paymentModes,
       { paymentMode: filteredOptions[0]?.value, amount: 0 },
     ]);
+    setIsEditBillNotUpdated(false);
   };
 
   const removePaymentMode = (index) => {
     const updatedModes = paymentModes.filter((_, i) => i !== index);
     setPaymentModes(updatedModes);
+    setIsEditBillNotUpdated(false);
   };
 
   const handleDrawerDiagnosisNotes = () => {
@@ -1010,7 +1063,7 @@ const CreateBill = ({
       paidAmount: paidAmount,
       includeInRx: includeInRx,
       isForm3C: shouldAddBillTo3C,
-      date: moment().format("YYYY-MM-DD"),
+      date: billDate.format("YYYY-MM-DD"),
       notes: patientBillNotes,
       // dueFromPreviousBill: patientDueAmount,
       appointmentId: pam_id || patientData?.pam_id,
@@ -1813,14 +1866,27 @@ const CreateBill = ({
                 </div>
                 <div>
                   <div style={{ paddingBottom: "5px" }}>Bill Date</div>
-                  <Input
+                  <DatePicker
                     className="input-create-bill"
                     style={{ width: 125, height: 38 }}
-                    value={moment().format("DD-MM-YYYY")}
-                    onInput={(e) => {
-                      e.target.value = e.target.value.replace(/[^0-9]/g, "");
+                    value={billDate}
+                    onChange={(date) => {
+                      if (date) {
+                        setBillDate(date);
+                      }
                     }}
-                    disabled={true}
+                    format="DD-MM-YYYY"
+                    disabledDate={(current) => {
+                      if (!current) return false;
+                      const today = dayjs().startOf("day");
+                      // For IPD bills, disable dates before admission date and after current date
+                      if (isIpdBill && admissionDate) {
+                        const admissionDateDayjs = dayjs(admissionDate).startOf("day");
+                        return current < admissionDateDayjs || current > today;
+                      }
+                      // For OPD bills, disable past dates (before today)
+                      return current < today;
+                    }}
                   />
                 </div>
                 <div>
@@ -1917,7 +1983,8 @@ const CreateBill = ({
                                 disableSaveBtn ||
                                 (isPaymentModeItemMissing &&
                                   payment?.amount === 0) ||
-                                (payment?.paymentMode === "Advance Deposit" &&
+                                (!isEditBillNotUpdated &&
+                                  payment?.paymentMode === "Advance Deposit" &&
                                   payment?.amount > patientWalletBalance)
                                   ? "solid 1px red"
                                   : "",
@@ -1925,7 +1992,8 @@ const CreateBill = ({
                                 disableSaveBtn ||
                                 (isPaymentModeItemMissing &&
                                   payment?.amount === 0) ||
-                                (payment?.paymentMode === "Advance Deposit" &&
+                                (!isEditBillNotUpdated &&
+                                  payment?.paymentMode === "Advance Deposit" &&
                                   payment?.amount > patientWalletBalance)
                                   ? 10
                                   : "",
@@ -1933,7 +2001,7 @@ const CreateBill = ({
                           >
                             <Select
                               placeholder="Select"
-                              value={payment.paymentMode}
+                              value={payment?.paymentMode}
                               onChange={(value) =>
                                 handleModeChange(value, index, "paymentMode")
                               }
@@ -2028,7 +2096,7 @@ const CreateBill = ({
                           </span>
                         </div>
                       )}
-                      {payment?.paymentMode === "Advance Deposit" &&
+                      {!isEditBillNotUpdated && payment?.paymentMode === "Advance Deposit" &&
                         payment?.amount > totalAdvanceBalance && (
                           <div className="d-flex align-items-start gap-2">
                             <span className="icon-info fs-18 mt-1 bdg-danger" />

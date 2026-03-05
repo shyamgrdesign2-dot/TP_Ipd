@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Table, Spin, Popover, message } from "antd";
+import { Table, Spin, Popover, message, Drawer, Tag, Skeleton } from "antd";
 import moment from "moment";
 import { useDispatch } from "react-redux";
 import noData from "../../../../assets/images/nodata-found.svg";
@@ -11,9 +11,9 @@ import {
   markPatientAsDischarged,
   sendForDischargeApproval,
 } from "../../../../redux/ipd/ipdSlice";
-import { updatePatientInList } from "../../../../redux/ipd/inPatientsSlice";
+import { updatePatientInList, fetchBillingByAdmissionIds, updateBillDataForAdmission } from "../../../../redux/ipd/inPatientsSlice";
 import { usePatientsData } from "../hooks/usePatientsData";
-import { getTokenData, isEmptyRichText, isZydus } from "../../../../utils/utils";
+import { getTokenData, isEmptyRichText, isZydus, transformAdmissionToPatient } from "../../../../utils/utils";
 import DischargeConfirmationModal from "../../dischargeSummary/components/DischargeConfirmationModal";
 import DischargeConfirmationPopup from "../../dischargeSummary/components/DischargeConfirmationPopup";
 import { createRemoteComponent } from "../../../../shared/remoteComponents";
@@ -23,6 +23,8 @@ import { env } from "../../../../EnvironmentConfig";
 import AdmissionDetailsDrawer from "./AdmissionDetailsDrawer";
 import TransferWardBedDrawer from "./TransferWardBedDrawer";
 import TransferDoctorDepartmentDrawer from "./TransferDoctorDepartmentDrawer";
+import CreateBill from "../../../opdBilling/components/createBill/CreateBill";
+import AddAdvance from "../../../opdBilling/components/advanceDeposit/AddAdvance";
 import abhaLogo from "../../../../assets/images/icons/abha.svg";
 
 const RichTextEditor = createRemoteComponent("RichTextEditor");
@@ -34,10 +36,16 @@ const MoreActionsContent = ({
   onViewAdmissionDetails,
   onTransferWardBed,
   onTransferDoctorDepartment,
+  onCreateBill,
+  onAddAdvance,
   isDischargedPatients,
   isDischarged,
   isInPatients,
+  billDataByAdmissionId = {},
 }) => {
+  const admissionId = record?.admissionId || record?.admission_id;
+  const existingBillData = admissionId ? billDataByAdmissionId[admissionId] : null;
+  const createBillMenuText = existingBillData ? "Add/Edit Bill" : "Create Bill";
   const handleViewAdmissionDetails = (e) => {
     e.stopPropagation();
     onViewAdmissionDetails?.(record);
@@ -58,6 +66,16 @@ const MoreActionsContent = ({
     onTransferDoctorDepartment?.(record);
   };
 
+  const handleCreateBill = (e) => {
+    e.stopPropagation();
+    onCreateBill?.(record);
+  };
+
+  const handleAddAdvance = (e) => {
+    e.stopPropagation();
+    onAddAdvance?.(record);
+  };
+
   return (
     <div className="more-actions-menu">
       <div
@@ -66,6 +84,22 @@ const MoreActionsContent = ({
       >
         <span className="more-actions-menu-text">View Admission Details</span>
       </div>
+      {/* {isInPatients && !isDischargedPatients && !isDischarged && ( */}
+        <div
+          onClick={handleCreateBill}
+          className="more-actions-menu-item cursor-pointer"
+        >
+          <span className="more-actions-menu-text">{createBillMenuText}</span>
+        </div>
+      {/* )} */}
+      {/* {isInPatients && !isDischargedPatients && !isDischarged && ( */}
+        <div
+          onClick={handleAddAdvance}
+          className="more-actions-menu-item cursor-pointer"
+        >
+          <span className="more-actions-menu-text">Add Advance</span>
+        </div>
+      {/* )} */}
       {isInPatients && !isDischargedPatients && !isDischarged && (
         <div
           onClick={handleTransferWardBed}
@@ -111,6 +145,9 @@ const PatientsTable = ({
   fetchParams = {},
   isInPatients = false,
   isDischargeQueue = false,
+  billingByAdmissionId = {},
+  billDataByAdmissionId = {},
+  billingLoading = false,
 }) => {
   const dispatch = useDispatch();
   const [userId, setUserId] = useState(null);
@@ -139,6 +176,10 @@ const PatientsTable = ({
   const dischargeConfirmationModalRef = useRef(null);
   const [admissionDetailsDrawerOpen, setAdmissionDetailsDrawerOpen] = useState(false);
   const [selectedPatientForAdmissionDetails, setSelectedPatientForAdmissionDetails] = useState(null);
+  const [createBillDrawer, setCreateBillDrawer] = useState(false);
+  const [addAdvanceDrawer, setAddAdvanceDrawer] = useState(false);
+  const [selectedPatientForBilling, setSelectedPatientForBilling] = useState(null);
+  const [isBackModalOpen, setIsBackModalOpen] = useState(false);
   const showHideMoreActionPopover = (recordId) => {
     setOpenMoreActionsPopover((prev) => (prev === recordId ? null : recordId));
   };
@@ -203,6 +244,38 @@ const PatientsTable = ({
     setOpenMoreActionsPopover(null);
     setPatientForDoctorDept(record);
     setDoctorDeptDrawerOpen(true);
+  };
+
+  const handleCreateBill = (record) => {
+    setOpenMoreActionsPopover(null);
+    setSelectedPatientForBilling(record);
+    setCreateBillDrawer(true);
+  };
+
+  const handleCreateBillDrawer = () => {
+    setCreateBillDrawer(false);
+    setSelectedPatientForBilling(null);
+  };
+
+  const handleBillCreated = (admissionId) => {
+    if (admissionId) {
+      dispatch(fetchBillingByAdmissionIds({ admissionIds: [admissionId] }));
+    }
+  };
+
+  const handleAddAdvance = (record) => {
+    setOpenMoreActionsPopover(null);
+    setSelectedPatientForBilling(record);
+    setAddAdvanceDrawer(true);
+  };
+
+  const handleAddAdvanceDrawer = () => {
+    setAddAdvanceDrawer(false);
+    setSelectedPatientForBilling(null);
+  };
+
+  const showHideBackModal = () => {
+    setIsBackModalOpen(!isBackModalOpen);
   };
 
   const applyWardTransferLocally = (payload) => {
@@ -373,19 +446,43 @@ const PatientsTable = ({
       dataIndex: "admissionNo",
       key: "admissionNo",
       className: "col-patient-details",
-      render: (text, record) => (
-        <>
-          { isZydus() ?
-            <div>
-              <div>{record?.admissionNo || ""}</div>
-              <small>{record?.mrno}</small>
-            </div> :
-            <div>
-              <div>{record?.admissionId || ""}</div>
-            </div>
+      render: (text, record) => {
+        const admissionId =
+          record?.admissionId ||
+          record?.patientData?.admissionId ||
+          record?.patientData?.admission_id;
+        const billingStatus = admissionId ? billingByAdmissionId[admissionId] : null;
+        const renderBillingTag = () => {
+          if (billingLoading && !billingStatus) {
+            return <Skeleton.Input active size="small" style={{ width: 70, minWidth: 70, display: "inline-block", verticalAlign: "middle" }} />;
           }
-        </>
-      ),
+          if (billingStatus === "billed") {
+            return <Tag color="green">Billed</Tag>;
+          }
+          if (billingStatus === "unbilled") {
+            return <Tag color="orange">Unbilled</Tag>;
+          }
+          return null;
+        };
+        return (
+          <>
+            {isZydus() ? (
+              <div style={{ display: "flex", flexDirection: "row", alignItems: "center", flexWrap: "nowrap", gap: 8 }}>
+                <div>
+                  <div>{record?.admissionNo || ""}</div>
+                  <small>{record?.mrno}</small>
+                </div>
+                {/* <div style={{ flexShrink: 0 }}>{renderBillingTag()}</div> */}
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "row", alignItems: "center", flexWrap: "nowrap", gap: 8 }}>
+                <div>{record?.admissionId || ""}</div>
+                {/* <div style={{ flexShrink: 0 }}>{renderBillingTag()}</div> */}
+              </div>
+            )}
+          </>
+        );
+      },
     },
     {
       title: "Ward/Bed No",
@@ -564,9 +661,12 @@ const PatientsTable = ({
                     }}
                     onTransferWardBed={handleTransferWardBed}
                     onTransferDoctorDepartment={handleTransferDoctorDepartment}
+                    onCreateBill={handleCreateBill}
+                    onAddAdvance={handleAddAdvance}
                     isDischargedPatients={isDischargedPatients}
                     isDischarged={record?.isDischarged}
                     isInPatients={isInPatients}
+                    billDataByAdmissionId={billDataByAdmissionId}
                   />
                 }
                 trigger="click"
@@ -704,6 +804,60 @@ const PatientsTable = ({
         patientData={patientForDoctorDept}
         onSuccess={applyDoctorTransferLocally}
       />
+      {createBillDrawer && selectedPatientForBilling && (
+        <Drawer
+          closeIcon={false}
+          placement="right"
+          onClose={handleCreateBillDrawer}
+          open={createBillDrawer}
+          width="100%"
+          push={false}
+        >
+          <CreateBill
+            handleCreateBillDrawer={handleCreateBillDrawer}
+            isBackModalOpen={isBackModalOpen}
+            showHideBackModal={showHideBackModal}
+            patientData={transformAdmissionToPatient(selectedPatientForBilling)}
+            admissionId={selectedPatientForBilling?.admissionId || selectedPatientForBilling?.admission_id}
+            admissionDate={selectedPatientForBilling?.admittedOn || selectedPatientForBilling?.admissionDate}
+            editBillData={
+              (() => {
+                const admId = selectedPatientForBilling?.admissionId || selectedPatientForBilling?.admission_id;
+                const rawBill = admId ? billDataByAdmissionId[admId] : null;
+                if (!rawBill) return undefined;
+                return { ...rawBill, admission: selectedPatientForBilling, patient: {...rawBill?.patient, patientId: rawBill?.patientId || rawBill?.patient?.patientId}};
+              })()
+            }
+            setEditedBillData={(updatedBill) => {
+              const admId = selectedPatientForBilling?.admissionId || selectedPatientForBilling?.admission_id;
+              if (admId && updatedBill) {
+                dispatch(updateBillDataForAdmission({ admissionId: admId, billData: updatedBill }));
+              }
+            }}
+            onBillCreated={() =>
+              handleBillCreated(
+                selectedPatientForBilling?.admissionId || selectedPatientForBilling?.admission_id
+              )
+            }
+          />
+        </Drawer>
+      )}
+      {addAdvanceDrawer && selectedPatientForBilling && (
+        <Drawer
+          closeIcon={false}
+          placement="right"
+          onClose={handleAddAdvanceDrawer}
+          open={addAdvanceDrawer}
+          width="100%"
+          push={false}
+        >
+          <AddAdvance
+            handleAddAdvanceDrawer={handleAddAdvanceDrawer}
+            patientData={transformAdmissionToPatient(selectedPatientForBilling)}
+            isReceptionistDashboard={false}
+          />
+        </Drawer>
+      )}
     </div>
   );
 };

@@ -20,6 +20,9 @@ export const usePatientsData = () => {
       hasMore,
       error: patientsError,
     },
+    billingByAdmissionId,
+    billDataByAdmissionId,
+    billingLoading,
     filterParams,
   } = useSelector((state) => state.inPatients);
 
@@ -61,6 +64,9 @@ export const usePatientsData = () => {
     patientsLoading,
     patientsError,
     hasMore,
+    billingByAdmissionId,
+    billDataByAdmissionId,
+    billingLoading,
     filterParams,
     fetchAttempted,
     loadingMore,

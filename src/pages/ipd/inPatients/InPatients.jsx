@@ -109,6 +109,9 @@ function InPatients() {
     patientsLoading,
     patientsError,
     hasMore,
+    billingByAdmissionId,
+    billDataByAdmissionId,
+    billingLoading,
     filterParams,
     loadingMore,
     fetchData,
@@ -403,6 +406,9 @@ function InPatients() {
             filterParams={filterParams}
             fetchParams={fetchParams}
             isInPatients={true}
+            billingByAdmissionId={billingByAdmissionId}
+            billDataByAdmissionId={billDataByAdmissionId}
+            billingLoading={billingLoading}
           />
         </div>
       </div>
