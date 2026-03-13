@@ -16,6 +16,7 @@ import { useDebounce } from "./hooks/useDebounce";
 import { useInfiniteScroll } from "./hooks/useInfiniteScroll";
 import { usePatientsData } from "./hooks/usePatientsData";
 import { useFiltersData } from "./hooks/useFiltersData";
+import { isDischargedByDischargeInfo } from "./dischargeStatusUtils";
 import {
   loadIPDFilters,
   saveIPDFilters,
@@ -285,6 +286,10 @@ function DischargedPatients() {
     selectedWards.length > 0 ||
     dateRange !== null ||
     inputSearchQuery !== "";
+  const dischargedPatientsData = useMemo(
+    () => patientsData.filter((patient) => isDischargedByDischargeInfo(patient)),
+    [patientsData]
+  );
 
   return (
     <>
@@ -316,7 +321,7 @@ function DischargedPatients() {
           </Row>
 
           <PatientsTable
-            data={patientsData}
+            data={dischargedPatientsData}
             loading={patientsLoading}
             error={patientsError}
             onChange={handleChange}
