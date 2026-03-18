@@ -1,3 +1,5 @@
+import moment from "moment";
+
 const EMPTY_DISCHARGE_VALUES = new Set([
   "",
   "-",
@@ -26,7 +28,11 @@ const isValidDischargeDate = (value) => {
   }
 
   if (typeof value === "string") {
-    return !Number.isNaN(Date.parse(value));
+    const str = value.trim();
+    if (!str) return false;
+    const withFormat = moment(str, ["DD-MM-YYYY", "DD/MM/YYYY", moment.ISO_8601], true);
+    if (withFormat.isValid()) return true;
+    return moment(str).isValid();
   }
 
   return false;
@@ -49,6 +55,6 @@ export const isDischargedByDischargeInfo = (patient) => {
     patient?.patientData?.discharge_no;
 
   return (
-    isValidDischargeDate(dateOfDischarge) && isValidDischargeNo(dischargeNo)
+    patient?.isDischarged || (isValidDischargeDate(dateOfDischarge) && isValidDischargeNo(dischargeNo))
   );
 };
