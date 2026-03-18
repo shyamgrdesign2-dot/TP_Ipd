@@ -55,6 +55,6 @@ export const isDischargedByDischargeInfo = (patient) => {
     patient?.patientData?.discharge_no;
 
   return (
-    patient?.is_discharged || (isValidDischargeDate(dateOfDischarge) && isValidDischargeNo(dischargeNo))
+    patient?.isDischarged || (isValidDischargeDate(dateOfDischarge) && isValidDischargeNo(dischargeNo))
   );
 };
