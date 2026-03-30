@@ -14,6 +14,7 @@ import Vitals from "../../../components/Vitals";
 import MedicationTable from "../../../components/MedicationTable";
 import SectionTitle from "../../SectionTitle";
 import { Text } from "../../../components/MultilingualText";
+import { isZydus } from "../../../../../utils/utils";
 
 const styles = StyleSheet.create({
   // Main container
@@ -127,7 +128,7 @@ const DischargeNote = ({ data, title, formatSettings, frequencyList, timingList,
     return null;
 
   return (
-    <View style={styles.sectionContainer} break>
+    <View style={styles.sectionContainer} break={isZydus()}>
       <SectionTitle title={title} />
       <View style={styles.mainContainer}>
         {sortedSubsections.map((subSection) => {

@@ -11,6 +11,7 @@ import { getAllVisibleSections } from "../../../utils/pdfUtils";
 import RichTextPrintRenderer from "./richTextPrintRenderer";
 import { CHRONOLOGY_LAST_PARAGRAPH } from "../../../../../utils/locale";
 import { Text } from "../../../components/MultilingualText";
+import { isZydus } from "../../../../../utils/utils";
 
 const styles = StyleSheet.create({
   // Main container
@@ -198,7 +199,7 @@ const CourseInHospital = ({ data, title, formatSettings }) => {
   }
 
   return (
-    <View style={styles.sectionContainer} break>
+    <View style={styles.sectionContainer} break={isZydus()}>
       <SectionTitle title={title} />
       <View style={styles.mainContainer}>
         {sortedSubsections.map((subsection) => {

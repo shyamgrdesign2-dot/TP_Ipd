@@ -248,9 +248,15 @@ const PatientInfo = ({
           render={({ pageNumber }) =>
             pageNumber > 1 ? (
               <View style={styles.outerContainer}>
-                <View style={styles.topBorder} />
-                {renderNameAndMrn()}
-                <View style={styles.bottomBorder} />
+                {
+                  isZydus() ? (
+                    <>
+                      <View style={styles.topBorder} />
+                      {renderNameAndMrn()}
+                      <View style={styles.bottomBorder} />
+                    </>
+                  ) : null
+                }
               </View>
             ) : null
           }

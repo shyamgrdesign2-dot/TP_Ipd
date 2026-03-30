@@ -12,6 +12,7 @@ import {
 } from "../../../utils/pdfUtils";
 import RichTextPrintRenderer from "./richTextPrintRenderer";
 import { Text } from "../../../components/MultilingualText";
+import { isZydus } from "../../../../../utils/utils";
 
 const styles = StyleSheet.create({
   // Main container
@@ -95,7 +96,7 @@ const OTNotes = ({ data, title, formatSettings }) => {
   if (!surgeries?.length) return <Text>{""}</Text>;
 
   return (
-    <View style={styles.sectionContainer} break>
+    <View style={styles.sectionContainer} break={isZydus()}>
       <SectionTitle title={title} />
       <View style={styles.mainContainer}>
         {surgeries.map((surgery, index) => {

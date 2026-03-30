@@ -7,6 +7,7 @@ import { View, StyleSheet } from "@react-pdf/renderer";
 import { PX_TO_PT, CM_TO_PT, INCH_TO_PT } from "../constants";
 import SlateToPdf from "../components/SlateToPdf";
 import { Text } from "../components/MultilingualText";
+import { isZydus } from "../../../utils/utils";
 
 /**
  * Convert pixels to points
@@ -260,7 +261,7 @@ const getFieldValue = (key, patientData) => {
     dob: () => formatDate(patientData.dob),
     mrnNo: () => patientData.mrnNo || "",
     primaryConsultant: () => patientData.doctorName || "",
-    admissionNo: () => patientData.admissionNo || "",
+    admissionNo: () => (isZydus() ? patientData?.admissionNo : patientData?.admissionId) || "",
     payer: () => patientData.payer || "",
     payerType: () => patientData.payerType || "",
     abhaId: () => patientData.abhaId || "",

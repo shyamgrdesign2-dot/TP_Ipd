@@ -17,6 +17,7 @@ import {
 } from "../../../utils/pdfUtils";
 import SectionTitle from "../../SectionTitle";
 import { Text } from "../../../components/MultilingualText";
+import { isZydus } from "../../../../../utils/utils";
 
 const styles = StyleSheet.create({
   pageBreak: {
@@ -882,7 +883,7 @@ const PatientHistory = ({
     );
   };
 
-  return <View break={isDischargeSummary}>{renderPatientHistoryPrint()}</View>;
+  return <View break={isDischargeSummary && isZydus()}>{renderPatientHistoryPrint()}</View>;
 };
 
 export default PatientHistory;
