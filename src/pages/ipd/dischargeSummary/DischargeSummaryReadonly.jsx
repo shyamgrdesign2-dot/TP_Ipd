@@ -185,16 +185,7 @@ const DischargeSummaryReadonly = forwardRef((props, ref) => {
             className={`rounded-20px bg-white ${isLoading ? "ds-loading-wrapper" : ""}`}
           >
             {isLoading ? (
-              // <DischargeSummaryLoading />
-              <Spin
-                style={{
-                  position: "absolute",
-                  zIndex: 0,
-                  left: "50%",
-                  top: "50%",
-                }}
-                tip="Loading PDF..."
-              />
+              <DischargeSummaryLoading />
             ) : (
               <div ref={divRef} className="printheight">
                 <div className="position-relative h-100">
