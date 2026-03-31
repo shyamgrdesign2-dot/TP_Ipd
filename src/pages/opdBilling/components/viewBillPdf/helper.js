@@ -154,6 +154,13 @@ export const billDataShow = (id, billData, gstIn) => {
         : billData?.paymentStatus) || "Paid";
   } else if (id == 5) {
     value = gstIn ?? "-";
+  } else if (id == 6) {
+    value =
+      billData?.updatedAt || billData?.createdAt
+        ? moment(billData.updatedAt || billData?.createdAt).format(
+            "DD/MM/YYYY"
+          )
+        : "-";
   }
   return value;
 };

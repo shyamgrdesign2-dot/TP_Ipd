@@ -48,6 +48,26 @@ export const fetchPrintSetting = async function (doctorId, billType) {
     if (billType === "ipdBill" && res) {
       res = enrichIpdBillPrintSettingsWithNewFields(res);
     }
+
+    const ensureDateField = (arr) => {
+      if (!Array.isArray(arr)) return;
+
+      const ensureItem = (id, title) => {
+        const exists = arr.some(
+          (item) => item?.id === id || (item?.title && String(item.title).trim() === title)
+        );
+        if (!exists) {
+          arr.push({ id, title, enabled: false });
+        }
+      };
+
+      ensureItem(6, "Bill Date");
+    };
+
+    const billInfo = res?.headerFooter?.billInfo;
+    if (Array.isArray(billInfo)) {
+      ensureDateField(billInfo);
+    }
   } catch (e) {
     console.error("Error while fetching Print settings details: ", e);
   }
