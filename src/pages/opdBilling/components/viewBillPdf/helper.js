@@ -104,9 +104,9 @@ export const patientIpdDataShow = (id, patient_data, billData, profile) => {
   } else if (id == 9) {
     value = billData?.admission?.doctor?.name ?? "-";
   } else if (id == 10) {
-    value = billData?.admission?.dateOfDischarge || billData?.admission?.dischargedAt
-      ? moment(billData?.admission?.dateOfDischarge || billData?.admission?.dischargedAt).format("DD/MM/YYYY")
-      : "-";
+    const d = billData?.admission?.dateOfDischarge || billData?.admission?.dischargedAt;
+    const m = d ? moment(d, ["DD-MM-YYYY", moment.ISO_8601], true) : null;
+    value = m?.isValid() ? m.format("DD/MM/YYYY") : "-";
   } else if (id == 11) {
     value = billData?.admission?.dischargeNo ?? "-";
   } else if (id == 12) {
