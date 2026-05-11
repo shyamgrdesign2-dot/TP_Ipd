@@ -166,6 +166,7 @@ const ConsultantNotes = (props) => {
             (e) => ({
               investigation_name: e.name,
               note: e.notes,
+              service_code: e.service_code,
             })
           ) || []
         );
@@ -327,6 +328,7 @@ const ConsultantNotes = (props) => {
         latestNote?.consultationNotes?.labInvestigation?.map((e) => ({
           investigation_name: e.name,
           note: e.notes,
+          service_code: e.service_code,
         }))
       );
     }
@@ -535,6 +537,7 @@ const ConsultantNotes = (props) => {
           updatedNotes.labInvestigation?.map((e) => ({
             investigation_name: e.name,
             note: e.notes,
+            service_code: e.service_code,
           })) || [];
         setInvestigationData(mappedInvestigations);
         dispatch(setLabInvestigation(mappedInvestigations));

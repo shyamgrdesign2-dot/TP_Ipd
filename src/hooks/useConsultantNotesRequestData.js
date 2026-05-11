@@ -40,6 +40,7 @@ export const useConsultantNotesRequestData = ({
         investigationData?.map((e) => ({
           name: e.investigation_name,
           notes: e.note,
+          service_code: e.service_code,
         })) || [],
       additionalRemarks: additionalRemarks || [],
       date: filledDate ? dayjs(filledDate).format(API_DATE_FORMAT) : "",

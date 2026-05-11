@@ -304,6 +304,7 @@ function TabMedicationSearch({ passIndex, onClose }) {
           return {
             ...e,
             objectID: item.objectID,
+            reference_id: item.reference_id,
             // tmm_unit_name:unitObj && unitObj !== undefined? JSON.parse(unitObj.key).tmu_title : "",
             tmm_freq_type_name:
               frequencyObj !== undefined ? frequencyObj.tmf_title : "",

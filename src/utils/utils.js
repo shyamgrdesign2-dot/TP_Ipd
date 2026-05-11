@@ -137,6 +137,7 @@ export const convertCurrentMedicationToPrescription = (medications = []) => {
       tmm_dosage_unit_name: `${dosageValue} ${unit.tmu_title}`,
       tmm_days_duration_type: durationDisplay,
       unique_id: medication?.unique_id || uuidv4(),
+      reference_id: medication?.reference_id,
     };
   });
 };
@@ -1749,6 +1750,7 @@ export const convertMedicationFormat = (medications) => {
       schedule: schedule.join(", ") || "As needed",
       duration: medication?.tmm_duration_type || "as needed",
       notes: medication?.tmm_remarks || "",
+      reference_id: medication?.reference_id,
     };
   });
 };

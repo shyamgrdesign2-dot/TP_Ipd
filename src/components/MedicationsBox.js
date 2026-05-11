@@ -239,16 +239,18 @@ function MedicationsBox(props) {
   );
 
   const onSelectParent = async (data, item) => {
-    if (JSON.parse(item.key).tmm_id === 0) {
+    const selectedMedicine = JSON.parse(item.key);
+
+    if (selectedMedicine.tmm_id === 0) {
       showHideAddMedicineModal()
-      setAddCustom(JSON.parse(item.key));
+      setAddCustom(selectedMedicine);
     } else {
       window.Moengage.track_event("medicine_select", {
-        "value": JSON.parse(item.key).tmm_medicine_name
+        "value": selectedMedicine.tmm_medicine_name
       });
 
       if (doseCalculatorDrawer) {
-        const medicineExists = medicationLibrary.some((med) => med.tmm_id == JSON.parse(item.key).tmm_id);
+        const medicineExists = medicationLibrary.some((med) => med.tmm_id == selectedMedicine.tmm_id);
 
         if (medicineExists) {
           message.open({
@@ -270,7 +272,7 @@ function MedicationsBox(props) {
         }
       }
 
-      const action = await dispatch(getMedicineDetails(JSON.parse(item.key).tmm_id));
+      const action = await dispatch(getMedicineDetails(selectedMedicine.tmm_id));
       if (action.meta.requestStatus === "fulfilled") {
         const updatedData = action.payload.map((e) => {
 
@@ -313,7 +315,8 @@ function MedicationsBox(props) {
 
           return {
             ...e,
-            objectID: JSON.parse(item.key).objectID,
+            objectID: selectedMedicine.objectID,
+            reference_id: selectedMedicine.reference_id,
             // tmm_unit_name: unitObj && unitObj !== undefined ? unitObj.tmu_title : "",
             tmm_freq_type_name: tmm_freq_type_name,
             tmf_block_val: frequencyObj !== undefined ? frequencyObj.tmf_block_val : "",
