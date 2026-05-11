@@ -29,6 +29,28 @@ import abhaLogo from "../../../../assets/images/icons/abha.svg";
 
 const RichTextEditor = createRemoteComponent("RichTextEditor");
 
+const DISCHARGE_DATE_FORMATS = [
+  "DD-MM-YYYY",
+  "DD/MM/YYYY",
+  "YYYY-MM-DD",
+  "YYYY/MM/DD",
+  moment.ISO_8601,
+];
+
+const parseDischargeDate = (value) => {
+  if (!value) return null;
+
+  const parsed = moment(value, DISCHARGE_DATE_FORMATS, true);
+  if (parsed.isValid()) return parsed;
+
+  const fallback = moment(value);
+  return fallback.isValid() ? fallback : null;
+};
+
+const getDischargeDateForPatient = (record) =>
+  parseDischargeDate(record?.dateOfDischarge) ||
+  parseDischargeDate(record?.dischargedAt);
+
 const MoreActionsContent = ({
   onCtaClick,
   record,
@@ -529,19 +551,19 @@ const PatientsTable = ({
       ? [
           {
             title: "Discharged On",
-            dataIndex: "dischargedAt",
-            key: "dischargedAt",
+            dataIndex: "dateOfDischarge",
+            key: "dateOfDischarge",
             className: "col-discharged-on",
             sortDirections: ["descend", "ascend", "descend"],
             defaultSortOrder: "descend",
             sorter: (a, b) => {
-              const aDate = moment(a.dischargedAt).valueOf();
-              const bDate = moment(b.dischargedAt).valueOf();
+              const aDate = getDischargeDateForPatient(a)?.valueOf() || 0;
+              const bDate = getDischargeDateForPatient(b)?.valueOf() || 0;
               return aDate - bDate;
             },
             render: (text, record) => {
-              const dateTime = moment(record.dischargedAt);
-              return <div>{dateTime.format("DD-MM-YYYY")}</div>;
+              const dateTime = getDischargeDateForPatient(record);
+              return <div>{dateTime ? dateTime.format("DD-MM-YYYY") : "N/A"}</div>;
             },
           },
           {

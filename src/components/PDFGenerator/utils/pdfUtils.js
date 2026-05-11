@@ -160,9 +160,6 @@ const formatWithKnownPatterns = (date, outputFormat = "DD MMM YYYY") => {
   const customParseFormat = require("dayjs/plugin/customParseFormat");
   dayjs.extend(customParseFormat);
 
-  const direct = dayjs(date);
-  if (direct.isValid()) return direct.format(outputFormat);
-
   const knownFormats = [
     "DD-MM-YYYY",
     "DD/MM/YYYY",
@@ -176,6 +173,9 @@ const formatWithKnownPatterns = (date, outputFormat = "DD MMM YYYY") => {
     const parsed = dayjs(date, fmt, true);
     if (parsed.isValid()) return parsed.format(outputFormat);
   }
+
+  const direct = dayjs(date);
+  if (direct.isValid()) return direct.format(outputFormat);
 
   return formatDate(date, outputFormat);
 };
