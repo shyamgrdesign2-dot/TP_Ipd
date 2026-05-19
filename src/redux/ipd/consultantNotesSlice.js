@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import ApiConsultantNotes from "../../api/services/ipd/ApiConsultantNotes";
 import ApiOrderManagement from "../../api/services/ApiOrderManagement";
+import { enrichZydusIpdOrderPayload } from "../../pages/ipd/utils/enrichZydusOrderPayload";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 dayjs.extend(customParseFormat);
@@ -70,14 +71,18 @@ export const placeZydusIpdOrderMedicineAndInvestigation = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
+      const enriched = await enrichZydusIpdOrderPayload(
+        medication,
+        labInvestigation
+      );
       const result =
         await ApiOrderManagement.zyIpdOrderMedicineAndInvestigation({
           patientId,
           admissionId,
           consultationId,
           isCreated,
-          medication,
-          labInvestigation,
+          medication: enriched.medication,
+          labInvestigation: enriched.labInvestigation,
         });
       return result;
     } catch (error) {
