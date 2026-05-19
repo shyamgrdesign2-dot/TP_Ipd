@@ -257,8 +257,16 @@ const ConsultantNotes = (props) => {
       );
 
       if (result.type.endsWith("fulfilled")) {
-        const medication = consultantNotesRequestData.medication || [];
-        const labInvestigation = consultantNotesRequestData.labInvestigation || [];
+        const savedConsultationNotes =
+          result.payload?.result?.data?.consultationNotes;
+        const medication =
+          savedConsultationNotes?.medication ||
+          consultantNotesRequestData.medication ||
+          [];
+        const labInvestigation =
+          savedConsultationNotes?.labInvestigation ||
+          consultantNotesRequestData.labInvestigation ||
+          [];
         const consultationId = isEditingConsultantNote
           ? currentConsultantNote._id
           : result.payload?.result?.data?._id;
