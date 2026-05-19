@@ -16,6 +16,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import {
   getConsultantNotes,
   updateConsultantNotes,
+  placeZydusIpdOrderMedicineAndInvestigation,
   setVitals,
   setLabInvestigation,
   setClinicalAssessmentPlan,
@@ -40,7 +41,9 @@ import {
 } from "../../../redux/ipd/ipdSlice";
 import { isMobile } from "react-device-detect";
 import TabInvestigationBox from "../../../components/tab_design/TabInvestigationBox";
-import { MESSAGE_KEY } from "../../../utils/constants";
+import { GB_NEW_IPD_ZYDUS, MESSAGE_KEY } from "../../../utils/constants";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
+import { isZydus } from "../../../utils/utils";
 import visitEnd from "../../../assets/images/end-visit.svg";
 import imgCloseVisit from "../../../assets/images/close-visit.svg";
 import ProgressSummary from "./ProgressSummary";
@@ -82,6 +85,7 @@ const ConsultantNotes = (props) => {
 
   const { isEditable = true } = props;
   const dispatch = useDispatch();
+  const isNewIPDZydusAccessableFromGB = useFeatureIsOn(GB_NEW_IPD_ZYDUS);
 
   const {
     consultantNotes,
@@ -240,6 +244,8 @@ const ConsultantNotes = (props) => {
       return;
     }
 
+    const isEditingConsultantNote = !!currentConsultantNote?._id;
+
     try {
       const result = await dispatch(
         updateConsultantNotes({
@@ -251,6 +257,34 @@ const ConsultantNotes = (props) => {
       );
 
       if (result.type.endsWith("fulfilled")) {
+        const medication = consultantNotesRequestData.medication || [];
+        const labInvestigation = consultantNotesRequestData.labInvestigation || [];
+        const consultationId = isEditingConsultantNote
+          ? currentConsultantNote._id
+          : result.payload?.result?.data?._id;
+
+        if (
+          isZydus() &&
+          isNewIPDZydusAccessableFromGB &&
+          consultationId &&
+          (medication.length > 0 || labInvestigation.length > 0)
+        ) {
+          const orderResult = await dispatch(
+            placeZydusIpdOrderMedicineAndInvestigation({
+              patientId,
+              admissionId,
+              consultationId,
+              isCreated: !isEditingConsultantNote,
+              medication,
+              labInvestigation,
+            })
+          );
+
+          if (orderResult.type.endsWith("rejected")) {
+            message.error(orderResult.payload);
+          }
+        }
+
         message.open({
           key: MESSAGE_KEY,
           type: "",

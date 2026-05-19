@@ -70,4 +70,5 @@ export default {
   short_links_api_url: env.short_links_api_url,
   short_links_api_key: env.SHORT_LINKS_API_KEY,
   ipd_api_url: env.ipd_api_url,
+  order_management_api_url: env.order_management_api_url,
 };
