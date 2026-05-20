@@ -6,13 +6,14 @@ import { getTokenData } from "../../../utils/utils";
 import axios from "axios";
 import config from "../../../config";
 import { env } from "../../../EnvironmentConfig";
-import { GB_ZYDUS_USER } from "../../../utils/constants";
+import { GB_ZYDUS_USER, GB_NEW_IPD_ZYDUS } from "../../../utils/constants";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import bedPrimaryIcon from "../../../assets/images/icons/bedPrimary.svg";
 import bedSecondaryIcon from "../../../assets/images/icons/bedSecondary.svg";
 
 function IPDNavbar() {
   const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
+  const isNewIpdZydusEnabled = useFeatureIsOn(GB_NEW_IPD_ZYDUS);
   async function SSO_TO_PM() {
     const tokenData = await getTokenData();
     try {
@@ -46,6 +47,8 @@ function IPDNavbar() {
   const izZydusUser =
     getTokenData()?.hospital_business_id == env.zydus_business_id &&
     isZydusUserAccessableFromGB;
+
+  const showIntimateDischargeNav = izZydusUser && isNewIpdZydusEnabled;
 
   const handleWardBedManagementClick = async () => {
     SSO_TO_PM().then(async (data) => {
@@ -118,6 +121,30 @@ function IPDNavbar() {
           )}
         </NavLink>
       </div>
+
+      {showIntimateDischargeNav ? (
+        <div>
+          <NavLink to="/ipd/intimate-discharge" replace={true} end>
+            {({ isActive }) => (
+              <>
+                <img
+                  src={
+                    isActive
+                      ? defaultIcons.dischargedPatientsPc
+                      : defaultIcons.dischargedPatientsOutline
+                  }
+                  alt="Intimate Discharge"
+                />
+                <div className="mt-1 px-2">
+                  <div className={isActive ? "text-primary" : ""}>
+                    Intimate Discharge
+                  </div>
+                </div>
+              </>
+            )}
+          </NavLink>
+        </div>
+      ) : null}
 
       <NavLink to="/ipd/ward-bed-management" replace={true}>
         {({ isActive }) => (

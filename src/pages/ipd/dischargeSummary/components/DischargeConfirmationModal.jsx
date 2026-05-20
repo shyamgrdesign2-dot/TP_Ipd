@@ -64,6 +64,8 @@ const DischargeConfirmationModal = forwardRef(
       { value: "Death", label: <div>Death</div> },
     ];
 
+    const isIntimationFlow = apiToCall === "markIntimationDischarge";
+
     useEffect(() => {
       setFormData({
         dateOfDischarge: dateOfDischarge || dayjs(),
@@ -142,9 +144,11 @@ const DischargeConfirmationModal = forwardRef(
         onClose={closeClick}
         width={580}
         onSave={handleDischarge}
-        title="Discharge Details"
+        title={isIntimationFlow ? "Intimate Discharge Details" : "Discharge Details"}
         saveButtonText={
-          apiToCall === "markPatientAsDischarged"
+          isIntimationFlow
+            ? "Continue"
+            : apiToCall === "markPatientAsDischarged"
             ? "Discharge"
             : "Send for Discharge Approval"
         }
@@ -156,7 +160,8 @@ const DischargeConfirmationModal = forwardRef(
           <div className="discharge-row">
             <div className="discharge-field">
               <label className="discharge-label">
-                Discharge Date<span className="required-asterisk">*</span>
+                {isIntimationFlow ? "Intimation Date" : "Discharge Date"}
+                <span className="required-asterisk">*</span>
               </label>
               <DatePicker
                 className="w-100 popinput inputheight41"
@@ -182,7 +187,8 @@ const DischargeConfirmationModal = forwardRef(
 
             <div className="discharge-field">
               <label className="discharge-label">
-                Discharge Time<span className="required-asterisk">*</span>
+                {isIntimationFlow ? "Intimation Time" : "Discharge Time"}
+                <span className="required-asterisk">*</span>
               </label>
               <TimePicker
                 className="w-100 popinput inputheight41"
@@ -207,55 +213,59 @@ const DischargeConfirmationModal = forwardRef(
             </div>
           </div>
 
-          {/* Type of Discharge */}
-          <div className="discharge-field">
-            <label className="discharge-label">
-              Type of Discharge<span className="required-asterisk">*</span>
-            </label>
-            <Select
-              className="autocomplete-custom w-100 popinput inputheight41"
-              placeholder="Select Type of Discharge"
-              options={dischargeTypeOptions}
-              value={formData.dischargeType || undefined}
-              onChange={(val) => handleFieldChange("dischargeType", val)}
-            />
-          </div>
+          {!isIntimationFlow ? (
+            <>
+              {/* Type of Discharge */}
+              <div className="discharge-field">
+                <label className="discharge-label">
+                  Type of Discharge<span className="required-asterisk">*</span>
+                </label>
+                <Select
+                  className="autocomplete-custom w-100 popinput inputheight41"
+                  placeholder="Select Type of Discharge"
+                  options={dischargeTypeOptions}
+                  value={formData.dischargeType || undefined}
+                  onChange={(val) => handleFieldChange("dischargeType", val)}
+                />
+              </div>
 
-          {/* Additional Remarks */}
-          <div className="discharge-field">
-            <label className="discharge-label">Additional Remarks</label>
-            <div className="discharge-remarks-editor">
-              <RichTextEditWrapper
-                onExposeApi={(api) => {
-                  apiRef.current = api;
-                }}
-                readOnly={false}
-                showToolbar={true}
-                showActionBtns={false}
-                width="100%"
-                showAutoFill={false}
-                containerClass="discharge-rich-text-wrapper"
-                showVoiceAI={!!patientId && !!admissionId}
-                showMicrophone={true}
-                voiceAiIcon={defaultAssetIcons.voiceAiIcon}
-                onVoiceAIRecordingComplete={handleAIRecordingComplete}
-                onChange={(data) => handleFieldChange("dischargeRemarks", data)}
-                initialValue={formData.dischargeRemarks}
-                placeholder="The patient is stable and has been discharged after careful consideration."
-                onSave={() => {
-                  console.log("save");
-                }}
-                onErase={() => {
-                  setAutoFillTextToAppend(["clear"]);
-                }}
-                onTemplate={() => {
-                  console.log("template");
-                }}
-                newAutoFillTextToAppend={autoFillTextToAppend}
-                setNewAutoFillTextToAppend={setAutoFillTextToAppend}
-              />
-            </div>
-          </div>
+              {/* Additional Remarks */}
+              <div className="discharge-field">
+                <label className="discharge-label">Additional Remarks</label>
+                <div className="discharge-remarks-editor">
+                  <RichTextEditWrapper
+                    onExposeApi={(api) => {
+                      apiRef.current = api;
+                    }}
+                    readOnly={false}
+                    showToolbar={true}
+                    showActionBtns={false}
+                    width="100%"
+                    showAutoFill={false}
+                    containerClass="discharge-rich-text-wrapper"
+                    showVoiceAI={!!patientId && !!admissionId}
+                    showMicrophone={true}
+                    voiceAiIcon={defaultAssetIcons.voiceAiIcon}
+                    onVoiceAIRecordingComplete={handleAIRecordingComplete}
+                    onChange={(data) => handleFieldChange("dischargeRemarks", data)}
+                    initialValue={formData.dischargeRemarks}
+                    placeholder="The patient is stable and has been discharged after careful consideration."
+                    onSave={() => {
+                      console.log("save");
+                    }}
+                    onErase={() => {
+                      setAutoFillTextToAppend(["clear"]);
+                    }}
+                    onTemplate={() => {
+                      console.log("template");
+                    }}
+                    newAutoFillTextToAppend={autoFillTextToAppend}
+                    setNewAutoFillTextToAppend={setAutoFillTextToAppend}
+                  />
+                </div>
+              </div>
+            </>
+          ) : null}
         </div>
       </DrawerWrapper>
     );

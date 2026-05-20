@@ -173,6 +173,20 @@ export const sendForDischargeApproval = createAsyncThunk(
   }
 );
 
+export const markIntimationDischarge = createAsyncThunk(
+  "ipd/markIntimationDischarge",
+  async (data) => {
+    try {
+      let result = {};
+      result = await ApiIpdService.markIntimationDischarge(data);
+      return result;
+    } catch (error) {
+      console.log("error: ", error);
+      throw Error(error);
+    }
+  }
+);
+
 export const voiceRx = createAsyncThunk(
   "ipd/voiceRx",
   async (data) => {
@@ -323,6 +337,15 @@ const ipdSlice = createSlice({
         state.loading = false;
       })
       .addCase(markPatientAsDischarged.rejected, (state) => {
+        state.loading = false;
+      })
+      .addCase(markIntimationDischarge.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(markIntimationDischarge.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(markIntimationDischarge.rejected, (state) => {
         state.loading = false;
       })
       .addCase(voiceRx.pending, (state) => {

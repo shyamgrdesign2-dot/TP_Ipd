@@ -22,16 +22,31 @@ const DischargeConfirmationPopup = ({
   apiToCall,
   isConfirmLoading = false,
 }) => {
+  const confirmTitle =
+    apiToCall === "markPatientAsDischarged"
+      ? "Confirm Discharge"
+      : apiToCall === "markIntimationDischarge"
+      ? "Confirm Intimate Discharge"
+      : "Confirm Send for Discharge Approval";
+
+  const confirmButtonLabel =
+    apiToCall === "markPatientAsDischarged"
+      ? "Yes, Discharge Patient"
+      : apiToCall === "markIntimationDischarge"
+      ? "Yes, Mark Intimate Discharge"
+      : "Yes, Send for Discharge Approval";
+
+  const warningBody =
+    apiToCall === "markIntimationDischarge"
+      ? "Once intimate discharge is marked, please ensure all information is correct before proceeding."
+      : "Once discharged, you will not be able to add or edit any details. Please ensure all information is complete and approved before proceeding.";
+
   return (
     <CommonModal
       isModalOpen={isModalOpen}
       onCancel={onCancel}
       modalWidth={600}
-      title={
-        apiToCall === "markPatientAsDischarged"
-          ? "Confirm Discharge"
-          : "Confirm Send for Discharge Approval"
-      }
+      title={confirmTitle}
       modalBody={
         <>
           <div className="alert-warning rounded-10px p-3 patient-details">
@@ -43,9 +58,7 @@ const DischargeConfirmationPopup = ({
                 style={{ width: "24px", height: "24px" }}
               />
               <span style={{ fontSize: "14px", lineHeight: "20px" }}>
-                Once discharged, you will not be able to add or edit any
-                details. Please ensure all information is complete and approved
-                before proceeding.
+                {warningBody}
               </span>
             </div>
           </div>
@@ -69,11 +82,7 @@ const DischargeConfirmationPopup = ({
                 loading={isConfirmLoading}
                 disabled={isConfirmLoading}
               >
-                <span>
-                  {apiToCall === "markPatientAsDischarged"
-                    ? "Yes, Discharge Patient"
-                    : "Yes, Send for Discharge Approval"}
-                </span>
+                <span>{confirmButtonLabel}</span>
               </Button>
             </div>
           </div>

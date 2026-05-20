@@ -88,6 +88,7 @@ import PreviewAdmissionAssessment from "./pages/ipd/assessmentForm/PreviewAdmiss
 import PrintPreviewOTNotes from "./pages/ipd/assessmentForm/PrintPreviewOTNotes";
 import PrintPreviewCrossReferral from "./pages/ipd/assessmentForm/PrintPreviewCrossReferral";
 import DischargedPatients from "./pages/ipd/inPatients/DischargedPatients";
+import IntimateDischarge from "./pages/ipd/inPatients/IntimateDischarge";
 import ApproveToDischargePatients from "./pages/ipd/inPatients/ApproveToDischargePatients";
 import IpdAddNewPatient from "./pages/ipd/addNewPatient/IpdAddNewPatient";
 import CreateAdmission from "./pages/ipd/createAdmission/CreateAdmission";
@@ -624,6 +625,7 @@ function App() {
                   <Route path="inPatients" element={<InPatients />} />
                   <Route path="approveToDischagePatients" element={<ApproveToDischargePatients />} />
                   <Route path="dischargedPatients" element={<DischargedPatients />} />
+                  <Route path="intimate-discharge" element={<IntimateDischarge />} />
                   <Route path="add-admission" element={<AddAdmission />} />
                   <Route path="patient-admission" element={<PatientAdmission />} />
                   <Route path="ward-bed-management" element={<WardAndBedManagement />} />
