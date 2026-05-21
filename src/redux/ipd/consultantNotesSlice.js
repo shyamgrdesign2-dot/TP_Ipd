@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import ApiConsultantNotes from "../../api/services/ipd/ApiConsultantNotes";
+import ApiOrderManagement from "../../api/services/ApiOrderManagement";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 dayjs.extend(customParseFormat);
@@ -50,6 +51,40 @@ export const updateConsultantNotes = createAsyncThunk(
       console.log("Error updating consultant notes: ", error);
       return rejectWithValue(
         error.message || "Failed to update consultant notes"
+      );
+    }
+  }
+);
+
+export const placeZydusIpdOrderMedicineAndInvestigation = createAsyncThunk(
+  "consultantNotes/placeZydusIpdOrderMedicineAndInvestigation",
+  async (
+    {
+      patientId,
+      admissionId,
+      consultationId,
+      isCreated,
+      medication,
+      labInvestigation,
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const result =
+        await ApiOrderManagement.zyIpdOrderMedicineAndInvestigation({
+          patientId,
+          admissionId,
+          consultationId,
+          isCreated,
+          medication,
+          labInvestigation,
+        });
+      return result;
+    } catch (error) {
+      console.log("Error placing Zydus IPD order: ", error);
+      return rejectWithValue(
+        error?.response?.data?.message ||
+          "Failed to sync medicine and investigation orders"
       );
     }
   }

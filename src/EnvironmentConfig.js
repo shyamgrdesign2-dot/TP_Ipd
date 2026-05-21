@@ -343,6 +343,7 @@ const uat = {
   whatsapp_x_api_key: "GiNtUl73b2sUfMjtQ9",
   ipd_api_url:
     "https://pm-ipd-uat.tatvacare.in/api/v1",
+  order_management_api_url: "https://pm-order-management-uat.tatvacare.in/api/v1",
   zydus_voice_rx_expiry_date: "2025-11-01",
   FREE_VOICE_RX_APOLLO_USER_IDS: [12469, 12475],
 };
@@ -440,6 +441,7 @@ const prod = {
   doctor_portal_url: "https://tatvapractice.tatvacare.in",
   whatsapp_x_api_key: "GiNtUl73b2sUfMjtQ9",
   ipd_api_url: "https://pm-ipd-prod.tatvacare.in/api/v1",
+  order_management_api_url: "https://pm-order-management-prod.tatvacare.in/api/v1",
   zydus_voice_rx_expiry_date: "2025-11-01",
   FREE_VOICE_RX_APOLLO_USER_IDS: [12469, 12475, 12476, 12477],
 };
