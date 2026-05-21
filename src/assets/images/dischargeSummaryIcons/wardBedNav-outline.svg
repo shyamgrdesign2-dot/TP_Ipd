@@ -1,0 +1,14 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_wardNavOutline)">
+<path d="M3 19V17" stroke="#454551" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M21 19V17" stroke="#454551" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M14.9102 9.00006H9.08018C8.67018 9.00006 8.31018 9.23006 8.15018 9.61006C7.94018 10.1901 7.94018 10.8201 8.15018 11.4001C8.30018 11.7701 8.67018 12.0201 9.07018 12.0101H14.9102C15.3102 12.0101 15.6802 11.7801 15.8302 11.4001C16.0402 10.8201 16.0402 10.1901 15.8302 9.61006C15.6802 9.23006 15.3102 8.99006 14.9002 9.00006H14.9102Z" stroke="#454551" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M4 5H20C21.1 5 22 5.9 22 7V16C22 16.55 21.55 17 21 17H3C2.45 17 2 16.55 2 16V7C2 5.9 2.9 5 4 5Z" stroke="#454551" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M22 12H2" stroke="#454551" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<defs>
+<clipPath id="clip0_wardNavOutline">
+<rect width="24" height="24" fill="none"/>
+</clipPath>
+</defs>
+</svg>
