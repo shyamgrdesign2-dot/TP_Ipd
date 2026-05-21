@@ -71,6 +71,7 @@ const MoreActionsContent = ({
   billDataByAdmissionId = {},
   showIntimateDischarge = false,
   onIntimateDischarge,
+  isIntimateDischargeList = false,
 }) => {
   const admissionId = record?.admissionId || record?.admission_id;
   const existingBillData = admissionId ? billDataByAdmissionId[admissionId] : null;
@@ -134,7 +135,7 @@ const MoreActionsContent = ({
           <span className="more-actions-menu-text">Add Advance</span>
         </div>
       {/* )} */}
-      {isInPatients && !isDischargedPatients && !isDischarged && (
+      {isInPatients && !isDischargedPatients && !isDischarged && !isIntimateDischargeList && (
         <div
           onClick={handleTransferWardBed}
           className="more-actions-menu-item cursor-pointer"
@@ -142,7 +143,7 @@ const MoreActionsContent = ({
           <span className="more-actions-menu-text">Transfer Ward/Bed</span>
         </div>
       )}
-      {isInPatients && !isDischargedPatients && !isDischarged && (
+      {isInPatients && !isDischargedPatients && !isDischarged && !isIntimateDischargeList && (
         <div
           onClick={handleTransferDoctorDepartment}
           className="more-actions-menu-item cursor-pointer"
@@ -709,7 +710,9 @@ const PatientsTable = ({
         const isAdmittingDoctor = record?.doctorId === userId;
         // const isAdmittingDoctor = true;
         const actionObj = isInPatients
-          ? isAdmittingDoctor
+          ? izZydusUser && !isIntimateDischargeList
+            ? null
+            : isAdmittingDoctor
             ? {
                 title: "Discharge Patient",
                 onCtaClick: handleMarkPatientAsDischarged,
@@ -784,6 +787,7 @@ const PatientsTable = ({
                     billDataByAdmissionId={billDataByAdmissionId}
                     showIntimateDischarge={showIntimateDischargeMenu}
                     onIntimateDischarge={handleMarkIntimationDischarge}
+                    isIntimateDischargeList={isIntimateDischargeList}
                   />
                 }
                 trigger="click"
