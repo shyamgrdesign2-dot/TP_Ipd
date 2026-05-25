@@ -251,7 +251,19 @@ function PatientDetails({ isIPD = false }) {
                                             <Vaccination /> */}
                                     </div>
                                     <div className='col-lg-7 col-md-12 col-12'>
-                                        <Cardiology isIPD={isIPD} patient_data={patient_data} tcmData={tcmData} loading={loading} viewCaseManagerData={viewCaseManagerData} nextPress={nextPress} prevPress={prevPress} />
+                                        <Cardiology
+                                            isIPD={isIPD}
+                                            patient_data={patient_data}
+                                            tcmData={tcmData}
+                                            loading={loading}
+                                            viewCaseManagerData={viewCaseManagerData}
+                                            nextPress={nextPress}
+                                            prevPress={prevPress}
+                                            opthalPrescriptionHistory={
+                                                viewCaseManagerData?.opthal_prescription_history ??
+                                                viewCaseManagerData?.opthalPrescriptionHistory
+                                            }
+                                        />
                                     </div>
                                 </div>
                             </div>

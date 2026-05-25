@@ -2434,6 +2434,7 @@ export const transformAdmissionToPatient = (source = {}) => {
   const metadata = source.metadata || {};
 
   return {
+    pam_id: source?.pam_id ?? null,
     pm_salutation: "", // not available in source
     pm_fullname: details.name
       ? details.name.charAt(0).toUpperCase() +

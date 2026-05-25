@@ -2019,6 +2019,84 @@ body {
   padding: 0.3rem 0.3rem;
 }
 
+/* Ophthalmology summary (patient details — Cardiology) */
+.opthal-summary {
+  margin-bottom: 1rem;
+  width: 100%;
+}
+
+.opthal-section {
+  margin-bottom: 1.25rem;
+}
+
+.opthal-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.opthal-section-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.opthal-section-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: #454551;
+}
+
+.opthal-section-subtitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: #5a6774;
+  margin: 8px 0 6px;
+}
+
+.opthal-summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  border: 1px solid #171725;
+  border-radius: 8px;
+  overflow: hidden;
+
+  th,
+  td {
+    border: 1px solid #171725;
+    padding: 8px;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  thead tr {
+    background-color: #f8f9fa;
+  }
+
+  th {
+    font-weight: 700;
+  }
+}
+
+.opthal-pd-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  font-size: 12px;
+}
+
+.opthal-pd-label {
+  font-weight: 600;
+  color: #454551;
+}
+
+.opthal-pd-value {
+  font-weight: 500;
+}
+
 // CSS for Shimmer
 .shimmer-container {
   width: 100%;
