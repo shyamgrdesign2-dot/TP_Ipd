@@ -3,8 +3,9 @@ import { Drawer, Button, Spin } from "antd";
 import { Document, Page, pdfjs } from "react-pdf";
 import { pdf } from "@react-pdf/renderer";
 import { PDFGenerator } from "../../../../components/PDFGenerator";
-import { getPatientInformation, isZydus } from "../../../../utils/utils";
+import { isZydus } from "../../../../utils/utils";
 import { printModule, downloadModule } from "../../utils/printDownload";
+import { useResolvedPatientInfo } from "../../../../hooks/useTpmlReferenceId";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import "./AdmissionDetailsDrawer.scss";
@@ -25,6 +26,7 @@ const AdmissionDetailsDrawer = ({ open, onClose, patientData }) => {
 
   const { printSettings } = useSelector((state) => state.printSettings);
   const { frequencyList, timingList } = useSelector((state) => state.doctors);
+  const resolvedPatientInfo = useResolvedPatientInfo(patientData);
 
   // Build admission details data for PDF
   const admissionDetailsData = useMemo(() => {
@@ -142,20 +144,19 @@ const AdmissionDetailsDrawer = ({ open, onClose, patientData }) => {
     if (open && admissionDetailsData) {
       makePDFUrl();
     }
-  }, [open, admissionDetailsData]);
+  }, [open, admissionDetailsData, resolvedPatientInfo]);
 
   const makePDFUrl = async () => {
     try {
       setLoading(true);
       const settings = getPrintSettings();
 
-      const patientInfo = getPatientInformation(patientData);
       const blob = await pdf(
         <PDFGenerator
           settings={settings}
           data={admissionDetailsData}
           documentType="admissionDetails"
-          patientData={patientInfo}
+          patientData={resolvedPatientInfo}
           frequencyList={frequencyList}
           timingList={timingList}
         />

@@ -1,38 +1,94 @@
-import { useEffect, useReducer } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import ApiIpdService from "../api/services/ipd/ipdService";
+import { getPatientInformation } from "../utils/utils";
+
+const EMPTY = { mrnNo: null, pmPid: null };
 
 const cache = new Map();
 const inFlight = new Map();
+// Bumped by `clearTpmlReferenceIdCache` so that responses still in flight at
+// clear-time (e.g. logout) cannot repopulate the cache afterwards.
+let generation = 0;
 
 const toKey = (patientUniqueId) => {
-  if (patientUniqueId == null || patientUniqueId === "") return null;
-  return String(patientUniqueId);
+  if (patientUniqueId == null) return null;
+  const str = String(patientUniqueId).trim();
+  return str === "" ? null : str;
 };
 
-const fetchAndCache = (key) => {
+const fetchIds = (key) => {
   if (inFlight.has(key)) return inFlight.get(key);
+  const requested = generation;
 
   const promise = ApiIpdService.getTpmlReferenceId({ patientUniqueId: key })
     .then((res) => {
-      const value = res?.tpml_refrence_id ?? res?.tpml_reference_id ?? null;
-      cache.set(key, value);
+      const value = {
+        mrnNo: res?.tpml_refrence_id ?? res?.tpml_reference_id ?? null,
+        pmPid: res?.pm_pid ?? null,
+      };
+      if (requested === generation) cache.set(key, value);
       return value;
     })
-    .catch((err) => {
+    .catch((error) => {
       // Do not cache transient failures; the next mount will retry.
-      console.error("Error fetching TPML reference id:", err);
-      return null;
+      console.error("Failed to fetch TPML reference id", error);
+      return EMPTY;
     })
-    .finally(() => {
-      inFlight.delete(key);
-    });
+    .finally(() => inFlight.delete(key));
 
   inFlight.set(key, promise);
   return promise;
 };
 
+const overlay = (patientDetails, { mrnNo, pmPid }) => ({
+  ...getPatientInformation(patientDetails),
+  ...(mrnNo ? { mrnNo } : {}),
+  ...(pmPid ? { patientId: pmPid } : {}),
+});
+
+/**
+ * Resolves `{ mrnNo, pmPid }` for a patient from `/patients/tpml-reference-id`.
+ * Cached per patient, de-duplicated across concurrent callers, and read
+ * synchronously in render so a prop change never returns a previous patient's value.
+ */
+const useTpmlReferenceId = (patientUniqueId) => {
+  const key = toKey(patientUniqueId);
+  const [, setTick] = useState(0);
+
+  useEffect(() => {
+    if (key == null || cache.has(key)) return undefined;
+    let cancelled = false;
+    fetchIds(key).then(() => !cancelled && setTick((tick) => tick + 1));
+    return () => {
+      cancelled = true;
+    };
+  }, [key]);
+
+  return (key != null && cache.get(key)) || EMPTY;
+};
+
+/** `getPatientInformation(patientDetails)` with `patientId`/`mrnNo` overridden by the API once resolved. */
+export const useResolvedPatientInfo = (patientDetails) => {
+  const ids = useTpmlReferenceId(patientDetails?.details?.id);
+  return useMemo(
+    () => (patientDetails ? overlay(patientDetails, ids) : undefined),
+    [patientDetails, ids]
+  );
+};
+
+/** Async variant for non-React callers (e.g. print/download utilities). */
+export const resolvePatientInfoForPdf = async (patientDetails) => {
+  if (!patientDetails) return undefined;
+  const key = toKey(patientDetails?.details?.id);
+  if (key == null) return getPatientInformation(patientDetails);
+  const ids = cache.has(key) ? cache.get(key) : await fetchIds(key);
+  return overlay(patientDetails, ids);
+};
+
+/** Clears the cache (call on logout, or pass an id to invalidate one patient). */
 export const clearTpmlReferenceIdCache = (patientUniqueId) => {
+  generation += 1;
   const key = toKey(patientUniqueId);
   if (key == null) {
     cache.clear();
@@ -41,41 +97,6 @@ export const clearTpmlReferenceIdCache = (patientUniqueId) => {
   }
   cache.delete(key);
   inFlight.delete(key);
-};
-
-/**
- * Resolves the patient's MRN (TPML reference id) for use BEFORE invoking
- * `pdf(...).toBlob()` from @react-pdf/renderer, whose one-shot render
- * pipeline cannot await async state updates from within the PDF tree.
- *
- * The cache is read synchronously in render keyed by the current
- * `patientUniqueId`, so a prop change immediately yields the new patient's
- * value (or `null` while pending) — never the previous patient's.
- *
- * Concurrent consumers of the same id share a single in-flight request and
- * are all notified on resolution.
- *
- * @param {string | number | null | undefined} patientUniqueId
- * @returns {string | null} The resolved MRN, or `null` if missing / pending.
- */
-const useTpmlReferenceId = (patientUniqueId) => {
-  const [, forceRerender] = useReducer((tick) => tick + 1, 0);
-  const key = toKey(patientUniqueId);
-
-  useEffect(() => {
-    if (key == null || cache.has(key)) return undefined;
-
-    let cancelled = false;
-    fetchAndCache(key).then(() => {
-      if (!cancelled) forceRerender();
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [key]);
-
-  return key != null ? cache.get(key) ?? null : null;
 };
 
 export default useTpmlReferenceId;

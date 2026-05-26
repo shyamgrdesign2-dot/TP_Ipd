@@ -18,8 +18,8 @@ import { getDischargeSummaryData } from "../../../redux/ipd/dischargeSummarySlic
 import { addDischargeDataToStore } from "../../../utils/dischargeDataMapper";
 import { getPrintSettings } from "../../../redux/ipd/printSettingsSlice";
 import PrintPreviewShimmer from "./components/PrintPreviewShimmer/PrintPreviewShimmer";
-import { getPatientInformation } from "../../../utils/utils";
 import usePrintPreviewSetup from "../../../hooks/usePrintPreviewSetup";
+import { useResolvedPatientInfo } from "../../../hooks/useTpmlReferenceId";
 import { GB_IPD_DYNAMIC_DISCHARGE_HEADING } from "../../../utils/constants";
 import {
   getSasExpiryInfo,
@@ -121,6 +121,7 @@ const PreviewDischargeSummary = () => {
   }, [currentSettings]);
   const { frequencyList, timingList } = useSelector((state) => state.doctors);
   const patientData = dischargeSummaryData?.patientInformation || {};
+  const resolvedPatientInfo = useResolvedPatientInfo(patientDetails);
 
   useEffect(() => {
     setDivWidth(divRef.current?.offsetWidth);
@@ -155,7 +156,7 @@ const PreviewDischargeSummary = () => {
     if (!Object.keys(dischargeSummaryData).length) return;
     if (!footerReady) return;
     makePDFUrl();
-  }, [sanitizedSettings, dischargeSummaryData, footerReady]);
+  }, [sanitizedSettings, dischargeSummaryData, footerReady, resolvedPatientInfo]);
 
   const makePDFUrl = async () => {
     try {
@@ -164,7 +165,7 @@ const PreviewDischargeSummary = () => {
           settings={sanitizedSettings}
           data={dischargeSummaryData}
           documentType="dischargeSummary"
-          patientData={getPatientInformation(patientDetails)}
+          patientData={resolvedPatientInfo}
           frequencyList={frequencyList}
           timingList={timingList} 
           isIpdDynamicDischargeHeadingEnabled={
