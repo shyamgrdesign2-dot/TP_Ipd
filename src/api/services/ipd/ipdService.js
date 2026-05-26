@@ -70,6 +70,13 @@ ApiIpdService.fetchAbhaDetails = function ({ patientUniqueId }) {
   );
 };
 
+ApiIpdService.getTpmlReferenceId = function ({ patientUniqueId }) {
+  return api.get(
+    `/patients/tpml-reference-id?patient_unique_id=${encodeURIComponent(patientUniqueId)}`,
+    baseUrl
+  );
+};
+
 ApiIpdService.markPatientAsDischarged = function ({
   admissionId,
   dateOfDischarge,

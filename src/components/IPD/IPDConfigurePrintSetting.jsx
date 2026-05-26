@@ -27,6 +27,7 @@ import { getPatientInformation } from "../../utils/utils";
 import usePrintPreviewSetup from "../../hooks/usePrintPreviewSetup";
 import { sanitizePrintSettingsForPdf } from "../../utils/printSettings";
 import useResolvedAssetUrl from "../../hooks/useResolvedAssetUrl";
+import useTpmlReferenceId from "../../hooks/useTpmlReferenceId";
 
 // Document type mapping for PDF generation
 const DOCUMENT_TYPE_MAPPING = {
@@ -66,6 +67,8 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
     returnPath,
     state: { patientDetails },
   } = useLocation();
+  const patientUniqueId = patientDetails?.details?.id;
+  const liveMrnNo = useTpmlReferenceId(patientUniqueId);
 
   const [divWidth, setDivWidth] = useState(0);
   const [selectedTab, setSelectedTab] = useState(TAB_FORMAT_STYLE);
@@ -414,12 +417,17 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
       setIsPreviewGenerating(true);
 
       try {
+        const baseInfo = getPatientInformation(patientDetails);
+        const patientDataForPdf = liveMrnNo
+          ? { ...baseInfo, mrnNo: liveMrnNo }
+          : baseInfo;
+
         const blob = await pdf(
           <PDFGenerator
             settings={settings}
             data={data}
             documentType={documentType}
-            patientData={getPatientInformation(patientDetails)}
+            patientData={patientDataForPdf}
             frequencyList={frequencyList}
             timingList={timingList}
             isIpdDynamicDischargeHeadingEnabled={
@@ -449,7 +457,7 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
         }
       }
     },
-    [data, documentType, frequencyList, patientDetails, timingList]
+    [data, documentType, frequencyList, patientDetails, timingList, liveMrnNo, isIpdDynamicDischargeHeadingEnabled]
   );
 
   useEffect(() => {

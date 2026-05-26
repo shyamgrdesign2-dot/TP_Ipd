@@ -57,6 +57,7 @@ import { EVENTS } from "../utils/events";
 import {
   sendMessageToParent
 } from "../utils/utils";
+import { clearTpmlReferenceIdCache } from "../hooks/useTpmlReferenceId";
 const CUSTOMIZED_PAD_SENDDATA = { data: { default: false, reset: true } }
 
 function Header({ locationPath, isIPD = false }) {
@@ -631,6 +632,7 @@ function Header({ locationPath, isIPD = false }) {
       // Clear storage - this is our confirmation of logout
       localStorage.clear();
       sessionStorage.clear();
+      clearTpmlReferenceIdCache();
 
       sendMessageToParent(EVENTS.LOGOUT);
       // Redirect to login page
@@ -641,6 +643,7 @@ function Header({ locationPath, isIPD = false }) {
       // Even if there's an error, clear storage and redirect
       localStorage.clear();
       sessionStorage.clear();
+      clearTpmlReferenceIdCache();
 
       sendMessageToParent(EVENTS.LOGOUT);
       // Redirect to login page
