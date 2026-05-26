@@ -1,18 +1,16 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import patientsActiveIcon from "../../../assets/images/all-patients-active.svg";
 import { defaultIcons } from "../../../assets/images/dischargeSummaryIcons";
 import { getTokenData } from "../../../utils/utils";
 import axios from "axios";
 import config from "../../../config";
 import { env } from "../../../EnvironmentConfig";
-import { GB_ZYDUS_USER } from "../../../utils/constants";
+import { GB_ZYDUS_USER, GB_NEW_IPD_ZYDUS } from "../../../utils/constants";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
-import bedPrimaryIcon from "../../../assets/images/icons/bedPrimary.svg";
-import bedSecondaryIcon from "../../../assets/images/icons/bedSecondary.svg";
 
 function IPDNavbar() {
   const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
+  const isNewIpdZydusEnabled = useFeatureIsOn(GB_NEW_IPD_ZYDUS);
   async function SSO_TO_PM() {
     const tokenData = await getTokenData();
     try {
@@ -47,6 +45,8 @@ function IPDNavbar() {
     getTokenData()?.hospital_business_id == env.zydus_business_id &&
     isZydusUserAccessableFromGB;
 
+  const showIntimateDischargeNav = izZydusUser && isNewIpdZydusEnabled;
+
   const handleWardBedManagementClick = async () => {
     SSO_TO_PM().then(async (data) => {
       if (data.success == 200) {
@@ -62,11 +62,8 @@ function IPDNavbar() {
           {({ isActive }) => (
             <>
               <img
-                src={patientsActiveIcon}
+                src={isActive ? defaultIcons.inPatientsPc : defaultIcons.inPatientsOutline}
                 alt="InPatients"
-                style={{
-                  filter: isActive ? "grayscale(0%)" : "grayscale(100%)",
-                }}
               />
               <div className="mt-1 px-2">
                 <div className={isActive ? "text-primary" : ""}>InPatients</div>
@@ -75,17 +72,43 @@ function IPDNavbar() {
           )}
         </NavLink>
       </div>
+
+      {showIntimateDischargeNav ? (
+        <div>
+          <NavLink to="/ipd/intimate-discharge" replace={true} end>
+            {({ isActive }) => (
+              <>
+                <img
+                  src={
+                    isActive
+                      ? defaultIcons.intimateDischargePc
+                      : defaultIcons.intimateDischargeOutline
+                  }
+                  alt="Intimate Discharge"
+                />
+                <div className="mt-1 px-2">
+                  <div className={isActive ? "text-primary" : ""}>
+                    Intimate Discharge
+                  </div>
+                </div>
+              </>
+            )}
+          </NavLink>
+        </div>
+      ) : null}
+
       {izZydusUser ? (
         <div>
           <NavLink to="/ipd/approveToDischagePatients" replace={true} end>
             {({ isActive }) => (
               <>
                 <img
-                  src={defaultIcons.wardBedManagementOutline}
+                  src={
+                    isActive
+                      ? defaultIcons.dischargeQueuePc
+                      : defaultIcons.dischargeQueueOutline
+                  }
                   alt="Discharge Queue"
-                  style={{
-                    filter: isActive ? "grayscale(0%)" : "grayscale(100%)",
-                  }}
                 />
                 <div className="mt-1 px-2">
                   <div className={isActive ? "text-primary" : ""}>
@@ -123,14 +146,17 @@ function IPDNavbar() {
         {({ isActive }) => (
           <>
             <img
-              src={isActive ? bedPrimaryIcon : bedSecondaryIcon}
+              src={
+                isActive
+                  ? defaultIcons.wardBedNavPc
+                  : defaultIcons.wardBedNavOutline
+              }
               alt="Ward/Bed Management"
-              style={{
-                filter: isActive ? "grayscale(0%)" : "grayscale(100%)",
-              }}
             />
             <div className="mt-1 px-2">
-              <div>Ward & Bed Management</div>
+              <div className={isActive ? "text-primary" : ""}>
+                Ward & Bed Management
+              </div>
             </div>
           </>
         )}

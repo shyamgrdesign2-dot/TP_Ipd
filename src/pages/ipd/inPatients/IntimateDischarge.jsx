@@ -7,7 +7,9 @@ import React, {
 } from "react";
 import moment from "moment";
 import { Row } from "react-bootstrap";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import SubHeader from "./components/SubHeader";
 import FilterControls from "./components/FilterControls";
 import PatientsTable from "./components/PatientsTable";
@@ -24,20 +26,31 @@ import {
 import "./InPatients.scss";
 import {
   fetchPatientUniqueId,
-  resetPatientDetails,
-  storePatientDetails,
 } from "../../../redux/ipd/ipdSlice";
-import { useDispatch } from "react-redux";
-import { trackMoEngageEvent } from "../../../utils/utils";
+import { getTokenData } from "../../../utils/utils";
+import { env } from "../../../EnvironmentConfig";
+import { GB_ZYDUS_USER, GB_NEW_IPD_ZYDUS } from "../../../utils/constants";
 
 const dateFormat = "YYYY-MM-DD";
 const showDateFormat = "DD-MM-YYYY";
 
-function InPatients() {
+function IntimateDischarge() {
   const navigate = useNavigate();
-  const location = useLocation();
+  const dispatch = useDispatch();
 
-  // Initialize state from session storage
+  const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
+  const isNewIpdZydusEnabled = useFeatureIsOn(GB_NEW_IPD_ZYDUS);
+  const izZydusUser =
+    String(getTokenData()?.hospital_business_id) ===
+      String(env.zydus_business_id) && isZydusUserAccessableFromGB;
+  const canAccess = izZydusUser && isNewIpdZydusEnabled;
+
+  useEffect(() => {
+    if (!canAccess) {
+      navigate("/ipd/inPatients", { replace: true });
+    }
+  }, [canAccess, navigate]);
+
   const initializeFiltersFromSession = () => {
     const savedFilters = loadIPDFilters();
     if (savedFilters) {
@@ -60,7 +73,6 @@ function InPatients() {
 
   const initialFilters = initializeFiltersFromSession();
 
-  // Local state
   const [dateStatus, setDateStatus] = useState(initialFilters.dateStatus);
   const [dateRange, setDateRange] = useState(initialFilters.dateRange);
   const [pickerModal, setPickerModal] = useState(false);
@@ -76,9 +88,6 @@ function InPatients() {
   const [filterResetKey, setFilterResetKey] = useState(0);
   const lastFetchParamsRef = useRef(null);
 
-  // const [stateValue, funcToUpdateState] = useState(initialState)
-
-  // Function to save current filter state to session storage
   const saveFiltersToSession = useCallback(() => {
     const currentFilters = {
       dateStatus,
@@ -88,7 +97,6 @@ function InPatients() {
       selectedWards,
     };
 
-    // Only save if there are active filters
     const hasActiveFilters =
       dateStatus !== null ||
       dateRange !== null ||
@@ -103,7 +111,6 @@ function InPatients() {
     }
   }, [dateStatus, dateRange, inputSearchQuery, selectedDoctors, selectedWards]);
 
-  // Custom hooks
   const debouncedSearchQuery = useDebounce(inputSearchQuery, 500);
   const {
     patientsData,
@@ -122,7 +129,6 @@ function InPatients() {
   } = usePatientsData();
 
   const { doctors, wards } = useFiltersData();
-  const dispatch = useDispatch();
 
   const { lastElementRef } = useInfiniteScroll({
     hasMore,
@@ -130,25 +136,9 @@ function InPatients() {
     onLoadMore: loadMore,
   });
 
-  // Memoize doctor IDs to prevent infinite loops
   const allDoctorIds = useMemo(() => {
     return doctors.map((doctor) => doctor.id).join(",");
   }, [doctors]);
-
-  useEffect(() => {
-    const patientData = location.state?.patientDetails || null;
-    trackMoEngageEvent(
-      "IPD_InPatients_Mounted",
-      {
-        selected_doctor_ids: selectedDoctors,
-        selected_doctors_count: selectedDoctors.length,
-        selected_wards: selectedWards,
-        date_range: dateRange,
-        date_status: dateStatus,
-      },
-      patientData
-    );
-  }, []);
 
   useEffect(() => {
     saveFiltersToSession();
@@ -163,28 +153,28 @@ function InPatients() {
         selectedDoctors.length > 0 ? selectedDoctors.join(",") : allDoctorIds,
       ward: selectedWards.length > 0 ? selectedWards.join(",") : "",
       isDischarged: false,
-      isIntimateDischarged: false,
+      isIntimateDischarged: true,
     }),
     [filterParams, dateRange, selectedDoctors, selectedWards, allDoctorIds]
   );
 
   useEffect(() => {
+    if (!canAccess) return;
     if (loadingMore || patientsLoading) return;
 
-    // Check if parameters have actually changed
     const paramsString = JSON.stringify(fetchParams);
     if (lastFetchParamsRef.current === paramsString) return;
 
     lastFetchParamsRef.current = paramsString;
     fetchData(fetchParams);
-  }, [fetchParams, fetchData, loadingMore, patientsLoading]);
+  }, [fetchParams, fetchData, loadingMore, patientsLoading, canAccess]);
 
   useEffect(() => {
+    if (!canAccess) return;
     resetData();
     updateFilters({ search: debouncedSearchQuery });
-  }, [debouncedSearchQuery, resetData, updateFilters]);
+  }, [debouncedSearchQuery, resetData, updateFilters, canAccess]);
 
-  // Event handlers
   const onSearch = useCallback((query) => {
     setInputSearchQuery(query);
   }, []);
@@ -202,32 +192,21 @@ function InPatients() {
             state: {
               patientDetails: {
                 ...patientData,
-                patient_unique_id:
-                  res?.payload?.patientUniqueId || patientData?.details?.id,
+                patient_unique_id: res?.payload?.patientUniqueId,
               },
               patient_data: {
                 ...patient_data,
-                patient_unique_id:
-                  res?.payload?.patientUniqueId || patientData?.details?.id,
+                patient_unique_id: res?.payload?.patientUniqueId,
               },
               isEditable: false,
               activeTab: patientData?.referral ? "crossReferral" : "assessment",
-              fromTab: 'inPatients'
+              fromTab: "intimateDischarge",
             },
           });
-          dispatch(resetPatientDetails());
-          dispatch(
-            storePatientDetails({
-              ...patientData,
-              ...(res?.payload?.patientUniqueId && {
-                patient_unique_id: res?.payload?.patientUniqueId,
-              }),
-            })
-          );
         }
       );
     },
-    [navigate]
+    [dispatch, navigate]
   );
 
   const handleChange = useCallback(
@@ -247,52 +226,37 @@ function InPatients() {
 
   const onRangeChange = useCallback((dates, dateStrings) => {
     if (dates) {
-      // Determine date status based on selected dates
       const today = moment().format(dateFormat);
       const startDate = moment(dateStrings[0], showDateFormat).format(
         dateFormat
       );
       const endDate = moment(dateStrings[1], showDateFormat).format(dateFormat);
 
-      let newDateStatus = null;
       if (startDate === today && endDate === today) {
-        newDateStatus = 1;
+        setDateStatus(1);
       } else if (
         startDate === moment().add(-1, "d").format(dateFormat) &&
         endDate === today
       ) {
-        newDateStatus = 2;
+        setDateStatus(2);
       } else if (
         startDate === moment().add(-7, "d").format(dateFormat) &&
         endDate === today
       ) {
-        newDateStatus = 3;
+        setDateStatus(3);
       } else if (
         startDate === moment().add(-1, "M").format(dateFormat) &&
         endDate === today
       ) {
-        newDateStatus = 4;
+        setDateStatus(4);
+      } else {
+        setDateStatus(null);
       }
 
-      setDateStatus(newDateStatus);
       setDateRange({
         startDate: startDate,
         endDate: endDate,
       });
-
-      // Track date filter change
-      const patientData = location.state?.patientDetails || null;
-      trackMoEngageEvent(
-        "IPD_InPatients_Updated",
-        {
-          filter_type: "admitted_on_date",
-          date_status: newDateStatus,
-          start_date: startDate,
-          end_date: endDate,
-          date_range_days: moment(endDate).diff(moment(startDate), "days") + 1,
-        },
-        patientData
-      );
     } else {
       setDateStatus(null);
       setDateRange(null);
@@ -313,18 +277,6 @@ function InPatients() {
     (doctorIds) => {
       setSelectedDoctors(doctorIds);
       resetData();
-
-      // Track doctor filter change
-      const patientData = location.state?.patientDetails || null;
-      trackMoEngageEvent(
-        "IPD_InPatients_Updated",
-        {
-          filter_type: "doctor",
-          selected_doctor_ids: doctorIds,
-          selected_doctors_count: doctorIds.length,
-        },
-        patientData
-      );
     },
     [resetData]
   );
@@ -333,18 +285,6 @@ function InPatients() {
     (wardIds) => {
       setSelectedWards(wardIds);
       resetData();
-
-      // Track ward filter change
-      const patientData = location.state?.patientDetails || null;
-      trackMoEngageEvent(
-        "IPD_InPatients_Updated",
-        {
-          filter_type: "ward",
-          selected_wards: wardIds,
-          selected_wards_count: wardIds.length,
-        },
-        patientData
-      );
     },
     [resetData]
   );
@@ -356,24 +296,29 @@ function InPatients() {
     setDateStatus(null);
     setInputSearchQuery("");
     setFilterResetKey((prev) => prev + 1);
-    clearIPDFilters(); // Clear session storage
+    clearIPDFilters();
     resetData();
   }, [resetData]);
 
-  // Computed values
   const hasActiveFilters =
     selectedDoctors.length > 0 ||
     selectedWards.length > 0 ||
     dateRange !== null ||
     inputSearchQuery !== "";
-  const inPatientsData = useMemo(
-    () => patientsData.filter((patient) => !isDischargedByDischargeInfo(patient)),
+
+  const intimateDischargePatientsData = useMemo(
+    () =>
+      patientsData.filter((patient) => !isDischargedByDischargeInfo(patient)),
     [patientsData]
   );
 
+  if (!canAccess) {
+    return null;
+  }
+
   return (
     <>
-      <SubHeader headerTitle={"InPatients"} />
+      <SubHeader showAddAdmission={false} headerTitle="Intimate Discharge" />
       <div className="border rounded-4 appointment-wrap ipd-inpatients-page-wrap dateborder">
         <div className="inpatients-main">
           <Row className="justify-content-between align-items-center filters">
@@ -401,7 +346,7 @@ function InPatients() {
           </Row>
 
           <PatientsTable
-            data={inPatientsData}
+            data={intimateDischargePatientsData}
             loading={patientsLoading}
             error={patientsError}
             onChange={handleChange}
@@ -412,6 +357,7 @@ function InPatients() {
             filterParams={filterParams}
             fetchParams={fetchParams}
             isInPatients={true}
+            isIntimateDischargeList={true}
             billingByAdmissionId={billingByAdmissionId}
             billDataByAdmissionId={billDataByAdmissionId}
             billingLoading={billingLoading}
@@ -422,4 +368,4 @@ function InPatients() {
   );
 }
 
-export default React.memo(InPatients);
+export default React.memo(IntimateDischarge);

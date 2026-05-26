@@ -508,6 +508,7 @@ export const formatPatientsForTable = (patients) => {
     return ({
       id: patient._id,
       isDischarged: patient.isDischarged,
+      isIntimateDischarged: patient.isIntimateDischarged,
       dischargedAt: patient.dischargedAt,
       patientId: patient.details.id,
       patientName: patient.details.name,

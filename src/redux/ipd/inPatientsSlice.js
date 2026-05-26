@@ -49,6 +49,7 @@ export const fetchPatients = createAsyncThunk(
       sort = "admittedOn:desc",
       isDischarged = false,
       sentForApproval = false,
+      isIntimateDischarged = false,
     },
     { dispatch, rejectWithValue }
   ) => {
@@ -64,7 +65,8 @@ export const fetchPatients = createAsyncThunk(
         doctorIdsFilter,
         sort,
         isDischarged,
-        sentForApproval
+        sentForApproval,
+        isIntimateDischarged,
       });
 
       // Extract admission IDs and fetch billing status (render admissions first, then merge billing)

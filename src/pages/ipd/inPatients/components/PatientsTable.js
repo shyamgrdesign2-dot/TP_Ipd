@@ -10,6 +10,7 @@ import { defaultIcons as newIcons } from "../../../../assets/images/indices";
 import {
   markPatientAsDischarged,
   sendForDischargeApproval,
+  markIntimationDischarge,
 } from "../../../../redux/ipd/ipdSlice";
 import { updatePatientInList, fetchBillingByAdmissionIds, updateBillDataForAdmission } from "../../../../redux/ipd/inPatientsSlice";
 import { usePatientsData } from "../hooks/usePatientsData";
@@ -18,7 +19,7 @@ import DischargeConfirmationModal from "../../dischargeSummary/components/Discha
 import DischargeConfirmationPopup from "../../dischargeSummary/components/DischargeConfirmationPopup";
 import { createRemoteComponent } from "../../../../shared/remoteComponents";
 import { useFeatureIsOn } from "@growthbook/growthbook-react";
-import { GB_ZYDUS_USER } from "../../../../utils/constants";
+import { GB_ZYDUS_USER, GB_NEW_IPD_ZYDUS } from "../../../../utils/constants";
 import { env } from "../../../../EnvironmentConfig";
 import AdmissionDetailsDrawer from "./AdmissionDetailsDrawer";
 import TransferWardBedDrawer from "./TransferWardBedDrawer";
@@ -26,6 +27,10 @@ import TransferDoctorDepartmentDrawer from "./TransferDoctorDepartmentDrawer";
 import CreateBill from "../../../opdBilling/components/createBill/CreateBill";
 import AddAdvance from "../../../opdBilling/components/advanceDeposit/AddAdvance";
 import abhaLogo from "../../../../assets/images/icons/abha.svg";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+
+dayjs.extend(customParseFormat);
 
 const RichTextEditor = createRemoteComponent("RichTextEditor");
 
@@ -64,6 +69,9 @@ const MoreActionsContent = ({
   isDischarged,
   isInPatients,
   billDataByAdmissionId = {},
+  showIntimateDischarge = false,
+  onIntimateDischarge,
+  isIntimateDischargeList = false,
 }) => {
   const admissionId = record?.admissionId || record?.admission_id;
   const existingBillData = admissionId ? billDataByAdmissionId[admissionId] : null;
@@ -98,6 +106,11 @@ const MoreActionsContent = ({
     onAddAdvance?.(record);
   };
 
+  const handleIntimateDischargeClick = (e) => {
+    e.stopPropagation();
+    onIntimateDischarge?.(record);
+  };
+
   return (
     <div className="more-actions-menu">
       <div
@@ -122,7 +135,7 @@ const MoreActionsContent = ({
           <span className="more-actions-menu-text">Add Advance</span>
         </div>
       {/* )} */}
-      {isInPatients && !isDischargedPatients && !isDischarged && (
+      {isInPatients && !isDischargedPatients && !isDischarged && !isIntimateDischargeList && (
         <div
           onClick={handleTransferWardBed}
           className="more-actions-menu-item cursor-pointer"
@@ -130,7 +143,7 @@ const MoreActionsContent = ({
           <span className="more-actions-menu-text">Transfer Ward/Bed</span>
         </div>
       )}
-      {isInPatients && !isDischargedPatients && !isDischarged && (
+      {isInPatients && !isDischargedPatients && !isDischarged && !isIntimateDischargeList && (
         <div
           onClick={handleTransferDoctorDepartment}
           className="more-actions-menu-item cursor-pointer"
@@ -149,6 +162,18 @@ const MoreActionsContent = ({
           <span className="more-actions-menu-text">{title}</span>
         </div>
       )}
+      {showIntimateDischarge &&
+        isInPatients &&
+        !isDischargedPatients &&
+        !isDischarged &&
+        !record?.isIntimateDischarged && (
+          <div
+            onClick={handleIntimateDischargeClick}
+            className="more-actions-menu-item cursor-pointer"
+          >
+            <span className="more-actions-menu-text">Intimate Discharge</span>
+          </div>
+        )}
     </div>
   );
 };
@@ -167,6 +192,7 @@ const PatientsTable = ({
   fetchParams = {},
   isInPatients = false,
   isDischargeQueue = false,
+  isIntimateDischargeList = false,
   billingByAdmissionId = {},
   billDataByAdmissionId = {},
   billingLoading = false,
@@ -178,6 +204,7 @@ const PatientsTable = ({
   const [isDischargeSubmitting, setIsDischargeSubmitting] = useState(false);
   const dischargeLockRef = useRef(false);
   const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
+  const isNewIpdZydusEnabled = useFeatureIsOn(GB_NEW_IPD_ZYDUS);
   const [transferDrawerOpen, setTransferDrawerOpen] = useState(false);
   const [patientForTransfer, setPatientForTransfer] = useState(null);
   const [doctorDeptDrawerOpen, setDoctorDeptDrawerOpen] = useState(false);
@@ -186,6 +213,8 @@ const PatientsTable = ({
   const izZydusUser =
     (getTokenData()?.hospital_business_id == env.zydus_business_id &&
     isZydusUserAccessableFromGB);
+
+  const showIntimateDischargeMenu = izZydusUser && isNewIpdZydusEnabled;
 
   useEffect(() => {
     const { user_id } = getTokenData();
@@ -241,6 +270,70 @@ const PatientsTable = ({
         err?.response?.data?.message ||
           err?.message ||
           "Patient discharged failed"
+      );
+    } finally {
+      dischargeConfirmationModalRef?.current?.clearFormData();
+      setConfirmPopupOpen(null);
+      setWarningModalOpen(null);
+      dischargeLockRef.current = false;
+      setIsDischargeSubmitting(false);
+    }
+  };
+
+  const handleMarkIntimationDischarge = (record) => {
+    setWarningModalOpen(record);
+    setApiToCall("markIntimationDischarge");
+  };
+
+  const intimateDischargePatient = async () => {
+    if (dischargeLockRef.current) return;
+    dischargeLockRef.current = true;
+    setIsDischargeSubmitting(true);
+    const admissionId = warningModalOpen?.admissionId;
+    if (!admissionId) {
+      message.warning("Admission ID is missing. Please try again.");
+      dischargeLockRef.current = false;
+      setIsDischargeSubmitting(false);
+      return;
+    }
+    const dateOfDischargeVal = confirmPopupOpen?.dateOfDischarge;
+    const timeOfDischargeVal = confirmPopupOpen?.timeOfDischarge;
+    const dateParsed = dayjs.isDayjs(dateOfDischargeVal)
+      ? dateOfDischargeVal
+      : dayjs(dateOfDischargeVal, "DD-MM-YYYY", true);
+    const timeParsed = dayjs.isDayjs(timeOfDischargeVal)
+      ? timeOfDischargeVal
+      : dayjs(timeOfDischargeVal, "hh:mm A", true);
+    if (!dateParsed.isValid() || !timeParsed.isValid()) {
+      message.warning("Invalid date or time. Please try again.");
+      dischargeLockRef.current = false;
+      setIsDischargeSubmitting(false);
+      return;
+    }
+    try {
+      dischargeConfirmationModalRef?.current?.clearFormData();
+      setConfirmPopupOpen(null);
+      setWarningModalOpen(null);
+      const result = await dispatch(
+        markIntimationDischarge({
+          admissionId,
+          dateOfIntimationDischarge: dateParsed.format("DD-MM-YY"),
+          timeOfIntimationDischarge: timeParsed.format("HH:mm"),
+          revert: false,
+        })
+      ).unwrap();
+      message.success(
+        result?.message ||
+          "Patient discharge intimation status updated successfully."
+      );
+      setApiToCall("");
+      setOpenMoreActionsPopover(null);
+      fetchData(fetchParams);
+    } catch (err) {
+      message.warning(
+        err?.response?.data?.message ||
+          err?.message ||
+          "Intimate discharge failed"
       );
     } finally {
       dischargeConfirmationModalRef?.current?.clearFormData();
@@ -394,6 +487,7 @@ const PatientsTable = ({
 
   const handleWarningModalClose = () => {
     setWarningModalOpen(null);
+    setApiToCall("");
   };
 
   const showConfirmPopup = (data) => {
@@ -616,7 +710,9 @@ const PatientsTable = ({
         const isAdmittingDoctor = record?.doctorId === userId;
         // const isAdmittingDoctor = true;
         const actionObj = isInPatients
-          ? isAdmittingDoctor
+          ? izZydusUser && !isIntimateDischargeList
+            ? null
+            : isAdmittingDoctor
             ? {
                 title: "Discharge Patient",
                 onCtaClick: handleMarkPatientAsDischarged,
@@ -689,6 +785,9 @@ const PatientsTable = ({
                     isDischarged={record?.isDischarged}
                     isInPatients={isInPatients}
                     billDataByAdmissionId={billDataByAdmissionId}
+                    showIntimateDischarge={showIntimateDischargeMenu}
+                    onIntimateDischarge={handleMarkIntimationDischarge}
+                    isIntimateDischargeList={isIntimateDischargeList}
                   />
                 }
                 trigger="click"
@@ -728,6 +827,8 @@ const PatientsTable = ({
           ? "There are no patients in the discharge queue right now!"
           : isDischargedPatients
           ? "There are no discharged patients right now!"
+          : isIntimateDischargeList
+          ? "There are no intimate discharge records right now!"
           : "There are no patients right now!"}
       </div>
     </div>
@@ -796,6 +897,8 @@ const PatientsTable = ({
         onConfirm={
           apiToCall === "markPatientAsDischarged"
             ? dischargePatient
+            : apiToCall === "markIntimationDischarge"
+            ? intimateDischargePatient
             : sentForDischargeApproval
         }
         isConfirmLoading={isDischargeSubmitting}

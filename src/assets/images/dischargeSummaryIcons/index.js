@@ -84,6 +84,14 @@ import wardBedManagementOutline from "./wardBedManagement-outline.svg";
 import dischargedPatientsSc from "./dischargedPatients-sc.svg";
 import billingPc from "./billing-pc.svg";
 import billingDark from "./billing-dark.svg";
+import inPatientsOutline from "./inPatients-outline.svg";
+import inPatientsPc from "./inPatients-pc.svg";
+import dischargeQueueOutline from "./dischargeQueue-outline.svg";
+import dischargeQueuePc from "./dischargeQueue-pc.svg";
+import intimateDischargeOutline from "./intimateDischarge-outline.svg";
+import intimateDischargePc from "./intimateDischarge-pc.svg";
+import wardBedNavOutline from "./wardBedNav-outline.svg";
+import wardBedNavPc from "./wardBedNav-pc.svg";
 import activityLogsSc from './activityLogs-sc.svg';
 import activityLogsDark from './activityLogs-dark.svg';
 
@@ -171,6 +179,14 @@ export const defaultIcons = {
   dischargedPatientsPc,
   dischargedPatientsSc,
   wardBedManagementOutline,
+  inPatientsOutline,
+  inPatientsPc,
+  dischargeQueueOutline,
+  dischargeQueuePc,
+  intimateDischargeOutline,
+  intimateDischargePc,
+  wardBedNavOutline,
+  wardBedNavPc,
   billingPc,
   billingDark,
   activityLogsSc,
@@ -261,6 +277,14 @@ export {
   dischargedPatientsPc,
   dischargedPatientsSc,
   wardBedManagementOutline,
+  inPatientsOutline,
+  inPatientsPc,
+  dischargeQueueOutline,
+  dischargeQueuePc,
+  intimateDischargeOutline,
+  intimateDischargePc,
+  wardBedNavOutline,
+  wardBedNavPc,
   billingPc,
   billingDark,
   activityLogsSc,

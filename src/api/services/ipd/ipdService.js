@@ -98,6 +98,19 @@ ApiIpdService.sendForDischargeApproval = function ({
   );
 };
 
+ApiIpdService.markIntimationDischarge = function ({
+  admissionId,
+  dateOfIntimationDischarge,
+  timeOfIntimationDischarge,
+  revert = false,
+}) {
+  return api.put(
+    `/patients/mark-intimation?admissionId=${encodeURIComponent(admissionId)}`,
+    { dateOfIntimationDischarge, timeOfIntimationDischarge, revert },
+    baseUrl
+  );
+};
+
 ApiIpdService.magicPen = function ({ patientId, admissionId, paragraph }) {
   return api.post(
     `/ai/magic-pen?patientId=${patientId}&admissionId=${admissionId}`,
