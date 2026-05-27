@@ -21,8 +21,8 @@ import {
 import { useSelector } from "react-redux";
 import DischargeSummaryTracker from "./components/CollapsibleSummaryTracker/DischargeSummaryTracker";
 import DischargeSummaryLoading from "./components/DischargeSummaryLoading/DischargeSummaryLoading";
-import { getPatientInformation } from "../../../utils/utils";
 import { useLocation } from "react-router-dom";
+import { useResolvedPatientInfo } from "../../../hooks/useTpmlReferenceId";
 import { GB_IPD_DYNAMIC_DISCHARGE_HEADING } from "../../../utils/constants";
 import {
   getSasExpiryInfo,
@@ -122,6 +122,7 @@ const DischargeSummaryReadonly = forwardRef((props, ref) => {
   }, [currentSettings]);
   const { frequencyList, timingList } = useSelector((state) => state.doctors);
   const patientData = dischargeSummaryData?.patientInformation || {};
+  const resolvedPatientInfo = useResolvedPatientInfo(patientDetails);
   const isLoading = !Object.keys(dischargeSummaryData).length || !pdfUrl;
 
   useEffect(() => {
@@ -133,7 +134,7 @@ const DischargeSummaryReadonly = forwardRef((props, ref) => {
     if (!Object.keys(dischargeSummaryData).length) return;
     if (!footerReady) return;
     makePDFUrl();
-  }, [sanitizedSettings, dischargeSummaryData, footerReady]);
+  }, [sanitizedSettings, dischargeSummaryData, footerReady, resolvedPatientInfo]);
 
   const makePDFUrl = async () => {
     try {
@@ -142,7 +143,7 @@ const DischargeSummaryReadonly = forwardRef((props, ref) => {
           settings={sanitizedSettings}
           data={dischargeSummaryData}
           documentType="dischargeSummary"
-          patientData={getPatientInformation(patientDetails)}
+          patientData={resolvedPatientInfo}
           frequencyList={frequencyList}
           timingList={timingList}
           isIpdDynamicDischargeHeadingEnabled={

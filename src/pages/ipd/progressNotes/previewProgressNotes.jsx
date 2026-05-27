@@ -9,13 +9,13 @@ import { PDFGenerator } from "../../../components/PDFGenerator";
 
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
-import { getPatientInformation } from "../../../utils/utils";
 import {
   downloadDocument,
   printDocument,
 } from "../dischargeSummary/utils/helper";
 import usePrintPreviewSetup from "../../../hooks/usePrintPreviewSetup";
 import useResolvedAssetUrl from "../../../hooks/useResolvedAssetUrl";
+import { useResolvedPatientInfo } from "../../../hooks/useTpmlReferenceId";
 import { sanitizePrintSettingsForPdf } from "../../../utils/printSettings";
 
 const PreviewProgressNotes = () => {
@@ -105,7 +105,7 @@ const PreviewProgressNotes = () => {
   const footerReady = !resolvedFooterImg || footerHeight != null;
 
   // const patientData = progressNotesData?.patientInformation || {};
-  const patientInformation = getPatientInformation(patientDetails);
+  const patientInformation = useResolvedPatientInfo(patientDetails);
 
   // const sortedProgressNotes = rawProgressNotesData?.slice()?.sort((a, b) => {
   //   const dateA = new Date(a?.rawProgressNotesData?.date || a?.createdAt || 0);
@@ -136,7 +136,7 @@ const PreviewProgressNotes = () => {
     ) {
       makePDFUrl(sanitizedWithFooterDimensions, resolvedProgressNotes);
     }
-  }, [sanitizedWithFooterDimensions, resolvedProgressNotes, footerReady]);
+  }, [sanitizedWithFooterDimensions, resolvedProgressNotes, footerReady, patientInformation]);
 
   const makePDFUrl = async (settings, notes) => {
     try {

@@ -23,10 +23,10 @@ import {
 } from "../../utils/constants";
 import { Document, Page } from "react-pdf";
 import { pdf } from "@react-pdf/renderer";
-import { getPatientInformation } from "../../utils/utils";
 import usePrintPreviewSetup from "../../hooks/usePrintPreviewSetup";
 import { sanitizePrintSettingsForPdf } from "../../utils/printSettings";
 import useResolvedAssetUrl from "../../hooks/useResolvedAssetUrl";
+import { useResolvedPatientInfo } from "../../hooks/useTpmlReferenceId";
 
 // Document type mapping for PDF generation
 const DOCUMENT_TYPE_MAPPING = {
@@ -66,6 +66,7 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
     returnPath,
     state: { patientDetails },
   } = useLocation();
+  const resolvedPatientInfo = useResolvedPatientInfo(patientDetails);
 
   const [divWidth, setDivWidth] = useState(0);
   const [selectedTab, setSelectedTab] = useState(TAB_FORMAT_STYLE);
@@ -419,7 +420,7 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
             settings={settings}
             data={data}
             documentType={documentType}
-            patientData={getPatientInformation(patientDetails)}
+            patientData={resolvedPatientInfo}
             frequencyList={frequencyList}
             timingList={timingList}
             isIpdDynamicDischargeHeadingEnabled={
@@ -449,7 +450,7 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
         }
       }
     },
-    [data, documentType, frequencyList, patientDetails, timingList]
+    [data, documentType, frequencyList, resolvedPatientInfo, timingList, isIpdDynamicDischargeHeadingEnabled]
   );
 
   useEffect(() => {

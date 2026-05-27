@@ -113,13 +113,33 @@ const renderPrimaryConsultant = (data) => {
   );
 };
 
+// Inverse of `OperativeNotes.getReduxKey` (src/pages/ipd/otNotes/OperativeNotes.jsx).
+// The form persists rich-text under the Redux/backend keys on the right, but
+// the print layer iterates the format-settings sub-section IDs on the left, so
+// we remap before delegating to the generic section renderer.
+const OPERATIVE_NOTES_KEY_MAP = {
+  operativeFindings: "operativeFindings",
+  procedures: "operativeProcedure",
+  additionalNotes: "operativeAdditionalNotes",
+};
+
 const renderOperativeNotes = (data, formatSettings) => {
-  const finalData = data?.otNotes;
+  const originalData = data?.otNotes?.operativeNotes;
+
+  const transformedData = { operativeNotes: {} };
+  if (originalData) {
+    Object.entries(OPERATIVE_NOTES_KEY_MAP).forEach(([sectionId, backendKey]) => {
+      if (originalData[backendKey] !== undefined) {
+        transformedData.operativeNotes[sectionId] = originalData[backendKey];
+      }
+    });
+  }
+
   return (
     <View style={styles.sectionContainer}>
       <SectionTitle title="Operative Notes" />
       <RichTextPrintRendererSection
-        data={finalData}
+        data={transformedData}
         formatSettings={formatSettings || null}
         id="operativeNotes"
       />

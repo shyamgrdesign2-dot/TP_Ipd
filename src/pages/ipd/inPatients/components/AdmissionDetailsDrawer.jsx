@@ -3,8 +3,9 @@ import { Drawer, Button, Spin } from "antd";
 import { Document, Page, pdfjs } from "react-pdf";
 import { pdf } from "@react-pdf/renderer";
 import { PDFGenerator } from "../../../../components/PDFGenerator";
-import { getPatientInformation, isZydus } from "../../../../utils/utils";
+import { isZydus } from "../../../../utils/utils";
 import { printModule, downloadModule } from "../../utils/printDownload";
+import { useResolvedPatientInfo } from "../../../../hooks/useTpmlReferenceId";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import "./AdmissionDetailsDrawer.scss";
@@ -25,6 +26,7 @@ const AdmissionDetailsDrawer = ({ open, onClose, patientData }) => {
 
   const { printSettings } = useSelector((state) => state.printSettings);
   const { frequencyList, timingList } = useSelector((state) => state.doctors);
+  const resolvedPatientInfo = useResolvedPatientInfo(patientData);
 
   // Build admission details data for PDF
   const admissionDetailsData = useMemo(() => {
@@ -36,6 +38,11 @@ const AdmissionDetailsDrawer = ({ open, onClose, patientData }) => {
     const room = patientData?.room || {};
     const doctor = patientData?.doctor || {};
 
+    // MRN No & Patient ID (pm_pid) come exclusively from /patients/tpml-reference-id
+    // (resolved by `useResolvedPatientInfo`). Empty when the API returns null.
+    const apiMrnNo = resolvedPatientInfo?.mrnNo ?? "";
+    const apiPmPid = resolvedPatientInfo?.patientId ?? "";
+
     return {
       patientInformation: {
         name: details?.name || "",
@@ -43,11 +50,11 @@ const AdmissionDetailsDrawer = ({ open, onClose, patientData }) => {
         gender: details?.gender || "",
         contact: details?.contact || "",
         patientId: details?.id || "",
-        pmPid: details?.pm_pid || "",
+        pmPid: apiPmPid,
         address: details?.address || "",
         bloodGroup: details?.bloodGroup || "",
         prefix: details?.prefix || "",
-        mrno: patientData?.mrno || "",
+        mrno: apiMrnNo,
       },
       admissionDetails: {
         admittingDoctor: doctor?.name || "",
@@ -66,7 +73,7 @@ const AdmissionDetailsDrawer = ({ open, onClose, patientData }) => {
           ? {
               // For Zydus show both AdmissionNo & MRNO
               admissionNo: patientData?.admissionNo || "",
-              mrno: patientData?.mrno || "",
+              mrno: apiMrnNo,
             }
           : {
               // For Non-Zydus show only AdmissionId
@@ -92,7 +99,7 @@ const AdmissionDetailsDrawer = ({ open, onClose, patientData }) => {
         pmjayId: details?.pmjay_id || metadata?.pmjayId || "",
       },
     };
-  }, [patientData]);
+  }, [patientData, resolvedPatientInfo]);
 
   useEffect(() => {
     if (divRef.current) {
@@ -142,20 +149,19 @@ const AdmissionDetailsDrawer = ({ open, onClose, patientData }) => {
     if (open && admissionDetailsData) {
       makePDFUrl();
     }
-  }, [open, admissionDetailsData]);
+  }, [open, admissionDetailsData, resolvedPatientInfo]);
 
   const makePDFUrl = async () => {
     try {
       setLoading(true);
       const settings = getPrintSettings();
 
-      const patientInfo = getPatientInformation(patientData);
       const blob = await pdf(
         <PDFGenerator
           settings={settings}
           data={admissionDetailsData}
           documentType="admissionDetails"
-          patientData={patientInfo}
+          patientData={resolvedPatientInfo}
           frequencyList={frequencyList}
           timingList={timingList}
         />

@@ -1,8 +1,8 @@
 import { pdf } from "@react-pdf/renderer";
 import { PDFGenerator } from "../../../components/PDFGenerator";
 import { downloadDocument, printDocument } from "../dischargeSummary/utils/helper";
-import { getPatientInformation } from "../../../utils/utils";
 import { sanitizePrintSettingsForPdf } from "../../../utils/printSettings";
+import { resolvePatientInfoForPdf } from "../../../hooks/useTpmlReferenceId";
 import { store } from "../../../redux/store";
 
 const isHttpUrl = (value) => typeof value === "string" && /^https?:\/\//i.test(value);
@@ -56,12 +56,13 @@ const prepareSettingsForPdf = (documentType, settings) => {
 export const generatePdfBlob = async (documentType, settings, data, patientDetails, frequencyList, timingList) => {
   if (!settings) throw new Error("Missing print settings");
   const prepared = prepareSettingsForPdf(documentType, settings);
+  const patientData = await resolvePatientInfoForPdf(patientDetails);
   const element = (
     <PDFGenerator
       settings={prepared}
       data={data}
       documentType={documentType}
-      patientData={patientDetails ? getPatientInformation(patientDetails) : undefined}
+      patientData={patientData}
       frequencyList={frequencyList}
       timingList={timingList}
     />
@@ -111,9 +112,9 @@ const settingsKeyByDocType = {
 };
 
 // Build the data object expected by PDFGenerator for each document type
-export const buildPdfData = (documentType, patientDetails, rawData) => {
+export const buildPdfData = async (documentType, patientDetails, rawData) => {
   if (documentType === "progressNotes") {
-    const patientInformation = patientDetails ? getPatientInformation(patientDetails) : undefined;
+    const patientInformation = await resolvePatientInfoForPdf(patientDetails);
     return { patientInformation, progressNotes: rawData };
   }
   // For other types, pass through rawData
@@ -132,7 +133,7 @@ export const printModule = async (documentType, printSettings, patientDetails, r
   const settingsKey = settingsKeyByDocType[documentType];
   const settings = settingsKey ? printSettings?.[settingsKey] : undefined;
   if (!settings) return;
-  const data = buildPdfData(documentType, patientDetails, rawData);
+  const data = await buildPdfData(documentType, patientDetails, rawData);
   if (!hasPrintableData(data)) return;
   await printWithGenerator(documentType, settings, data, patientDetails, frequencyList, timingList);
 };
@@ -148,7 +149,7 @@ export const downloadModule = async (
   const settingsKey = settingsKeyByDocType[documentType];
   const settings = settingsKey ? printSettings?.[settingsKey] : undefined;
   if (!settings) return;
-  const data = buildPdfData(documentType, patientDetails, rawData);
+  const data = await buildPdfData(documentType, patientDetails, rawData);
   if (!hasPrintableData(data)) return;
   await downloadWithGenerator(documentType, settings, data, patientDetails, frequencyList, timingList);
 };

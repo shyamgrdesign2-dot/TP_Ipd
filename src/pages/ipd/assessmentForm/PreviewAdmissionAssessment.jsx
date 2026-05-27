@@ -22,9 +22,9 @@ import {
   handleDownloadDischargeSummary,
   printDischargeSummary,
 } from "../dischargeSummary/utils/helper";
-import { getPatientInformation } from "../../../utils/utils";
 import usePrintPreviewSetup from "../../../hooks/usePrintPreviewSetup";
 import useResolvedAssetUrl from "../../../hooks/useResolvedAssetUrl";
+import { useResolvedPatientInfo } from "../../../hooks/useTpmlReferenceId";
 import { sanitizePrintSettingsForPdf } from "../../../utils/printSettings";
 
 const PreviewAdmissionAssessment = () => {
@@ -36,6 +36,7 @@ const PreviewAdmissionAssessment = () => {
   const [pdfUrl, setPdfUrl] = useState(null);
   const { state } = useLocation();
   const { patientDetails, fromTab } = state || {};
+  const resolvedPatientInfo = useResolvedPatientInfo(patientDetails);
   const dispatch = useDispatch();
   const { printSettings } = useSelector((state) => state.printSettings);
   const { assessmentsData } = useSelector((state) => state.assessment);
@@ -150,7 +151,7 @@ const PreviewAdmissionAssessment = () => {
     ) {
       makePDFUrl();
     }
-  }, [sanitizedWithFooterDimensions, assessmentsData, footerReady]);
+  }, [sanitizedWithFooterDimensions, assessmentsData, footerReady, resolvedPatientInfo]);
 
   const makePDFUrl = async () => {
     try {
@@ -159,7 +160,7 @@ const PreviewAdmissionAssessment = () => {
           settings={sanitizedWithFooterDimensions}
           data={assessmentsData}
           documentType="assessments"
-          patientData={getPatientInformation(patientDetails)}
+          patientData={resolvedPatientInfo}
           frequencyList={frequencyList}
           timingList={timingList}
         />

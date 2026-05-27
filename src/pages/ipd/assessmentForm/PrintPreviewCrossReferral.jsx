@@ -15,9 +15,9 @@ import {
   handleDownloadDischargeSummary,
   printDischargeSummary,
 } from "../dischargeSummary/utils/helper";
-import { getPatientInformation } from "../../../utils/utils";
 import usePrintPreviewSetup from "../../../hooks/usePrintPreviewSetup";
 import useResolvedAssetUrl from "../../../hooks/useResolvedAssetUrl";
+import { useResolvedPatientInfo } from "../../../hooks/useTpmlReferenceId";
 import { sanitizePrintSettingsForPdf } from "../../../utils/printSettings";
 
 const PrintPreviewCrossReferral = () => {
@@ -29,6 +29,7 @@ const PrintPreviewCrossReferral = () => {
   const [pdfUrl, setPdfUrl] = useState(null);
   const { state } = useLocation();
   const { patientDetails, fromTab } = state || {};
+  const resolvedPatientInfo = useResolvedPatientInfo(patientDetails);
   const dispatch = useDispatch();
   const { printSettings } = useSelector((state) => state.printSettings);
   const { crossReferralData } = useSelector((state) => state.crossReferral);
@@ -133,7 +134,7 @@ const PrintPreviewCrossReferral = () => {
     if (sanitizedWithFooterDimensions && Object.keys(crossReferralData).length && footerReady) {
       makePDFUrl();
     }
-  }, [sanitizedWithFooterDimensions, crossReferralData, footerReady]);
+  }, [sanitizedWithFooterDimensions, crossReferralData, footerReady, resolvedPatientInfo]);
 
   const makePDFUrl = async () => {
     try {
@@ -142,7 +143,7 @@ const PrintPreviewCrossReferral = () => {
           settings={sanitizedWithFooterDimensions}
           data={crossReferralData}
           documentType="crossReferral"
-          patientData={getPatientInformation(patientDetails)}
+          patientData={resolvedPatientInfo}
         />
       ).toBlob();
       setPdfUrl(URL.createObjectURL(blob));

@@ -14,9 +14,9 @@ import {
   handleDownloadDischargeSummary,
   printDischargeSummary,
 } from "../dischargeSummary/utils/helper";
-import { getPatientInformation } from "../../../utils/utils";
 import usePrintPreviewSetup from "../../../hooks/usePrintPreviewSetup";
 import useResolvedAssetUrl from "../../../hooks/useResolvedAssetUrl";
+import { useResolvedPatientInfo } from "../../../hooks/useTpmlReferenceId";
 import { sanitizePrintSettingsForPdf } from "../../../utils/printSettings";
 
 const PrintPreviewOTNotes = () => {
@@ -29,7 +29,8 @@ const PrintPreviewOTNotes = () => {
   const { state } = useLocation();
   const { patientDetails, fromTab, otNotesData: stateOtNotesData } = state || {};
   const dispatch = useDispatch();
-  
+  const resolvedPatientInfo = useResolvedPatientInfo(patientDetails);
+
   // Use custom hook to handle patient details and print settings
   usePrintPreviewSetup();
   
@@ -145,7 +146,7 @@ const PrintPreviewOTNotes = () => {
     ) {
       makePDFUrl(sanitizedWithFooterDimensions, resolvedOtNotesData);
     }
-  }, [sanitizedWithFooterDimensions, resolvedOtNotesData, footerReady]);
+  }, [sanitizedWithFooterDimensions, resolvedOtNotesData, footerReady, resolvedPatientInfo]);
 
   const makePDFUrl = async (settings, data) => {
     try {
@@ -154,7 +155,7 @@ const PrintPreviewOTNotes = () => {
           settings={settings}
           data={data}
           documentType="otNotes"
-          patientData={getPatientInformation(patientDetails)}
+          patientData={resolvedPatientInfo}
         />
       ).toBlob();
       setPdfUrl(URL.createObjectURL(blob));

@@ -15,9 +15,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getConsultantNotes } from "../../../redux/ipd/consultantNotesSlice";
 import { getPrintSettings } from "../../../redux/ipd/printSettingsSlice";
-import { getPatientInformation } from "../../../utils/utils";
 import usePrintPreviewSetup from "../../../hooks/usePrintPreviewSetup";
 import useResolvedAssetUrl from "../../../hooks/useResolvedAssetUrl";
+import { useResolvedPatientInfo } from "../../../hooks/useTpmlReferenceId";
 import { sanitizePrintSettingsForPdf } from "../../../utils/printSettings";
 
 const PrintPreview = () => {
@@ -29,6 +29,7 @@ const PrintPreview = () => {
   const [pdfUrl, setPdfUrl] = useState(null);
   const { state } = useLocation();
   const { patientDetails, fromTab } = state || {};
+  const resolvedPatientInfo = useResolvedPatientInfo(patientDetails);
 
   const dispatch = useDispatch();
   const { printSettings } = useSelector((state) => state.printSettings);
@@ -135,7 +136,7 @@ const PrintPreview = () => {
           settings={sanitizedWithFooterDimensions}
           data={consultantNotes}
           documentType="consultationNotes"
-          patientData={getPatientInformation(patientDetails)}
+          patientData={resolvedPatientInfo}
           frequencyList={frequencyList}
           timingList={timingList}
         />
@@ -144,7 +145,7 @@ const PrintPreview = () => {
     } catch (error) {
       console.error("Error generating PDF:", error);
     }
-  }, [consultantNotes, sanitizedWithFooterDimensions, frequencyList, timingList, patientDetails]);
+  }, [consultantNotes, sanitizedWithFooterDimensions, frequencyList, timingList, patientDetails, resolvedPatientInfo]);
 
   useEffect(() => {
     if (sanitizedWithFooterDimensions && consultantNotes.length > 0 && footerReady) {

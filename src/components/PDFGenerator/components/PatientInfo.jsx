@@ -6,7 +6,6 @@ import React from "react";
 import { View } from "@react-pdf/renderer";
 import { StyleSheet } from "@react-pdf/renderer";
 import { getVisiblePatientFields } from "../utils/pdfUtils";
-import { isZydus } from "../../../utils/utils";
 import { Text } from "./MultilingualText";
 
 const styles = StyleSheet.create({
@@ -91,12 +90,6 @@ const PatientInfo = ({
   // if (!displaySettings || !patientData) return null;
 
   let visibleFields = getVisiblePatientFields(displaySettings, patientData);
-  
-  // Remove mrnNo field for non-Zydus users
-  if (!isZydus()) {
-    visibleFields = visibleFields.filter((field) => field.key !== "mrnNo");
-  }
-  
   let surgeryDateFields = [];
 
   if (
@@ -248,15 +241,14 @@ const PatientInfo = ({
           render={({ pageNumber }) =>
             pageNumber > 1 ? (
               <View style={styles.outerContainer}>
-                {
-                  isZydus() ? (
-                    <>
+                
+                    
                       <View style={styles.topBorder} />
                       {renderNameAndMrn()}
                       <View style={styles.bottomBorder} />
-                    </>
-                  ) : null
-                }
+
+                  
+                
               </View>
             ) : null
           }
