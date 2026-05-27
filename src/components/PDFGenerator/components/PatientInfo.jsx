@@ -243,7 +243,9 @@ const PatientInfo = ({
               <View style={styles.outerContainer}>
                 
                     
+                      <View style={styles.topBorder} />
                       {renderNameAndMrn()}
+                      <View style={styles.bottomBorder} />
 
                   
                 

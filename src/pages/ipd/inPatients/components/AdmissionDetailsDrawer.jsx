@@ -38,6 +38,11 @@ const AdmissionDetailsDrawer = ({ open, onClose, patientData }) => {
     const room = patientData?.room || {};
     const doctor = patientData?.doctor || {};
 
+    // MRN No & Patient ID (pm_pid) come exclusively from /patients/tpml-reference-id
+    // (resolved by `useResolvedPatientInfo`). Empty when the API returns null.
+    const apiMrnNo = resolvedPatientInfo?.mrnNo ?? "";
+    const apiPmPid = resolvedPatientInfo?.patientId ?? "";
+
     return {
       patientInformation: {
         name: details?.name || "",
@@ -45,11 +50,11 @@ const AdmissionDetailsDrawer = ({ open, onClose, patientData }) => {
         gender: details?.gender || "",
         contact: details?.contact || "",
         patientId: details?.id || "",
-        pmPid: details?.pm_pid || "",
+        pmPid: apiPmPid,
         address: details?.address || "",
         bloodGroup: details?.bloodGroup || "",
         prefix: details?.prefix || "",
-        mrno: patientData?.mrno || "",
+        mrno: apiMrnNo,
       },
       admissionDetails: {
         admittingDoctor: doctor?.name || "",
@@ -68,7 +73,7 @@ const AdmissionDetailsDrawer = ({ open, onClose, patientData }) => {
           ? {
               // For Zydus show both AdmissionNo & MRNO
               admissionNo: patientData?.admissionNo || "",
-              mrno: patientData?.mrno || "",
+              mrno: apiMrnNo,
             }
           : {
               // For Non-Zydus show only AdmissionId
@@ -94,7 +99,7 @@ const AdmissionDetailsDrawer = ({ open, onClose, patientData }) => {
         pmjayId: details?.pmjay_id || metadata?.pmjayId || "",
       },
     };
-  }, [patientData]);
+  }, [patientData, resolvedPatientInfo]);
 
   useEffect(() => {
     if (divRef.current) {

@@ -43,8 +43,8 @@ const fetchIds = (key) => {
 
 const overlay = (patientDetails, { mrnNo, pmPid }) => ({
   ...getPatientInformation(patientDetails),
-  ...(mrnNo ? { mrnNo } : {}),
-  ...(pmPid ? { patientId: pmPid } : {}),
+  mrnNo: mrnNo ?? "",
+  patientId: pmPid ?? "",
 });
 
 /**
@@ -81,8 +81,12 @@ export const useResolvedPatientInfo = (patientDetails) => {
 export const resolvePatientInfoForPdf = async (patientDetails) => {
   if (!patientDetails) return undefined;
   const key = toKey(patientDetails?.details?.id);
-  if (key == null) return getPatientInformation(patientDetails);
-  const ids = cache.has(key) ? cache.get(key) : await fetchIds(key);
+  const ids =
+    key == null
+      ? EMPTY
+      : cache.has(key)
+      ? cache.get(key)
+      : await fetchIds(key);
   return overlay(patientDetails, ids);
 };
 
