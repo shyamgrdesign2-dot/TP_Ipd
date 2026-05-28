@@ -36,6 +36,7 @@ import {
   PERSISTANT_STORAGE_KEY_MEDECO_TOKEN,
 } from "./utils/constants";
 import { useLocalStorage } from "./utils/localStorage";
+import { isProdLikeEnvironment } from "./utils/environment";
 
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallback from "./common/ErrorFallback";
@@ -103,7 +104,7 @@ import IpdBillingHistory from "./pages/ipd/billing/IpdBillingHistory";
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
   clientKey: config?.GROWTHBOOK_CLIENTKEY,
-  enableDevMode: process.env.REACT_APP_ENV !== "prod",
+  enableDevMode: !isProdLikeEnvironment(),
 });
 
 function App() {

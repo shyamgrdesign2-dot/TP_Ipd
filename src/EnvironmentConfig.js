@@ -450,7 +450,106 @@ const ipd = {
   ...uat,  // Copy all properties from UAT
   // Add any IPD-specific overrides here if needed in the future
 };
+const zyPreprod = {
+  appointment_api_url: `https://pm-master-preprod-webservice.tatvacare.in`,
+  symptoms_api_url: `https://pm-symptoms-preprod.tatvacare.in`,
+  examination_api_url: `https://pm-examination-preprod.tatvacare.in`,
+  diagnosis_api_url: `https://pm-diagnosis-preprod.tatvacare.in`,
+  advice_api_url: `https://pm-advice-preprod.tatvacare.in`,
+  investigation_api_url: `https://pm-investigation-preprod.tatvacare.in`,
+  medication_api_url: `https://pm-medicine-preprod.tatvacare.in/`,
+  vitals_api_url: `https://pm-vital-preprod.tatvacare.in`,
+  casemanager_api_url: `https://pm-casemanager-preprod.tatvacare.in`,
+  printsettings_api_url: `https://pm-printsetting-preprod.tatvacare.in`,
+  medicalhistory_api_url: `https://pm-medicalhistory-preprod.tatvacare.in`,
+  videolibrary_api_url: `https://pm-videolibrary-preprod.tatvacare.in`,
+  sso_to_pm_url: `https://practice.tatvacare.in/api/get_doctor_sso_token.php`,
+  sso_to_pm_admin_url: `https://practice.tatvacare.in/api/get_doctor_admin_sso_token.php`,
+  sso_to_pm_username: `PM_45dy48vh8sc4i1dum`,
+  sso_to_pm_password: `481541at-j4xc-4817-q5xz-a4rt48c69bt1`,
+  doctor_website_url: `https://practice.tatvacare.in/doctor_website/`,
+  vaccination_api_url: `https://pm-vaccination-preprod.tatvacare.in/`,
+  GROWTHBOOK_CLIENTKEY: "sdk-qAxUqghZDXqcMH45",
+  firebaseApiKey: "AIzaSyDijmTNFqGW8047ELts2cztM88mibYrjvw",
+  firebaseAuthDomain: "tatvacare.firebaseapp.com",
+  firebaseDatabaseURL: "https://tatvacare.firebaseio.com",
+  firebaseProjectId: "tatvacare",
+  firebaseStorageBucket: "tatvacare.appspot.com",
+  firebaseMessagingSenderId: "601922359186",
+  firebaseAppId: "1:601922359186:web:a3b9df05589faed1f5fb4b",
+  growth_chart_api_url: `https://pm-preprod-growth-chart.tatvacare.in`,
+  tatvaRedirect: "https://tatvapedia.tatvacare.in#bypass_pedia=false",
+  gynec_api_url:
+    "https://pm-medicalhistory-preprod.tatvacare.in/api/v1/gynec-history",
+  obstetric_api_url:
+    "https://pm-medicalhistory-preprod.tatvacare.in/api/v1/obstetric-history",
+  zydus_ict_lab_result_api_url: "https://pm-ict-proxy.tatvacare.in",
+  zydus_api_url: `https://pm-ingest-webhook-preprod.tatvacare.in`,
+  zydus_business_id: "368451724046474",
+  zydus_proxy_url: "https://pm-ict-proxy.tatvacare.in",
+  rx_digitization: "https://pm-rxdigitization-preprod.tatvacare.in",
+  visit_api_url: "https://pm-visit-integration-preprod.tatvacare.in",
+  lab_params_api_url: "https://pm-patient-docs-preprod.tatvacare.in",
+  user_management_api_url: "https://diginext-usermgmt-preprod.tatvacare.in",
+  razorpay_integration_url: "https://pm-razorpay-uat-integration.tatvacare.in",
+  api_secret_key: "184028f7-a9dh-4518-k1f2-q07t5mn11g72",
+  api_key: "TC_01o89208247drot41",
+  opd_encryption_url: "https://api.mytatva.in/api/v8/helper/encrypt_visit_data",
+  opd_visit_url: "https://visit-enrolment-tatva.getvisitapp.com",
+  upload_doc_api_url: "https://pm-patient-docs-preprod.tatvacare.in",
+  central_auth_api_url: "https://pm-central-auth-preprod.tatvacare.in",
+  pedia_logout_url:
+    "https://diginext-authserver-preprod.tatvacare.in/logout?post_logout_redirect_uri=https://tatvapedia.tatvacare.in&client_id=client",
+  bulk_messages: "https://pm-communication-preprod.tatvacare.in",
+  searchengine_url: "https://pm-searchengine-preprod.tatvacare.in",
+  razorPay_key: "rzp_live_GvLkPHHNSMs2G3",
+  tatvaAi_api_url: "https://pm-doctor-tatva-preprod.tatvacare.in",
+  tatvaAi_url: "https://tatva-ai.tatvacare.in",
+  tatvaAi_logout_url: "https://tatva-ai.tatvacare.in/logout",
+  lite_api_key: "68ceb696-0b60-47e8-9deb-b0e359d93d2f",
+  lite_secret_key: "4b301416-946d-4b22-a083-69111ce79245",
+  gen_rx_api_url: "https://pm-rxdigitization-preprod.tatvacare.in",
+  tatvaPedia_api_url: "https://diginext-authserver-preprod.tatvacare.in",
+  tatvaPedia_domain_url: "https://tatvapedia.tatvacare.in",
+  symptoms_collector_api_url: "https://pm-tatva-agents-preprod.tatvacare.in",
+  snap_rx_api_url: "https://pm-digitization-preprod.tatvacare.in",
+  short_links_api_url: "https://u.tatvacare.in",
+  SHORT_LINKS_API_KEY: "7pP-Ynz1BFQk9IkcGFqrmNxmKKMVZEAniwSsFEAI",
+  GOOGLE_MAPS_API_KEY: "AIzaSyAqhrcrUh31u4FhmgsUDaV-hju14_74Bug",
+  ZYDUS_BUSINESS_ID: 368451724046474,
+  APOLLO_BUSINESS_IDS: [
+    345711722419722, 189641711087501, 635211726058248, 817391726308284,
+    389721726761413, 625141727277272, 137621731053002, 268741731506046,
+    549821734513388, 628451726551928, 684191731931706, 879361730721433,
+    538421739782028, 136841742984591,
+  ],
+  digitization_api_url: "https://pm-digitization-preprod.tatvacare.in",
+  monetization_url: "https://pm-tp-monetization-preprod.tatvacare.in",
+  tp_monetization_disabled_hospital: [
+    368451724046474, 345711722419722, 189641711087501, 635211726058248,
+    817391726308284, 389721726761413, 625141727277272, 137621731053002,
+    268741731506046, 549821734513388, 628451726551928, 684191731931706,
+    879361730721433, 538421739782028, 136841742984591,
+  ],
+  tp_agent_disabled_hospital: [
+    368451724046474, 345711722419722, 189641711087501, 635211726058248,
+    817391726308284, 389721726761413, 625141727277272, 137621731053002,
+    268741731506046, 549821734513388, 628451726551928, 684191731931706,
+    879361730721433, 538421739782028, 136841742984591,
+  ],
+  munshi_hospital_business_ids: [263578419],
+  medeco_webview_url: "https://pm-doctor-tatva-pwa-preprod.tatvacare.in",
+  REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
+  doctor_portal_url: "https://tatvapractice.tatvacare.in",
+  whatsapp_x_api_key: "GiNtUl73b2sUfMjtQ9",
+  ipd_api_url: "https://pm-ipd-preprod.tatvacare.in/api/v1",
+  zydus_voice_rx_expiry_date: "2025-11-01",
+  FREE_VOICE_RX_APOLLO_USER_IDS: [12469, 12475, 12476, 12477],
+};
 
+const zyProd = {
+  ...prod,
+}
 const getEnv = () => {
   switch (process.env.REACT_APP_ENV) {
     case "dev":
@@ -463,6 +562,10 @@ const getEnv = () => {
       return uat;
     case "ipd":
       return ipd;
+    case "zy-preprod":
+      return zyPreprod;
+    case "zy-prod":
+      return zyProd;
     case "prod":
       return prod;
     default:
