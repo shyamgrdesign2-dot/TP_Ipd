@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Font, Page, Text, View, Image, Document, StyleSheet } from '@react-pdf/renderer';
 import { isNumeric, medicine_freq_dosage_format, chunkArray, capitalize, getIndianLanguageFont, getFrequencyTitle, getTimeingTitle, getDurationTitle, getRxTitle, getFrequencyLanguageTitles } from '../../utils/utils'
 import { EXTRA_OPTIONS, NEO_NATOLOGISTS_DP_ID, NORMAL, WHATSAPP } from '../../utils/constants';
+import { isProdLikeEnvironment } from '../../utils/environment';
 import moment from 'moment';
 import ObsHistoryInlineView from './obsHistory/inline';
 import ObsHistoryListView from './obsHistory/list';
@@ -252,8 +253,8 @@ const styles = StyleSheet.create({
     },
 });
 
-const module_id = process.env.REACT_APP_ENV !== "prod" ? '6874956bc1abf17f6932cb32' : '68624471353771e0a587fed6';
-const um_id = process.env.REACT_APP_ENV !== "prod" ? '493' : '12028';
+const module_id = !isProdLikeEnvironment() ? '6874956bc1abf17f6932cb32' : '68624471353771e0a587fed6';
+const um_id = !isProdLikeEnvironment() ? '493' : '12028';
 
 const ViewPDF = ({ mode = NORMAL, ...props }) => {
 

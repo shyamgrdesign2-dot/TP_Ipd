@@ -32,6 +32,9 @@ const createEnvironmentHash = require('./webpack/persistentCache/createEnvironme
 // Source maps are resource heavy and can cause out of memory issue for large source files.
 const shouldUseSourceMap = false;
 const prodSourceMapMode = process.env.PROD_SOURCEMAP_MODE;
+const isProdLikeReactAppEnv = ['prod', 'zy-prod', 'zy-preprod'].includes(
+  process.env.REACT_APP_ENV
+);
 
 const reactRefreshRuntimeEntry = require.resolve('react-refresh/runtime');
 const reactRefreshWebpackPluginRuntimeEntry = require.resolve(
@@ -780,7 +783,7 @@ module.exports = function (webpackEnv) {
             shared_ui:
               process.env.REACT_APP_ENV === 'ipd'
                 ? 'module /shared-ui/assets/remoteEntry.js'
-                : process.env.REACT_APP_ENV === 'prod'
+                : isProdLikeReactAppEnv
                 ? 'module /shared-ui/assets/remoteEntry.js'
                 : 'module http://localhost:3001/assets/remoteEntry.js',
           },
