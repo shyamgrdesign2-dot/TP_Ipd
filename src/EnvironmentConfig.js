@@ -540,7 +540,7 @@ const zyPreprod = {
   munshi_hospital_business_ids: [263578419],
   medeco_webview_url: "https://pm-doctor-tatva-pwa-preprod.tatvacare.in",
   REACT_APP_GOOGLE_MAPS_API_KEY: "AIzaSyB41DRUbKWJHPxaFjMAwdrzWzbVKartNGg",
-  doctor_portal_url: "https://tatvapractice.tatvacare.in",
+  doctor_portal_url: "https://tatvaemrpreprod.zydushospitals.com",
   whatsapp_x_api_key: "GiNtUl73b2sUfMjtQ9",
   ipd_api_url: "https://pm-ipd-preprod.tatvacare.in/api/v1",
   zydus_voice_rx_expiry_date: "2025-11-01",
@@ -549,6 +549,7 @@ const zyPreprod = {
 
 const zyProd = {
   ...prod,
+  doctor_portal_url: "https://tatvaemr.zydushospitals.com",
 }
 const getEnv = () => {
   switch (process.env.REACT_APP_ENV) {

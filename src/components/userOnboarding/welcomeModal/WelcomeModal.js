@@ -9,6 +9,7 @@ import shareIcon from "../../../assets/images/onboard-page-icons/Share.svg";
 import desktopIcon from "../../../assets/images/onboard-page-icons/monitor-mobile.svg";
 import { CloseOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
+import config from "../../../config";
 
 const VideoCarousel = () => {
   const [currentVideo, setCurrentVideo] = useState(0);
@@ -61,6 +62,8 @@ const VideoCarousel = () => {
 };
 
 const WelcomeModal = ({ modalOpen, setModalOpen, profile }) => {
+  const doctorPortalUrl = `${config.doctor_portal_url.replace(/\/$/, "")}/`;
+
   return (
     <div className="welcome-modals-wrapper">
       <Modal
@@ -164,7 +167,7 @@ const WelcomeModal = ({ modalOpen, setModalOpen, profile }) => {
             }}
           >
             <a
-              href="https://tatvapractice.tatvacare.in/"
+              href={doctorPortalUrl}
               className="platform-link"
               style={{
                 color: "white",
@@ -177,7 +180,7 @@ const WelcomeModal = ({ modalOpen, setModalOpen, profile }) => {
                 whiteSpace: "nowrap",
               }}
             >
-              https://tatvapractice.tatvacare.in/
+              {doctorPortalUrl}
             </a>
 
             <div
@@ -193,7 +196,7 @@ const WelcomeModal = ({ modalOpen, setModalOpen, profile }) => {
                   cursor: "pointer",
                 }}
                 onClick={() => {
-                  navigator.clipboard.writeText("https://tatvapractice.tatvacare.in/")
+                  navigator.clipboard.writeText(doctorPortalUrl)
                     .then(() => {
                       // Optional: Add a toast or notification here
                       alert("Link copied to clipboard!");
@@ -217,14 +220,14 @@ const WelcomeModal = ({ modalOpen, setModalOpen, profile }) => {
                     navigator.share({
                       title: 'TatvaPractice',
                       text: 'Check out TatvaPractice',
-                      url: 'https://tatvapractice.tatvacare.in/',
+                      url: doctorPortalUrl,
                     })
                       .catch(err => {
                         console.error('Share failed:', err);
                       });
                   } else {
                     // Fallback for browsers that don't support Web Share API
-                    navigator.clipboard.writeText("https://tatvapractice.tatvacare.in/")
+                    navigator.clipboard.writeText(doctorPortalUrl)
                       .then(() => {
                         alert("Link copied to clipboard! You can now share it manually.");
                       })
