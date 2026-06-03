@@ -667,3 +667,4 @@ const getEnv = () => {
   }
 };
 export const env = getEnv();
+export const zydusProdEnv = zyProd;

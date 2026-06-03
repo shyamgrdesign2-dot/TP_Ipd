@@ -36,7 +36,11 @@ import {
   PERSISTANT_STORAGE_KEY_MEDECO_TOKEN,
 } from "./utils/constants";
 import { useLocalStorage } from "./utils/localStorage";
-import { isProdLikeEnvironment } from "./utils/environment";
+import { isProdEnv, isProdLikeEnvironment } from "./utils/environment";
+import {
+  getNormalizedPhoneNumber,
+  syncPhoneAndCheckZydusAccountUser,
+} from "./utils/zydusAccountRouting";
 
 import { ErrorBoundary } from "react-error-boundary";
 import ErrorFallback from "./common/ErrorFallback";
@@ -258,16 +262,45 @@ function App() {
     if (token) {
       try {
         const decodedToken = jwtDecode(token);
+        const phoneNumber = decodedToken?.result?.mobile_no;
         growthbook?.setAttributes({
           doctorId: decodedToken?.result?.doctor_unique_id,
           id: `${decodedToken?.result?.user_id}`,
           hos_business_id: `${decodedToken?.result?.hospital_business_id}`,
+          doctor_phone: phoneNumber,
+          doctor_phone_normalized: getNormalizedPhoneNumber(phoneNumber),
         });
       } catch (e) {
         console.log(e);
       }
     }
   }, []);
+
+  useEffect(() => {
+    const logoutZydusUserFromNormalProd = async () => {
+      if (!isProdEnv() || isLoginPage || isReceptionist) return;
+
+      const token = authToken || getToken();
+      if (!token) return;
+
+      try {
+        const decodedToken = jwtDecode(token);
+        const phoneNumber = decodedToken?.result?.mobile_no;
+        if (!phoneNumber) return;
+
+        const isZydusAccountUser =
+          await syncPhoneAndCheckZydusAccountUser(growthbook, phoneNumber);
+
+        if (isZydusAccountUser) {
+          handleLogout();
+        }
+      } catch (error) {
+        console.error("Error checking Zydus account user:", error);
+      }
+    };
+
+    logoutZydusUserFromNormalProd();
+  }, [authToken, isLoginPage, isReceptionist, location.pathname]);
 
   useEffect(() => {
     // Handle authToken in URL

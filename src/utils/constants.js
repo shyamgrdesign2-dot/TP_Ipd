@@ -98,6 +98,7 @@ export const GB_CARE_PLAN = "care-plan-dropdown";
 export const GB_NEW_IPD = "new-ipd";
 export const GB_NEW_IPD_HOS_BUSINESS_ID = "new-ipd-hos-business-id";
 export const GB_NEW_IPD_ZYDUS = "new-ipd-zydus";
+export const GB_ZYDUS_ACCOUNT_USERS = "zydus-account-users";
 
 export const FREE = "FREE";
 export const TRIAL = "TRIAL";
