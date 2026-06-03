@@ -16,6 +16,8 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    env:
+      REACT_APP_ENV: zy-prod
     permissions: 
       id-token: write #This is required for requesting the OIDC JWT Token
       contents: read #Required when GH token is used to authenticate with private repo
@@ -43,7 +45,7 @@ jobs:
           containerAppName: zy-doctor-portal-ipd-prod
           resourceGroup: practice-prod
           imageToBuild: zypractice04.azurecr.io/zy-doctor-portal-ipd-prod:${{ github.sha }}
-          _buildArgumentsKey_: |
-            _buildArgumentsValues_
+          buildArguments: |
+            REACT_APP_ENV=zy-prod
 
 
