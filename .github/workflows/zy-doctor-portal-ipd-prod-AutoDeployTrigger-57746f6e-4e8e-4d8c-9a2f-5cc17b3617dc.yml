@@ -1,30 +1,21 @@
 name: Trigger auto deployment for zy-doctor-portal-ipd-prod
 
-# When this action will be executed
 on:
-  # Automatically trigger it when detected changes in repo
-  push:
-    branches: 
-      [ ipd-prod ]
-    paths:
-    - '**'
-    - '.github/workflows/zy-doctor-portal-ipd-prod-AutoDeployTrigger-57746f6e-4e8e-4d8c-9a2f-5cc17b3617dc.yml'
-
-  # Allow manual trigger 
-  workflow_dispatch:      
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     env:
       REACT_APP_ENV: zy-prod
-    permissions: 
-      id-token: write #This is required for requesting the OIDC JWT Token
-      contents: read #Required when GH token is used to authenticate with private repo
+
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
       - name: Checkout to the branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Azure Login
         uses: azure/login@v2
@@ -37,8 +28,6 @@ jobs:
         uses: azure/container-apps-deploy-action@v2
         with:
           appSourcePath: ${{ github.workspace }}
-          _dockerfilePathKey_: _dockerfilePath_
-          _targetLabelKey_: _targetLabel_
           registryUrl: zypractice04.azurecr.io
           registryUsername: ${{ secrets.ZYDOCTORPORTALIPDPROD_REGISTRY_USERNAME }}
           registryPassword: ${{ secrets.ZYDOCTORPORTALIPDPROD_REGISTRY_PASSWORD }}
@@ -47,5 +36,3 @@ jobs:
           imageToBuild: zypractice04.azurecr.io/zy-doctor-portal-ipd-prod:${{ github.sha }}
           buildArguments: |
             REACT_APP_ENV=zy-prod
-
-
