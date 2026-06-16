@@ -397,7 +397,17 @@ function FieldRenderer({
           />
         );
       }
-      const govOptions = ["PMJAY", "ESI", "CGHS"];
+      const govOptions = [
+        "PMJAY",
+        "ESI",
+        "CGHS",
+        "MAA-Yojana",
+        "RGHS",
+        "Chiranjeevi",
+        "Bhamashah",
+        "Saras Dairy",
+        "Amul Dairy",
+      ];
       return (
         <Controller
           name={field.id}
