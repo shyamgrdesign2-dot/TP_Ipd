@@ -29,6 +29,8 @@ import {
   sanitizePrintSettingsForPdf,
 } from "../../../utils/printSettings";
 import useResolvedAssetUrl from "../../../hooks/useResolvedAssetUrl";
+import useFooterImageHeight from "../../../hooks/useFooterImageHeight";
+import { LETTERHEAD_FORMATS } from "../../../components/PDFGenerator";
 
 const DischargeSummaryReadonly = forwardRef((props, ref) => {
   const isIpdDynamicDischargeHeadingEnabled = useFeatureIsOn(
@@ -60,14 +62,21 @@ const DischargeSummaryReadonly = forwardRef((props, ref) => {
     fileType: "fileFooter",
     settingsPath: ["headerFooter", "footer", "footerImg"],
   });
-  const footerHeight =
-    useSelector(
-      (state) =>
-        state.printSettings.fileStates?.dischargeSummary?.fileFooter
-          ?.renderedFooterImageHeight
-    ) ||
-    currentSettings?.headerFooter?.footer?.renderedFooterImageHeight;
-  const footerReady = !resolvedFooterImg || footerHeight != null;
+  const usesUploadedLetterhead =
+    currentSettings?.headerFooter?.letterHeadFormat === LETTERHEAD_FORMATS.UPLOAD;
+  const configuredFooterImg = usesUploadedLetterhead
+    ? currentSettings?.headerFooter?.footer?.footerImg
+    : null;
+  const footerHeight = useFooterImageHeight({
+    moduleType: "dischargeSummary",
+    footerImg: resolvedFooterImg,
+    enabled: Boolean(resolvedFooterImg),
+  });
+  const footerReady =
+    !configuredFooterImg ||
+    (Boolean(resolvedFooterImg) &&
+      typeof footerHeight === "number" &&
+      footerHeight > 0);
   const resolvedLogo = useResolvedAssetUrl({
     moduleType: "dischargeSummary",
     assetKey: "logo",
@@ -78,12 +87,19 @@ const DischargeSummaryReadonly = forwardRef((props, ref) => {
   const sanitizedSettings = useMemo(() => {
     if (!currentSettings) return currentSettings;
     const next = JSON.parse(JSON.stringify(currentSettings));
-    if (resolvedHeaderImg) {
+    if (!next.headerFooter) next.headerFooter = {};
+    if (!next.headerFooter.header) next.headerFooter.header = {};
+    if (!next.headerFooter.footer) next.headerFooter.footer = {};
+
+    if (!usesUploadedLetterhead) {
+      next.headerFooter.header.headerImg = "";
+      next.headerFooter.footer.footerImg = "";
+    } else if (resolvedHeaderImg) {
       if (!next.headerFooter) next.headerFooter = {};
       if (!next.headerFooter.header) next.headerFooter.header = {};
       next.headerFooter.header.headerImg = resolvedHeaderImg;
     }
-    if (resolvedFooterImg) {
+    if (usesUploadedLetterhead && resolvedFooterImg) {
       if (!next.headerFooter) next.headerFooter = {};
       if (!next.headerFooter.footer) next.headerFooter.footer = {};
       next.headerFooter.footer.footerImg = resolvedFooterImg;
@@ -94,7 +110,39 @@ const DischargeSummaryReadonly = forwardRef((props, ref) => {
       next.headerFooter.header.logo = resolvedLogo;
     }
     return sanitizePrintSettingsForPdf(next);
-  }, [currentSettings, resolvedHeaderImg, resolvedFooterImg, resolvedLogo]);
+  }, [
+    currentSettings,
+    usesUploadedLetterhead,
+    resolvedHeaderImg,
+    resolvedFooterImg,
+    resolvedLogo,
+  ]);
+  const sanitizedSettingsWithFooterDimensions = useMemo(() => {
+    if (!sanitizedSettings) return sanitizedSettings;
+    if (!usesUploadedLetterhead) return sanitizedSettings;
+    if (!resolvedFooterImg || !footerReady) return sanitizedSettings;
+
+    const headerFooter = sanitizedSettings.headerFooter || {};
+    const footer = headerFooter.footer || {};
+    if (!footer.footerImg) return sanitizedSettings;
+
+    return {
+      ...sanitizedSettings,
+      headerFooter: {
+        ...headerFooter,
+        footer: {
+          ...footer,
+          renderedFooterImageHeight: footerHeight,
+        },
+      },
+    };
+  }, [
+    sanitizedSettings,
+    usesUploadedLetterhead,
+    resolvedFooterImg,
+    footerReady,
+    footerHeight,
+  ]);
   useEffect(() => {
     const header = currentSettings?.headerFooter?.header || {};
     const other = currentSettings?.headerFooter?.otherSettings || {};
@@ -130,17 +178,22 @@ const DischargeSummaryReadonly = forwardRef((props, ref) => {
   }, [divRef]);
 
   useEffect(() => {
-    if (!sanitizedSettings) return;
+    if (!sanitizedSettingsWithFooterDimensions) return;
     if (!Object.keys(dischargeSummaryData).length) return;
     if (!footerReady) return;
     makePDFUrl();
-  }, [sanitizedSettings, dischargeSummaryData, footerReady, resolvedPatientInfo]);
+  }, [
+    sanitizedSettingsWithFooterDimensions,
+    dischargeSummaryData,
+    footerReady,
+    resolvedPatientInfo,
+  ]);
 
   const makePDFUrl = async () => {
     try {
       const blob = await pdf(
         <PDFGenerator
-          settings={sanitizedSettings}
+          settings={sanitizedSettingsWithFooterDimensions}
           data={dischargeSummaryData}
           documentType="dischargeSummary"
           patientData={resolvedPatientInfo}

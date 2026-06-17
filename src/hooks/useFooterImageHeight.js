@@ -25,9 +25,14 @@ const useFooterImageHeight = ({ moduleType, footerImg, enabled = true }) => {
     printSettings?.[moduleType]?.headerFooter?.footer ||
     draftSettings?.[moduleType]?.headerFooter?.footer ||
     {};
+  const fileFooterMatches = !fileFooter.showFile || fileFooter.showFile === footerImg;
+  const settingsFooterMatches =
+    !settingsFooter.footerImg || settingsFooter.footerImg === footerImg;
 
   const renderedFooterImageHeight =
-    fileFooter.renderedFooterImageHeight ?? settingsFooter.renderedFooterImageHeight ?? null;
+    (fileFooterMatches ? fileFooter.renderedFooterImageHeight : null) ??
+    (settingsFooterMatches ? settingsFooter.renderedFooterImageHeight : null) ??
+    null;
 
   useEffect(() => {
     if (!enabled || !moduleType || !footerImg) return;

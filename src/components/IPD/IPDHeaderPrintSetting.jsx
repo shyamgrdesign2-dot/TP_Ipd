@@ -132,6 +132,8 @@ function IPDHeaderPrintSetting({ moduleType, moduleTitle, returnPath }) {
         navigate(-1);
       }
     } else if (flag === 3) {
+      dispatch(saveDraftSettings({ moduleType }));
+
       if (returnPath) {
         navigate(returnPath);
       } else {

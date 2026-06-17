@@ -20,6 +20,10 @@ const usePrintPreviewSetup = () => {
     (state) => state.ipd.patientDetails
   );
   const { printSettings } = useSelector((state) => state.printSettings);
+  const hasPrintSettings =
+    printSettings &&
+    typeof printSettings === "object" &&
+    Object.keys(printSettings).length > 0;
 
   // Store patient details if not already in Redux store
   useEffect(() => {
@@ -33,10 +37,10 @@ const usePrintPreviewSetup = () => {
 
   // Fetch print settings if not already loaded
   useEffect(() => {
-    if (Object.keys(patientDetailsFromStore)?.length) {
+    if (Object.keys(patientDetailsFromStore)?.length && !hasPrintSettings) {
       dispatch(getPrintSettings());
     }
-  }, [patientDetailsFromStore, dispatch]);
+  }, [patientDetailsFromStore, hasPrintSettings, dispatch]);
 
   // Pre-compute footer heights for all modules as soon as settings are available
   useEffect(() => {

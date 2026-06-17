@@ -14,6 +14,7 @@ import FormatStyleLayout from "./FormatStyleLayout";
 import IPDHeaderFooterLayout from "./IPDHeaderFooterLayout";
 import IPDPageFormatLayout from "./IPDPageFormatLayout";
 import PDFGenerator from "../PDFGenerator/PDFGenerator";
+import { LETTERHEAD_FORMATS } from "../PDFGenerator/constants";
 
 import {
   TAB_FORMAT_STYLE,
@@ -347,8 +348,16 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
     fileType: "fileFooter",
     settingsPath: ["headerFooter", "footer", "footerImg"],
   });
+  const usesUploadedLetterhead =
+    currentSettings?.headerFooter?.letterHeadFormat === LETTERHEAD_FORMATS.UPLOAD;
+  const configuredFooterImg = usesUploadedLetterhead
+    ? currentSettings?.headerFooter?.footer?.footerImg
+    : null;
   const footerReady =
-    !resolvedFooterImg || fileFooter?.renderedFooterImageHeight != null;
+    !configuredFooterImg ||
+    (Boolean(resolvedFooterImg) &&
+      typeof fileFooter?.renderedFooterImageHeight === "number" &&
+      fileFooter.renderedFooterImageHeight > 0);
   const resolvedLogo = useResolvedAssetUrl({
     moduleType,
     assetKey: "logo",
@@ -360,12 +369,19 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
   const settingsWithResolvedAssets = React.useMemo(() => {
     if (!currentSettings) return currentSettings;
     const next = JSON.parse(JSON.stringify(currentSettings));
-    if (resolvedHeaderImg) {
+    if (!next.headerFooter) next.headerFooter = {};
+    if (!next.headerFooter.header) next.headerFooter.header = {};
+    if (!next.headerFooter.footer) next.headerFooter.footer = {};
+
+    if (!usesUploadedLetterhead) {
+      next.headerFooter.header.headerImg = "";
+      next.headerFooter.footer.footerImg = "";
+    } else if (resolvedHeaderImg) {
       if (!next.headerFooter) next.headerFooter = {};
       if (!next.headerFooter.header) next.headerFooter.header = {};
       next.headerFooter.header.headerImg = resolvedHeaderImg;
     }
-    if (resolvedFooterImg) {
+    if (usesUploadedLetterhead && resolvedFooterImg) {
       if (!next.headerFooter) next.headerFooter = {};
       if (!next.headerFooter.footer) next.headerFooter.footer = {};
       next.headerFooter.footer.footerImg = resolvedFooterImg;
@@ -376,7 +392,13 @@ function IPDConfigurePrintSetting({ moduleType, data }) {
       next.headerFooter.header.logo = resolvedLogo;
     }
     return next;
-  }, [currentSettings, resolvedHeaderImg, resolvedFooterImg, resolvedLogo]);
+  }, [
+    currentSettings,
+    usesUploadedLetterhead,
+    resolvedHeaderImg,
+    resolvedFooterImg,
+    resolvedLogo,
+  ]);
 
   const settingsWithFooterDimensions = React.useMemo(() => {
     if (!settingsWithResolvedAssets) return settingsWithResolvedAssets;
