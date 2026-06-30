@@ -26,6 +26,16 @@ export const registerFonts = () => {
         src: require("../../../assets/fonts/print-fonts/Roboto-Bold.ttf"),
         fontWeight: 700,
       },
+      {
+        src: require("../../../assets/fonts/print-fonts/Roboto-Italic.ttf"),
+        fontWeight: 400,
+        fontStyle: "italic",
+      },
+      {
+        src: require("../../../assets/fonts/print-fonts/Roboto-BoldItalic.ttf"),
+        fontWeight: 700,
+        fontStyle: "italic",
+      },
     ],
   });
 
