@@ -18,6 +18,8 @@ Font.register({
         { src: require('../../assets/fonts/print-fonts/Roboto-Regular.ttf'), fontWeight: 400 }, // Regular
         { src: require('../../assets/fonts/print-fonts/Roboto-Medium.ttf'), fontWeight: 500 }, // Medium
         { src: require('../../assets/fonts/print-fonts/Roboto-Bold.ttf'), fontWeight: 700 }, // Bold
+        { src: require('../../assets/fonts/print-fonts/Roboto-Italic.ttf'), fontStyle: 'italic' },
+        { src: require('../../assets/fonts/print-fonts/Roboto-BoldItalic.ttf'), fontWeight: 700, fontStyle: 'italic' },
     ],
 });
 // Arial

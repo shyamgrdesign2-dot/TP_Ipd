@@ -35,13 +35,15 @@
  */
 
 import React from "react";
-import { View, StyleSheet } from "@react-pdf/renderer";
-import { Text } from "./MultilingualText";
+import { View, StyleSheet, Text } from "@react-pdf/renderer";
+
+const ROBOTO = "Roboto";
 
 const styles = StyleSheet.create({
   // Paragraph styles
   paragraph: {
     marginBottom: 6,
+    fontFamily: ROBOTO,
     color: "#454551",
     lineHeight: 1.8,
   },
@@ -84,6 +86,7 @@ const styles = StyleSheet.create({
   // Text styles
   bulletText: {
     flex: 1,
+    fontFamily: ROBOTO,
     color: "#454551",
     fontWeight: 400,
     lineHeight: 1.8,
@@ -92,31 +95,20 @@ const styles = StyleSheet.create({
 
   numberedText: {
     flex: 1,
+    fontFamily: ROBOTO,
     color: "#454551",
     fontWeight: 400,
     lineHeight: 1.8,
     textTransform: "capitalize",
   },
-
-  // Text formatting
-  bold: {
-    fontWeight: 600,
-  },
-
-  italic: {
-    fontStyle: "italic",
-  },
 });
 
-/**
- * Render a single leaf node with formatting
- */
 const renderLeaf = (leaf, index, customStyles = {}) => {
   if (!leaf) return null;
 
-  let style = { ...customStyles };
-  if (leaf.bold) style = { ...style, ...styles.bold };
-  if (leaf.italic) style = { ...style, ...styles.italic };
+  const style = { ...customStyles };
+  if (leaf.bold) style.fontWeight = 700;
+  if (leaf.italic) style.fontStyle = "italic";
 
   return (
     <Text key={index} style={style}>
