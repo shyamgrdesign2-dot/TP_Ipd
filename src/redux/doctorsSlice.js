@@ -248,11 +248,17 @@ export const addCertificate = createAsyncThunk(
   }
 );
 
+const resolveCertificatePamId = (pamId) =>
+  pamId != null && pamId !== "" ? pamId : 0;
+
 export const addPatientCertificate = createAsyncThunk(
   "medicalCertificate/addPatientCertificate",
   async (data) => {
     let result = {};
-    result = await ApiMedicalCertificate.addPatientCertificate(data);
+    result = await ApiMedicalCertificate.addPatientCertificate({
+      ...data,
+      pam_id: resolveCertificatePamId(data?.pam_id),
+    });
     if (result.status) {
       return result.data;
     } else {
@@ -265,7 +271,10 @@ export const editPatientCertificate = createAsyncThunk(
   "medicalCertificate/editPatientCertificate",
   async (data) => {
     let result = {};
-    result = await ApiMedicalCertificate.editPatientCertificate(data);
+    result = await ApiMedicalCertificate.editPatientCertificate({
+      ...data,
+      pam_id: resolveCertificatePamId(data?.pam_id),
+    });
     if (result.status) {
       return result.data;
     } else {

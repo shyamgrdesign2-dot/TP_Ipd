@@ -1,6 +1,8 @@
 import React, { Suspense, useEffect, useMemo, useState, useRef } from "react";
 import { LoadingOutlined } from "@ant-design/icons";
+import { useFeatureIsOn } from "@growthbook/growthbook-react";
 import { IPD } from "../../../utils/locale";
+import { GB_IPD_CERTIFICATE } from "../../../utils/constants";
 import {
   formatDateToShortMonthYear,
   getPatientInformation,
@@ -85,6 +87,7 @@ import { setAdvancedSettings } from "../../../redux/billingSlice";
 import { fetchActivityLogs } from "../../../redux/ipd/inPatientsSlice";
 import ActivityLogs from "./components/ActivityLogs";
 import abhaLogo from "../../../assets/images/icons/abha.svg";
+import CertificateDetails from "../../../components/medical_certificate/CertificateDetails";
 
 const PatientDetailsLayout = createRemoteComponent("PatientDetailsLayout");
 
@@ -127,6 +130,7 @@ const IPDPatientDetails = () => {
   const [patientData, setPatientData] = useState(null);
   const [shouldOpenCreateBill, setShouldOpenCreateBill] = useState(false);
   const isOnlyViewMode = useOnlyViewMode();
+  const isIpdCertificateEnabled = useFeatureIsOn(GB_IPD_CERTIFICATE);
 
   // Medical records states
   const [uploadDocDrawer, setUploadDocDrawer] = useState(false);
@@ -141,6 +145,17 @@ const IPDPatientDetails = () => {
   const [shouldOpenAddAdvance, setShouldOpenAddAdvance] = useState(false);
 
   const dispatch = useDispatch();
+
+  const certificatePatientData = useMemo(() => {
+    if (patient_data?.patient_unique_id) {
+      return patient_data;
+    }
+    return transformAdmissionToPatient({
+      ...patientDetails,
+      patient_unique_id:
+        patientDetails?.patient_unique_id || patientDetails?.details?.id,
+    });
+  }, [patient_data, patientDetails]);
 
   useEffect(() => {
     if (!patientDetails || !admissionId) {
@@ -448,6 +463,8 @@ const IPDPatientDetails = () => {
         });
     } else if (activeMenuItem === "opd") {
       setIsLoading(false);
+    } else if (activeMenuItem === "certificate") {
+      setIsLoading(false);
     } else if (activeMenuItem === "activityLogs") {
       dispatch(fetchActivityLogs({ admissionId }))
         .unwrap()
@@ -474,7 +491,9 @@ const IPDPatientDetails = () => {
   };
 
   const patientDetailsMenu = () => {
-    return IPD.PATIENT_DETAILS_MENU.map((item) => {
+    return IPD.PATIENT_DETAILS_MENU.filter(
+      (item) => item.id !== "certificate" || isIpdCertificateEnabled
+    ).map((item) => {
       return {
         ...item,
         ctaClick: handleEmptyCtaClick?.[item.id],
@@ -510,6 +529,8 @@ const IPDPatientDetails = () => {
     } else if (activeMenuItem === "labResults") {
       return true;
     } else if (activeMenuItem === "opd") {
+      return true;
+    } else if (activeMenuItem === "certificate") {
       return true;
     } else if (activeMenuItem === "activityLogs") {
       return !isLoading || !!activityLogs?.data?.length;
@@ -625,8 +646,14 @@ const IPDPatientDetails = () => {
         patientDetails,
         fromTab,
         patient_data:
-          id === "opd"
-            ? transformAdmissionToPatient(patientDetails)
+          id === "opd" || id === "certificate"
+            ? transformAdmissionToPatient({
+                ...patientDetails,
+                patient_unique_id:
+                  patientDetails?.patient_unique_id ||
+                  patient_data?.patient_unique_id ||
+                  patientDetails?.details?.id,
+              })
             : patient_data,
         // patient_data: {
         //   pm_salutation: "",
@@ -1152,6 +1179,12 @@ const IPDPatientDetails = () => {
             shouldOpenAddAdvance={shouldOpenAddAdvance}
             onAddAdvanceDrawerOpened={() => setShouldOpenAddAdvance(false)}
           />
+        );
+      case "certificate":
+        return (
+          <div className="ipd-adm-assess-container-readable">
+            <CertificateDetails patient_data={certificatePatientData} />
+          </div>
         );
       default:
         return null;

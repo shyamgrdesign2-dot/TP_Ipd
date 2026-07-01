@@ -86,6 +86,7 @@ export const GB_IPD_DYNAMIC_DISCHARGE_HEADING = "ipd-dynamic-discharge-heading";
 export const GB_IPD_ENABLE_WARD_BED_MANAGEMENT = "ipd-enable-ward-management";
 export const GB_IPD_ENABLE_SNAP_RX = "ipd-enable-snap-rx";
 export const GB_IPD_ENABLE_VOICE_RX = "ipd-enable-voice-rx";
+export const GB_IPD_CERTIFICATE = "ipd-certificate";
 
 export const GYNAECOLOGY = "Gynaecology";
 export const PAEDIATRICS = "Paediatrics";

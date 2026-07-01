@@ -277,8 +277,8 @@ function MedicalCertificate() {
 
     useEffect(() => {
         if (certificate_data !== undefined) {
-            setTitle(certificate_data?.title);
-            setContent(certificate_data?.content);
+            setTitle(certificate_data?.title || '');
+            setContent(certificate_data?.content || '');
         } else {
             setTitle('');
             setContent('');
