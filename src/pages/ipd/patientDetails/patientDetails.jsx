@@ -123,7 +123,7 @@ const IPDPatientDetails = () => {
   );
   const { printSettings } = useSelector((state) => state.printSettings);
   const { activityLogs } = useSelector((state) => state.inPatients || {});
-  const { frequencyList, timingList } = useSelector((state) => state.doctors);
+  const { frequencyList, timingList, patientCertificateList } = useSelector((state) => state.doctors);
   const [open, setOpen] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [activeMenuItem, setActiveMenuItem] = useState("assessment");
@@ -143,6 +143,7 @@ const IPDPatientDetails = () => {
   const [user_id, setUserId] = useState(null);
   const [totalAdvanceBalance, setTotalAdvanceBalance] = useState(null);
   const [shouldOpenAddAdvance, setShouldOpenAddAdvance] = useState(false);
+  const [shouldOpenCertificateCreate, setShouldOpenCertificateCreate] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -275,6 +276,10 @@ const IPDPatientDetails = () => {
     //     isEditable: true,
     //   },
     // });
+  };
+
+  const handleCertificateCreateClick = () => {
+    setShouldOpenCertificateCreate(true);
   };
 
   const handleProgressNotesClick = () => {
@@ -488,6 +493,7 @@ const IPDPatientDetails = () => {
     crossReferral: handleAddCrossReferralClick,
     dischargeSummary: handleDischargeSummaryClick,
     billing: handleBillingClick,
+    certificate: handleCertificateCreateClick,
   };
 
   const patientDetailsMenu = () => {
@@ -1183,7 +1189,11 @@ const IPDPatientDetails = () => {
       case "certificate":
         return (
           <div className="ipd-adm-assess-container-readable">
-            <CertificateDetails patient_data={certificatePatientData} />
+            <CertificateDetails
+              patient_data={certificatePatientData}
+              openCreateDrawer={shouldOpenCertificateCreate}
+              onCreateDrawerOpened={() => setShouldOpenCertificateCreate(false)}
+            />
           </div>
         );
       default:
@@ -1201,11 +1211,15 @@ const IPDPatientDetails = () => {
 
   const canShowAddCTA = useMemo(() => {
     if (isOnlyViewMode) return false;
-    return (
-      IPD.PATIENT_DETAILS_MENU.find((item) => item.id === activeMenuItem)
-        ?.showAddCTA && isDataPresent
+    const menuItem = IPD.PATIENT_DETAILS_MENU.find(
+      (item) => item.id === activeMenuItem
     );
-  }, [activeMenuItem, isDataPresent]);
+    if (!menuItem?.showAddCTA || !isDataPresent) return false;
+    if (activeMenuItem === "certificate") {
+      return (patientCertificateList?.length ?? 0) > 0;
+    }
+    return true;
+  }, [activeMenuItem, isDataPresent, isOnlyViewMode, patientCertificateList]);
 
   const contentHeaderActions = () => {
     if (activeMenuItem === "billing") {

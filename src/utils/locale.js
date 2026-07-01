@@ -2836,6 +2836,8 @@ export const IPD = {
       name: "Certificate",
       mainHeading: "Certificate",
       icon: "certificateIcon",
+      showAddCTA: true,
+      ctaText: "Create Certificate",
       emptyStateText: (
         <>
           <br />

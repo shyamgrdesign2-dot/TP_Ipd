@@ -20,7 +20,7 @@ import visitEnd from '../../assets/images/end-visit.svg';
 import imgCloseVisit from '../../assets/images/close-visit.svg';
 import { EVENTS } from "../../utils/events";
 
-function CertificateDetails({ patient_data }) {
+function CertificateDetails({ patient_data, openCreateDrawer, onCreateDrawerOpened }) {
 
     const navigate = useNavigate();
 
@@ -37,10 +37,17 @@ function CertificateDetails({ patient_data }) {
 
     const [createCertificateDrawer, setCreateCertificateDrawer] = useState(false);
 
+    useEffect(() => {
+        if (openCreateDrawer) {
+            setCreateCertificateDrawer(true);
+            onCreateDrawerOpened?.();
+        }
+    }, [openCreateDrawer, onCreateDrawerOpened]);
+
 
     const handleCreateCertificateDrawer = useCallback(() => {
-        setCreateCertificateDrawer(!createCertificateDrawer)
-    }, [createCertificateDrawer]);
+        setCreateCertificateDrawer((prev) => !prev)
+    }, []);
 
     async function printContent(item) {
         await window.open(item?.certificate);
