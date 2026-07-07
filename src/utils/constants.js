@@ -8,6 +8,10 @@ import sunIcon from "../assets/images/sun.png";
 import cameraIcon from "../assets/images/camera.png";
 import cropIcon from "../assets/images/crop.png";
 
+/** Azure static assets root — keep in sync with $tp-assets-base in src/styles/variables.scss and ASSETS in src/assets.js */
+export const TP_ASSETS_BASE =
+  "https://pmdoctorportal.tatvacare.in/tp-assets/assets";
+
 export const PERSISTANT_STORAGE_KEY_AUTH_TOKEN =
   "persistant.storage.key.auth-token";
 export const PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN =
