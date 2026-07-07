@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from 'react-router-dom';
 // import { Container, Navbar, Nav, Dropdown } from "react-bootstrap";
-import { Col, Row, Select, Button, message, Spin, Input } from "antd";
+import { Alert, Col, Row, Select, Button, message, Spin, Input } from "antd";
 import { isMobile, browserName, osName } from "react-device-detect";
 import axios from 'axios';
 import { saveAs } from 'file-saver';
@@ -50,6 +50,7 @@ function CertificatePrintView() {
     const [numPages, setNumPages] = useState();
     const [printBlob, setPrintBlob] = useState(null);
     const [addEditFlag, setAddEditFlag] = useState(false);
+    const [certificateErrorBanner, setCertificateErrorBanner] = useState("");
 
     useEffect(() => {
         setDivWidth(divRef.current?.offsetWidth);
@@ -157,19 +158,34 @@ function CertificatePrintView() {
     };
 
     const onEditCertificateClick = async () => {
+        setCertificateErrorBanner("");
+        if (!patient_data?.patient_unique_id || !state?.tcu_id) {
+            setCertificateErrorBanner("Unable to create certificate for this patient, Please contact support");
+            return;
+        }
         var sendData = {
             patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
             tcu_id: state.tcu_id
         }
         const action = await dispatch(viewPatientCertificate(sendData));
         if (action.meta.requestStatus === "fulfilled") {
+            if (action.payload == null || typeof action.payload !== "object") {
+                setCertificateErrorBanner("Unable to create certificate for this patient, Please contact support");
+                return;
+            }
             navigate("/certificate", { replace: true, state: { patient_data: patient_data, certificate_data: action.payload } })
         } else {
+            setCertificateErrorBanner("Unable to create certificate for this patient, Please contact support");
             errorMessage(action.error)
         }
     };
 
     const configurePrintUrl = async () => {
+        setCertificateErrorBanner("");
+        if (!patient_data?.patient_unique_id || !state?.tcu_id) {
+            setCertificateErrorBanner("Unable to create certificate for this patient, Please contact support");
+            return;
+        }
         var sendData = {
             patient_unique_id: patient_data !== undefined ? patient_data.patient_unique_id : 0,
             tcu_id: state.tcu_id,
@@ -177,8 +193,13 @@ function CertificatePrintView() {
         }
         const action = await dispatch(viewPatientCertificate(sendData));
         if (action.meta.requestStatus === "fulfilled") {
+            if (action.payload == null || typeof action.payload !== "object") {
+                setCertificateErrorBanner("Unable to create certificate for this patient, Please contact support");
+                return;
+            }
             navigate('/configure_print_setting', { state: { ...state, certificateData: action.payload } })
         } else {
+            setCertificateErrorBanner("Unable to create certificate for this patient, Please contact support");
             errorMessage(action.error)
         }
     }
@@ -186,6 +207,15 @@ function CertificatePrintView() {
     return (
         <>
             <HeaderCertificatePrint state={state} viewable={viewable} />
+            {certificateErrorBanner ? (
+                <Alert
+                    banner
+                    type="error"
+                    message={certificateErrorBanner}
+                    closable
+                    onClose={() => setCertificateErrorBanner("")}
+                />
+            ) : null}
             <div className={`${isMobile ? 'p-0' : ''} w-100 bg-body wrapper2 prescription-wrapper`}>
                 {/* <img src={hey} alt="Hey" className='me-3 hey' /> */}
                 <Row gutter={{ xl: 40, lg: 0 }} justify="center">
