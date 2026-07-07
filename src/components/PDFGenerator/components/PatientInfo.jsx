@@ -228,6 +228,20 @@ const PatientInfo = ({
         </View>
       ) : null}
 
+      {documentType === "otNotes" ? (
+        <View
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            marginBottom: 10,
+          }}
+          fixed
+        >
+          <Text style={styles.title}>OT Notes</Text>
+        </View>
+      ) : null}
+
       <View style={styles.outerContainer} fixed={showInfoOnAllPages}>
         <View style={styles.topBorder} />
         {(showInfoOnAllPages || showInfoOnFirstPageOnly) &&
