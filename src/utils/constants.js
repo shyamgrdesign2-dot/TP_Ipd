@@ -8,6 +8,10 @@ import sunIcon from "../assets/images/sun.png";
 import cameraIcon from "../assets/images/camera.png";
 import cropIcon from "../assets/images/crop.png";
 
+/** Azure static assets root — keep in sync with $tp-assets-base in src/styles/variables.scss and ASSETS in src/assets.js */
+export const TP_ASSETS_BASE =
+  "https://pmdoctorportal.tatvacare.in/tp-assets/assets";
+
 export const PERSISTANT_STORAGE_KEY_AUTH_TOKEN =
   "persistant.storage.key.auth-token";
 export const PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN =
@@ -86,6 +90,7 @@ export const GB_IPD_DYNAMIC_DISCHARGE_HEADING = "ipd-dynamic-discharge-heading";
 export const GB_IPD_ENABLE_WARD_BED_MANAGEMENT = "ipd-enable-ward-management";
 export const GB_IPD_ENABLE_SNAP_RX = "ipd-enable-snap-rx";
 export const GB_IPD_ENABLE_VOICE_RX = "ipd-enable-voice-rx";
+export const GB_IPD_CERTIFICATE = "ipd-certificate";
 
 export const GYNAECOLOGY = "Gynaecology";
 export const PAEDIATRICS = "Paediatrics";

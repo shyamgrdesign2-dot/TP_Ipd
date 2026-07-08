@@ -85,6 +85,7 @@ import bedSecondaryIcon from "./bedSecondary.svg";
 import morePrimaryIcon from "./more-primary.svg";
 import whatsappPrimaryIcon from "./whatsapp-primary.svg";
 import uploadIcon from "./upload.svg";
+import certificateIcon from "./certificate-icon.svg";
 
 // Icon exports
 export const defaultIcons = {
@@ -172,4 +173,5 @@ export const defaultIcons = {
   morePrimaryIcon,
   whatsappPrimaryIcon,
   uploadIcon,
+  certificateIcon,
 };

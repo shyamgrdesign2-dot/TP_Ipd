@@ -4,6 +4,7 @@ import Card from 'react-bootstrap/Card';
 import moment from "moment";
 import { useNavigate } from 'react-router-dom';
 import { isChrome, isSafari } from "react-device-detect";
+import axios from "axios";
 
 import { useSelector, useDispatch } from "react-redux";
 
@@ -19,8 +20,9 @@ import { MESSAGE_KEY } from "../../utils/constants";
 import visitEnd from '../../assets/images/end-visit.svg';
 import imgCloseVisit from '../../assets/images/close-visit.svg';
 import { EVENTS } from "../../utils/events";
+import { renderCertificatePayloadToBlob } from "../../utils/certificatePrintPayload";
 
-function CertificateDetails({ patient_data }) {
+function CertificateDetails({ patient_data, openCreateDrawer, onCreateDrawerOpened }) {
 
     const navigate = useNavigate();
 
@@ -37,13 +39,91 @@ function CertificateDetails({ patient_data }) {
 
     const [createCertificateDrawer, setCreateCertificateDrawer] = useState(false);
 
+    useEffect(() => {
+        if (openCreateDrawer) {
+            setCreateCertificateDrawer(true);
+            onCreateDrawerOpened?.();
+        }
+    }, [openCreateDrawer, onCreateDrawerOpened]);
+
 
     const handleCreateCertificateDrawer = useCallback(() => {
-        setCreateCertificateDrawer(!createCertificateDrawer)
-    }, [createCertificateDrawer]);
+        setCreateCertificateDrawer((prev) => !prev)
+    }, []);
+
+    const toJsonOutputUrl = (url) => {
+        if (!url) return url;
+        try {
+            const urlObj = new URL(url, window.location.origin);
+            urlObj.searchParams.set("output", "json");
+            return urlObj.toString();
+        } catch (e) {
+            const hasOutput = /(?:[?&])output=/.test(url);
+            if (hasOutput) {
+                return url.replace(/([?&])output=[^&]*/g, "$1output=json");
+            }
+            return `${url}${url.includes("?") ? "&" : "?"}output=json`;
+        }
+    };
 
     async function printContent(item) {
-        await window.open(item?.certificate);
+        const printUrl = item?.certificate;
+        if (!printUrl) {
+            return;
+        }
+
+        const popup = window.open("", "_blank");
+        if (popup) {
+            popup.document.title = "Generating Certificate";
+            popup.document.body.innerHTML =
+                "<div style='font-family: sans-serif; padding: 20px;'>Generating Certificate PDF...</div>";
+        }
+
+        const messageKey = `certificate-print-${item?.tcu_id || Date.now()}`;
+        message.open({
+            key: messageKey,
+            type: "loading",
+            content: "Generating certificate...",
+            duration: 0,
+        });
+
+        try {
+            const response = await axios.get(toJsonOutputUrl(printUrl));
+            const payload = response?.data?.data;
+            if (!payload) {
+                throw new Error("Certificate payload missing.");
+            }
+
+            const blob = await renderCertificatePayloadToBlob(payload);
+            if (!blob) {
+                throw new Error("Failed to generate certificate PDF blob.");
+            }
+
+            const blobUrl = URL.createObjectURL(blob);
+            if (popup) {
+                popup.location.href = blobUrl;
+            } else {
+                window.open(blobUrl, "_blank");
+            }
+            setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+
+            message.open({
+                key: messageKey,
+                type: "success",
+                content: "Certificate ready.",
+                duration: 1.5,
+            });
+        } catch (error) {
+            if (popup && !popup.closed) {
+                popup.close();
+            }
+            message.open({
+                key: messageKey,
+                type: "error",
+                content: "Failed to generate certificate.",
+                duration: 3,
+            });
+        }
     };
 
     async function printInAppContent(item) {

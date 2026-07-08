@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-import { Button, Drawer, Input, message } from 'antd';
+import { Alert, Button, Drawer, Input, message } from 'antd';
 import { Container, Navbar, Row, Col } from 'react-bootstrap';
 import CommonModal from '../common/CommonModal';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -39,6 +39,7 @@ function MedicalCertificate() {
 
     const [createCertificateDrawer, setCreateCertificateDrawer] = useState(false);
     const [isBackModalOpen, setIsBackModalOpen] = useState(false);
+    const [certificateErrorBanner, setCertificateErrorBanner] = useState("");
 
     // Function to generate a random ID
     const generateRandomId = () => {
@@ -277,8 +278,8 @@ function MedicalCertificate() {
 
     useEffect(() => {
         if (certificate_data !== undefined) {
-            setTitle(certificate_data?.title);
-            setContent(certificate_data?.content);
+            setTitle(certificate_data?.title || '');
+            setContent(certificate_data?.content || '');
         } else {
             setTitle('');
             setContent('');
@@ -444,6 +445,7 @@ function MedicalCertificate() {
     }, [title]);
 
     const onPatientCertificateClick = async () => {
+        setCertificateErrorBanner("");
         const clinic_name = getClinicName(profile?.hospital_data);
         window.Moengage.track_event("TP_Certificate_created", {
             clinic_name,
@@ -462,6 +464,18 @@ function MedicalCertificate() {
             sendData['tcu_id'] = certificate_data?.tcu_id
         }
         const action = certificate_data?.tcu_id !== undefined ? await dispatch(editPatientCertificate(sendData)) : await dispatch(addPatientCertificate(sendData))
+        const isInvalidCertificatePayload =
+            action.meta.requestStatus === "fulfilled" &&
+            (action.payload == null ||
+                typeof action.payload !== "object" ||
+                action.payload === "invalid data" ||
+                (!action.payload?.certificate && !action.payload?.tcu_id));
+
+        if (isInvalidCertificatePayload) {
+            setCertificateErrorBanner("Unable to create certificate for this patient, Please contact support");
+            return;
+        }
+
         if (action.meta.requestStatus === "fulfilled") {
             message.open({
                 key: MESSAGE_KEY,
@@ -490,6 +504,7 @@ function MedicalCertificate() {
                 }
             })
         } else {
+            setCertificateErrorBanner("Unable to create certificate for this patient, Please contact support");
             errorMessage(action.error)
         }
     }
@@ -562,6 +577,15 @@ function MedicalCertificate() {
                     </Row>
                 </Container>
             </Navbar>
+            {certificateErrorBanner ? (
+                <Alert
+                    banner
+                    type="error"
+                    message={certificateErrorBanner}
+                    closable
+                    onClose={() => setCertificateErrorBanner("")}
+                />
+            ) : null}
             <div className="bg-body p-3" style={{ height: 'calc(100vh - 60px)' }}>
                 <Input allowClear className="popinput mb-3" onChange={onTitleChange} value={title} placeholder="Certificate Title" />
                 <JoditEditor

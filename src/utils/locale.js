@@ -2831,6 +2831,20 @@ export const IPD = {
         </>
       ),
     },
+    {
+      id: "certificate",
+      name: "Certificate",
+      mainHeading: "Certificate",
+      icon: "certificateIcon",
+      showAddCTA: true,
+      ctaText: "Create Certificate",
+      emptyStateText: (
+        <>
+          <br />
+          <span>No certificate created for this patient.</span>
+        </>
+      ),
+    },
   ].filter((item) => !(isZydus() && item.id === "billing")),
   VITALS: [
     {

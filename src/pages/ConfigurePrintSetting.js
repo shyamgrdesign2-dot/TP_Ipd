@@ -26,6 +26,7 @@ import { getModules } from "../redux/customModuleSlice";
 import moment from "moment";
 import { fetchBillsByPatient, fetchPatientWalletBalance, listAdvancedDepositByPatient } from "./opdBilling/service";
 import { getCarePlanAssignments } from "./smartSync/services/carePlanService";
+import { setCurrentSessionRx } from "../redux/obstetricSlice";
 
 function ConfigurePrintSetting() {
 
@@ -57,6 +58,14 @@ function ConfigurePrintSetting() {
 
     const {customModules} = useSelector((state) => state.customModules);
     const dispatch = useDispatch();
+
+    useEffect(() => {
+        // Prevent stale preview blob leakage across print flows.
+        dispatch(setCurrentSessionRx(null));
+        return () => {
+            dispatch(setCurrentSessionRx(null));
+        };
+    }, [dispatch]);
 
     // Extract lab params data that was passed from PrescriptionPrintView
     const labParamsData = caseManagerData?.labParamsData || [];

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Font, Page, Text, View, Image, Document, StyleSheet } from '@react-pdf/renderer';
-import { NORMAL, WHATSAPP } from '../../utils/constants';
+import { NORMAL, WHATSAPP, TP_ASSETS_BASE } from '../../utils/constants';
 import Html from 'react-pdf-html';
 
 const PX_TO_PT = 0.75
@@ -9,13 +9,13 @@ const PX_TO_PT = 0.75
 Font.register({
     family: 'Roboto',
     fonts: [
-        { src: `${process.env.siteUrl}/src/react/print-fonts/Roboto-Regular.ttf`, fontWeight: 400 }, // Regular
-        { src: `${process.env.siteUrl}/src/react/print-fonts/Roboto-Medium.ttf`, fontWeight: 500 }, // Medium
-        { src: `${process.env.siteUrl}/src/react/print-fonts/Roboto-Bold.ttf`, fontWeight: 700 }, // Bold
+        { src: `${TP_ASSETS_BASE}/fonts/print-fonts/Roboto-Regular.ttf`, fontWeight: 400 }, // Regular
+        { src: `${TP_ASSETS_BASE}/fonts/print-fonts/Roboto-Medium.ttf`, fontWeight: 500 }, // Medium
+        { src: `${TP_ASSETS_BASE}/fonts/print-fonts/Roboto-Bold.ttf`, fontWeight: 700 }, // Bold
 
-        { src: `${process.env.siteUrl}/src/react/print-fonts/Roboto-Italic.ttf`, fontStyle: 'italic' }, // Italic
-        { src: `${process.env.siteUrl}/src/react/print-fonts/Roboto-MediumItalic.ttf`, fontWeight: 500, fontStyle: 'italic' }, // Medium-Italic
-        { src: `${process.env.siteUrl}/src/react/print-fonts/Roboto-BoldItalic.ttf`, fontWeight: 700, fontStyle: 'italic' }, // Bold-Italic
+        { src: `${TP_ASSETS_BASE}/fonts/print-fonts/Roboto-Italic.ttf`, fontStyle: 'italic' }, // Italic
+        { src: `${TP_ASSETS_BASE}/fonts/print-fonts/Roboto-MediumItalic.ttf`, fontWeight: 500, fontStyle: 'italic' }, // Medium-Italic
+        { src: `${TP_ASSETS_BASE}/fonts/print-fonts/Roboto-BoldItalic.ttf`, fontWeight: 700, fontStyle: 'italic' }, // Bold-Italic
     ],
 });
 

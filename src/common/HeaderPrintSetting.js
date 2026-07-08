@@ -20,6 +20,7 @@ import playIcons from '../assets/images/tube-icon.svg';
 
 import PrintSettingsContext from '../context/PrintSettingsContext';
 import { addModule } from '../redux/customModuleSlice';
+import { setCurrentSessionRx } from '../redux/obstetricSlice';
 import { getDecodedToken } from '../utils/localStorage';
 import { env } from '../EnvironmentConfig';
 import { GB_ZYDUS_USER } from '../utils/constants';
@@ -28,6 +29,7 @@ import { updatePatientDefaultLanguage } from '../api/services/DefaultLanguageSer
 function HeaderPrintSetting({ defaultPrintSettings }) {
     const navigate = useNavigate();
     const { state } = useLocation();
+    const previousPage = state?.from;
 
     const isZydusUserAccessableFromGB = useFeatureIsOn(GB_ZYDUS_USER);
     const decodedToken = getDecodedToken();
@@ -147,7 +149,11 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
             const action = await dispatch(savePrintsettings(sendData));
 
             if (action.meta.requestStatus === "fulfilled") {
-                navigate("/prescription_print_view", { replace: true, state: { ...state, currentSessionRx: null } });
+                if (previousPage) {
+                    navigate(previousPage, { replace: true, state: { ...state, currentSessionRx: null } });
+                } else {
+                    navigate("/prescription_print_view", { replace: true, state: { ...state, currentSessionRx: null } });
+                }
             } else {
                 errorMessage(action.error)
             }
@@ -164,7 +170,11 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
         let update_json = { ...printSettings }
         delete update_json['qrcode']
         if (JSON.stringify(defaultPrintSettings) == JSON.stringify(update_json)) {
-            navigate("/prescription_print_view", { replace: true, state: { ...state, currentSessionRx: currentSessionRx } });
+            if (previousPage) {
+                navigate(previousPage, { replace: true, state: { ...state, currentSessionRx: currentSessionRx } });
+            } else {
+                navigate("/prescription_print_view", { replace: true, state: { ...state, currentSessionRx: currentSessionRx } });
+            }
         } else {
             setFlag(1)
             showHideBackModal()
@@ -177,9 +187,49 @@ function HeaderPrintSetting({ defaultPrintSettings }) {
 
     const onYesLeaveClick = async() => {
         if (flag === 1) {
-            navigate("/prescription_print_view", { replace: true, state: { ...state, currentSessionRx: null } });
+            if (previousPage) {
+                navigate(previousPage, { replace: true, state: { ...state, currentSessionRx: null } });
+            } else {
+                navigate("/prescription_print_view", { replace: true, state: { ...state, currentSessionRx: null } });
+            }
         } else if (flag === 3) {
-            navigate("/prescription_print_view", { replace: true, state: { ...state, currentSessionRx: currentSessionRx } });
+            // Hydrate blob URL to Blob so preview pages get a valid PDF (no revoked blob URL)
+            // Prefer live preview blob from redux (updated by Quixote/QuixoteCertificate).
+            // Route state is fallback only.
+            let sessionRxToPass = currentSessionRx || state?.currentSessionRx;
+            if (
+                typeof sessionRxToPass === "string" &&
+                sessionRxToPass.startsWith("blob:")
+            ) {
+                try {
+                    const res = await fetch(sessionRxToPass);
+                    const blob = await res.blob();
+                    sessionRxToPass = blob;
+                } catch (err) {
+                    console.error("Failed to hydrate session Rx blob before navigation", err);
+                }
+            }
+            if (
+                !sessionRxToPass &&
+                typeof state?.currentSessionRx === "string" &&
+                state.currentSessionRx.startsWith("blob:")
+            ) {
+                try {
+                    const res = await fetch(state.currentSessionRx);
+                    const blob = await res.blob();
+                    sessionRxToPass = blob;
+                } catch (err) {
+                    console.error("Failed to hydrate session Rx blob from state", err);
+                }
+            }
+            // Session blob is now passed through route state; clear global copy.
+            dispatch(setCurrentSessionRx(null));
+
+            if (previousPage) {
+                navigate(previousPage, { replace: true, state: { ...state, currentSessionRx: sessionRxToPass, fromConfigurePrintSetting: true } });
+            } else {
+                navigate("/prescription_print_view", { replace: true, state: { ...state, currentSessionRx: sessionRxToPass } });
+            }
         } else {
             const action = await dispatch(getDefaultPrintsettings({ default: true }));
             if(action.meta.requestStatus === "fulfilled") {
