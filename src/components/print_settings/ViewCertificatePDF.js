@@ -19,6 +19,8 @@ Font.register({
     ],
 });
 
+Font.registerHyphenationCallback((word) => [word]);
+
 const styles = StyleSheet.create({
     mainTitle: {
         fontSize: PX_TO_PT * 18,
@@ -55,8 +57,16 @@ const ViewCertificatePDF = ({ mode = NORMAL, ...props }) => {
     };
 
     const convertInputToLabel = (content) => {
-        const transformedData = transformInputToLabel(content);
-        return transformedData
+        let transformedData = transformInputToLabel(content || "");
+
+        transformedData = transformedData.replace(
+            /font-family:\s*['"]?[^;'"]+['"]?/gi,
+            'font-family: Roboto'
+        );
+
+        transformedData = transformedData.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
+
+        return transformedData;
     }
 
     return (
@@ -260,8 +270,14 @@ const ViewCertificatePDF = ({ mode = NORMAL, ...props }) => {
                         {`<html>
                             <body>
                                 <style>
+                                    * {
+                                        font-family: Roboto !important;
+                                    }
                                     body {
-                                        font-family: Roboto; 
+                                        font-family: Roboto !important; 
+                                    }
+                                    p, div, span, label, strong, em, h1, h2, h3, h4, h5, h6 {
+                                        font-family: Roboto !important;
                                     }
                                     label {
                                         font-weight: 500;
