@@ -13,14 +13,24 @@ const forPt = (pt) => (pt ? ` for **${pt}**` : "");
 const worstTier = (tiers) => (tiers.includes("critical") ? "critical" : tiers.includes("warning") ? "warning" : null);
 
 /* ── Vitals ──────────────────────────────────────────────────────────────────── */
+const VITAL_NORMS = { sbp: [90, 140], hr: [60, 100], spo2: [95, 100], temp: [36.1, 37.5], rr: [12, 20] };
+function vitalArrow(key, val) {
+  const n = VITAL_NORMS[key];
+  if (!n || val == null) return "";
+  const v = Number(val);
+  if (v > n[1]) return " ↑";
+  if (v < n[0]) return " ↓";
+  return "";
+}
+
 function vitalsItems(v) {
   if (!v) return { items: [], tiers: [] };
   const defs = [
-    { key: "BP", value: `${v.systolicBP}/${v.diastolicBP}`, tier: tierFor("sbp", v.systolicBP) },
-    { key: "HR", value: `${v.heartRate}`, tier: tierFor("hr", v.heartRate) },
-    { key: "SpO2", value: `${v.spo2}%`, tier: tierFor("spo2", v.spo2) },
-    { key: "Temp", value: `${v.temperature} C`, tier: tierFor("temp", v.temperature) },
-    { key: "RR", value: `${v.respiratoryRate}`, tier: tierFor("rr", v.respiratoryRate) },
+    { key: "BP", value: `${v.systolicBP}/${v.diastolicBP}${vitalArrow("sbp", v.systolicBP)}`, tier: tierFor("sbp", v.systolicBP) },
+    { key: "HR", value: `${v.heartRate}${vitalArrow("hr", v.heartRate)}`, tier: tierFor("hr", v.heartRate) },
+    { key: "SpO2", value: `${v.spo2}%${vitalArrow("spo2", v.spo2)}`, tier: tierFor("spo2", v.spo2) },
+    { key: "Temp", value: `${v.temperature} C${vitalArrow("temp", v.temperature)}`, tier: tierFor("temp", v.temperature) },
+    { key: "RR", value: `${v.respiratoryRate}${vitalArrow("rr", v.respiratoryRate)}`, tier: tierFor("rr", v.respiratoryRate) },
   ];
   return {
     items: defs.map((d) => ({ key: d.key, value: d.value, tone: d.tier || undefined })),
@@ -181,7 +191,7 @@ function buildFluidCard(e, pt) {
 function buildLabsCard(e, pt) {
   const labs = e?.labs || [];
   const anyCritical = labs.some((l) => l.critical);
-  const rows = labs.map((l) => [l.name, `${l.flag === "low" ? "v " : l.flag === "high" ? "^ " : ""}${l.value}${l.unit ? ` ${l.unit}` : ""}`, dash(l.refRange)]);
+  const rows = labs.map((l) => [l.name, `${l.value}${l.unit ? " " + l.unit : ""} ${l.flag === "high" ? "↑" : l.flag === "low" ? "↓" : ""}`, dash(l.refRange)]);
   return {
     intro: labs.length ? `**${labs.length} flagged lab result${labs.length === 1 ? "" : "s"}**${forPt(pt)} in the last 24h.` : "No flagged lab results.",
     config: {
@@ -293,46 +303,30 @@ function buildSummaryCard(e, patient, timeline) {
   content.push({ type: "text", variant: "heading", body: "Vitals" });
   if (vItems.length) content.push({ type: "keyvalue", items: vItems });
 
-  content.push({ type: "text", variant: "heading", body: "Orders and Labs" });
-  const glance = [];
-  if (net != null) glance.push({ key: "Fluid net", value: `${net > 0 ? "+" : ""}${net} ml`, tone: fTier || undefined });
-  glance.push({ key: "MAR", value: marBad.length ? `${marBad.length} held/missed` : `${mar.length} on track`, tone: marBad.length ? "warning" : undefined });
-  glance.push({ key: "Labs", value: `${labs.length} flagged${critLabs.length ? `, ${critLabs.length} crit` : ""}`, tone: critLabs.length ? "critical" : undefined });
-  content.push({ type: "keyvalue", items: glance });
+  content.push({ type: "text", variant: "heading", body: "Orders" });
+  const orderItems = [];
+  if (net != null) orderItems.push({ key: "Fluid net", value: `${net > 0 ? "+" : ""}${net} ml`, tone: fTier || undefined });
+  orderItems.push({ key: "MAR", value: marBad.length ? `${marBad.length} held/missed` : `${mar.length} on track`, tone: marBad.length ? "warning" : undefined });
+  content.push({ type: "keyvalue", items: orderItems });
+
+  if (labs.length) {
+    content.push({ type: "text", variant: "heading", body: "Flagged Labs" });
+    const labItems = labs.slice(0, 4).map((l) => {
+      const arrow = l.flag === "high" ? " ↑" : l.flag === "low" ? " ↓" : "";
+      return { key: l.name, value: `${l.value}${l.unit ? " " + l.unit : ""}${arrow}`, tone: l.critical ? "critical" : "warning" };
+    });
+    content.push({ type: "keyvalue", items: labItems });
+  }
 
   if (riskItems.length) {
     content.push({ type: "text", variant: "heading", body: "Risk Scores" });
     content.push({ type: "keyvalue", items: riskItems.map(({ key, value, tone }) => ({ key, value, tone })) });
   }
-  // Latest progress note since the doctor last rounded - whichever of the nursing
-  // vs MO note is the most recent. Only that single note is surfaced (the rest live
-  // behind the progress-notes pills), so the snapshot stays a 5-second read.
-  const anchor = timeline?.lastConsultantNoteAt || null;
-  const sinceNotes = [...(timeline?.nursing || []), ...(timeline?.mo || [])]
-    .filter((n) => !anchor || !n.recordedAt || new Date(n.recordedAt) >= new Date(anchor))
-    .sort((a, b) => new Date(b.recordedAt || 0) - new Date(a.recordedAt || 0));
-  const latest = sinceNotes[0];
-  if (latest) {
-    content.push({ type: "text", variant: "heading", body: "Latest Note" });
-    const kindLabel = latest.role === "MO" ? "MO note" : "Nursing note";
-    const who = latest.author || latest.recordedBy || "";
-    const when = latest.recordedAt ? toDateTimeLabel(latest.recordedAt) : "";
-    const body = latest.summary || latest.nursingPlan || latest.generalCondition || "";
-    const noteItems = [];
-    noteItems.push({ key: "Type", value: kindLabel });
-    if (who) noteItems.push({ key: "By", value: who });
-    if (when) noteItems.push({ key: "At", value: when });
-    content.push({ type: "keyvalue", items: noteItems });
-    if (body) content.push({ type: "deflist", items: [{ key: "Summary", value: body }] });
-  } else {
-    const lastNote = (e?.notes || [])[0];
-    if (lastNote) {
-      const overnightBody = lastNote.nursingPlan || lastNote.generalCondition || "";
-      if (overnightBody) {
-        content.push({ type: "text", variant: "heading", body: "Latest Note" });
-        content.push({ type: "deflist", items: [{ key: "Overnight", value: overnightBody }] });
-      }
-    }
+
+  // Note about data provenance instead of inlining note content
+  const noteCount = [...(timeline?.nursing || []), ...(timeline?.mo || [])].length;
+  if (noteCount) {
+    content.push({ type: "text", body: `Based on ${noteCount} nursing and MO progress note${noteCount === 1 ? "" : "s"} since your last visit.` });
   }
   // Cross-referrals
   const refs = (e?.crossReferrals || []).filter((r) => !r.cancel);
