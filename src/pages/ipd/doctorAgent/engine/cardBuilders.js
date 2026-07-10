@@ -278,17 +278,25 @@ function buildSummaryCard(e, patient, timeline) {
   if (p.admittedOn) meta.push({ key: "Stay", value: dayOfStay(p.admittedOn) });
 
   const content = [];
-  if (accent) content.push({ type: "banner", tone: accent, icon: accent === "critical" ? "danger" : "info-circle", text: accent === "critical" ? "Deteriorating - critical values present. Review the flags below." : "Some values are outside the normal range." });
+  if (accent) content.push({ type: "banner", tone: accent, icon: accent === "critical" ? "danger" : "info-circle", text: accent === "critical" ? "Deteriorating. Critical values present. Review the flags below." : "Some values are outside the normal range." });
+  if (flags.length) content.push({ type: "text", variant: "alert", body: `Red flags: ${flags.join("  ·  ")}` });
+
   if (meta.length) content.push({ type: "keyvalue", items: meta });
+
+  content.push({ type: "text", variant: "heading", body: "Vitals" });
   if (vItems.length) content.push({ type: "keyvalue", items: vItems });
-  // At-a-glance row: fluid net · MAR exceptions (what the doctor cares about) · labs
+
+  content.push({ type: "text", variant: "heading", body: "Orders and Labs" });
   const glance = [];
   if (net != null) glance.push({ key: "Fluid net", value: `${net > 0 ? "+" : ""}${net} ml`, tone: fTier || undefined });
   glance.push({ key: "MAR", value: marBad.length ? `${marBad.length} held/missed` : `${mar.length} on track`, tone: marBad.length ? "warning" : undefined });
   glance.push({ key: "Labs", value: `${labs.length} flagged${critLabs.length ? `, ${critLabs.length} crit` : ""}`, tone: critLabs.length ? "critical" : undefined });
   content.push({ type: "keyvalue", items: glance });
-  if (riskItems.length) content.push({ type: "keyvalue", items: riskItems.map(({ key, value, tone }) => ({ key, value, tone })) });
-  if (flags.length) content.push({ type: "text", variant: "alert", body: `Red flags: ${flags.join("  ·  ")}` });
+
+  if (riskItems.length) {
+    content.push({ type: "text", variant: "heading", body: "Risk Scores" });
+    content.push({ type: "keyvalue", items: riskItems.map(({ key, value, tone }) => ({ key, value, tone })) });
+  }
   // Latest progress note since the doctor last rounded - whichever of the nursing
   // vs MO note is the most recent. Only that single note is surfaced (the rest live
   // behind the progress-notes pills), so the snapshot stays a 5-second read.
@@ -298,31 +306,52 @@ function buildSummaryCard(e, patient, timeline) {
     .sort((a, b) => new Date(b.recordedAt || 0) - new Date(a.recordedAt || 0));
   const latest = sinceNotes[0];
   if (latest) {
+    content.push({ type: "text", variant: "heading", body: "Latest Note" });
     const kindLabel = latest.role === "MO" ? "MO note" : "Nursing note";
     const who = latest.author || latest.recordedBy || "";
     const when = latest.recordedAt ? toDateTimeLabel(latest.recordedAt) : "";
-    const meta = [who, when].filter(Boolean).join(", ");
     const body = latest.summary || latest.nursingPlan || latest.generalCondition || "";
-    content.push({ type: "text", body: `Latest ${kindLabel}${meta ? ` (${meta})` : ""}: ${body}` });
+    const noteItems = [];
+    noteItems.push({ key: "Type", value: kindLabel });
+    if (who) noteItems.push({ key: "By", value: who });
+    if (when) noteItems.push({ key: "At", value: when });
+    content.push({ type: "keyvalue", items: noteItems });
+    if (body) content.push({ type: "deflist", items: [{ key: "Summary", value: body }] });
   } else {
     const lastNote = (e?.notes || [])[0];
-    if (lastNote) content.push({ type: "text", body: `Overnight: ${lastNote.nursingPlan || lastNote.generalCondition}` });
+    if (lastNote) {
+      const overnightBody = lastNote.nursingPlan || lastNote.generalCondition || "";
+      if (overnightBody) {
+        content.push({ type: "text", variant: "heading", body: "Latest Note" });
+        content.push({ type: "deflist", items: [{ key: "Overnight", value: overnightBody }] });
+      }
+    }
   }
-  // Cross-referrals: surface pending referrals in the snapshot
+  // Cross-referrals
   const refs = (e?.crossReferrals || []).filter((r) => !r.cancel);
-  const pendingRefs = refs.filter((r) => !(r.crossReferral?.consultantNotes || []).length);
-  if (pendingRefs.length) {
-    const refNames = pendingRefs.map((r) => r.crossReferral?.referralInformation?.referringTo?.name).filter(Boolean);
-    content.push({ type: "text", variant: "alert", body: `Pending referral${pendingRefs.length > 1 ? "s" : ""}: ${refNames.join(", ") || "awaiting review"}` });
-  } else if (refs.length) {
-    content.push({ type: "text", body: `${refs.length} referral${refs.length > 1 ? "s" : ""} - all reviewed.` });
+  if (refs.length) {
+    content.push({ type: "text", variant: "heading", body: "Referrals" });
+    const refItems = [];
+    refs.forEach((r) => {
+      const to = r.crossReferral?.referralInformation?.referringTo || {};
+      const hasNotes = (r.crossReferral?.consultantNotes || []).length > 0;
+      refItems.push({ key: to.speciality || "Referral", value: `${to.name || "Pending"}`, tone: hasNotes ? undefined : "warning" });
+    });
+    content.push({ type: "keyvalue", items: refItems });
   }
 
-  // OT notes: show post-op status if any
+  // OT / Post-op
   const ot = e?.otNotes || [];
   if (ot.length) {
-    const proc = ot.map((n) => { const sd = n.otNotes?.surgeryDetails || {}; return Array.isArray(sd.procedureName) ? sd.procedureName[0] : sd.procedureName; }).filter(Boolean);
-    content.push({ type: "text", body: `Post-op: ${proc.join(", ") || "surgical record on file"}${ot[0]?.otNotes?.surgeryDetails?.surgeryDate ? ` (${ot[0].otNotes.surgeryDetails.surgeryDate})` : ""}` });
+    content.push({ type: "text", variant: "heading", body: "Post-op" });
+    const otItems = [];
+    ot.forEach((n) => {
+      const sd = n.otNotes?.surgeryDetails || {};
+      const proc = Array.isArray(sd.procedureName) ? sd.procedureName[0] : sd.procedureName;
+      if (proc) otItems.push({ key: "Procedure", value: proc });
+      if (sd.surgeryDate) otItems.push({ key: "Date", value: sd.surgeryDate });
+    });
+    if (otItems.length) content.push({ type: "keyvalue", items: otItems });
   }
 
   if (!content.length) content.push({ type: "text", body: "No nursing data recorded for this patient yet." });
@@ -555,28 +584,32 @@ function buildCrossReferralCard(e, pt) {
   const active = refs.filter((r) => !r.cancel);
   const content = [];
 
-  active.forEach((r) => {
+  active.forEach((r, idx) => {
     const info = r.crossReferral?.referralInformation || {};
     const to = info.referringTo || {};
-    const items = [];
-    if (to.name) items.push({ key: "Referred to", value: `${to.name}${to.speciality ? ` (${to.speciality})` : ""}` });
-    if (info.referringDepartment) items.push({ key: "From", value: info.referringDepartment });
-    if (info.referralDate) items.push({ key: "Date", value: info.referralDate });
-    const reason = slateToText(info.reasonForReferral);
-    if (reason) items.push({ key: "Reason", value: reason.length > 150 ? reason.substring(0, 147) + "..." : reason });
-
     const consNotes = r.crossReferral?.consultantNotes || [];
     const status = consNotes.length ? "Reviewed" : "Pending";
-    items.push({ key: "Status", value: status, tone: consNotes.length ? "success" : "warning" });
+
+    if (idx > 0) content.push({ type: "text", variant: "heading", body: `Referral ${idx + 1}` });
+
+    const headerItems = [];
+    if (to.name) headerItems.push({ key: "Referred to", value: `${to.name}${to.speciality ? ` (${to.speciality})` : ""}` });
+    if (info.referringDepartment) headerItems.push({ key: "From", value: info.referringDepartment });
+    if (info.referralDate) headerItems.push({ key: "Date", value: info.referralDate });
+    headerItems.push({ key: "Status", value: status, tone: consNotes.length ? "success" : "warning" });
+    content.push({ type: "keyvalue", items: headerItems });
+
+    const reason = slateToText(info.reasonForReferral);
+    if (reason) content.push({ type: "deflist", items: [{ key: "Reason", value: reason }] });
 
     if (consNotes.length) {
       const latest = consNotes[consNotes.length - 1];
+      const noteItems = [];
       const impression = slateToText(latest.impression);
-      if (impression) items.push({ key: "Impression", value: impression.length > 120 ? impression.substring(0, 117) + "..." : impression });
-      if (latest.followUp) items.push({ key: "Follow-up", value: latest.followUp });
+      if (impression) noteItems.push({ key: "Impression", value: impression });
+      if (latest.followUp) noteItems.push({ key: "Follow-up", value: latest.followUp });
+      if (noteItems.length) content.push({ type: "deflist", items: noteItems });
     }
-
-    content.push({ type: "keyvalue", items });
   });
 
   const pending = active.filter((r) => !(r.crossReferral?.consultantNotes || []).length);
@@ -608,43 +641,66 @@ function buildOtNotesCard(e, pt) {
   }
 
   const content = [];
-  notes.forEach((n) => {
+  notes.forEach((n, idx) => {
     const sd = n.otNotes?.surgeryDetails || {};
     const team = n.otNotes?.surgeryTeam || {};
     const intra = n.otNotes?.intraOperativeNotes || {};
     const postOp = n.otNotes?.postOperativeNotes || {};
     const opNotes = n.otNotes?.operativeNotes || {};
 
-    const items = [];
-    const proc = Array.isArray(sd.procedureName) ? sd.procedureName.join(", ") : sd.procedureName;
-    if (proc) items.push({ key: "Procedure", value: proc });
-    if (sd.anaesthesiaType) items.push({ key: "Anaesthesia", value: sd.anaesthesiaType });
-    if (sd.surgeryDate) items.push({ key: "Date", value: sd.surgeryDate });
-    if (sd.surgeryStartTime && sd.surgeryEndTime) items.push({ key: "Duration", value: `${sd.surgeryStartTime} - ${sd.surgeryEndTime}` });
-    const diag = slateToText(sd.diagnosis);
-    if (diag) items.push({ key: "Diagnosis", value: diag });
-    if (content.length) content.push({ type: "text", variant: "heading", body: "Surgery Details" });
-    content.push({ type: "keyvalue", items });
+    if (idx > 0) content.push({ type: "text", variant: "heading", body: `Record ${idx + 1}` });
 
+    // Surgery details
+    content.push({ type: "text", variant: "heading", body: "Surgery Details" });
+    const detailItems = [];
+    const proc = Array.isArray(sd.procedureName) ? sd.procedureName.join(", ") : sd.procedureName;
+    if (proc) detailItems.push({ key: "Procedure", value: proc });
+    if (sd.anaesthesiaType) detailItems.push({ key: "Anaesthesia", value: sd.anaesthesiaType });
+    if (sd.surgeryDate) detailItems.push({ key: "Date", value: sd.surgeryDate });
+    if (sd.surgeryStartTime && sd.surgeryEndTime) detailItems.push({ key: "Duration", value: `${sd.surgeryStartTime} - ${sd.surgeryEndTime}` });
+    if (detailItems.length) content.push({ type: "keyvalue", items: detailItems });
+    const diag = slateToText(sd.diagnosis);
+    if (diag) content.push({ type: "deflist", items: [{ key: "Diagnosis", value: diag }] });
+
+    // Surgical team
     const teamItems = [];
     if (team.primarySurgeon?.length) teamItems.push({ key: "Primary Surgeon", value: team.primarySurgeon.map((s) => s.name).join(", ") });
     if (team.secondarySurgeon?.length) teamItems.push({ key: "Secondary", value: team.secondarySurgeon.map((s) => s.name).join(", ") });
     if (team.anaesthesiologist) teamItems.push({ key: "Anaesthesiologist", value: team.anaesthesiologist });
     if (team.scrubNurse?.length) teamItems.push({ key: "Scrub Nurse", value: team.scrubNurse.map((s) => s.name).join(", ") });
-    if (teamItems.length) content.push({ type: "keyvalue", items: teamItems });
+    if (teamItems.length) {
+      content.push({ type: "text", variant: "heading", body: "Surgical Team" });
+      content.push({ type: "keyvalue", items: teamItems });
+    }
 
+    // Operative findings
     const findings = slateToText(opNotes.operativeFindings);
-    if (findings) content.push({ type: "text", body: `**Findings:** ${findings}` });
+    const procedure = slateToText(opNotes.operativeProcedure);
+    if (findings || procedure) {
+      content.push({ type: "text", variant: "heading", body: "Operative Notes" });
+      const opItems = [];
+      if (findings) opItems.push({ key: "Findings", value: findings });
+      if (procedure) opItems.push({ key: "Procedure", value: procedure });
+      content.push({ type: "deflist", items: opItems });
+    }
 
+    // Intra-operative
     const intraItems = [];
     if (intra.estimatedBloodLoss) intraItems.push({ key: "Blood Loss", value: `${intra.estimatedBloodLoss} ml` });
     if (intra.swabCount) intraItems.push({ key: "Swab Count", value: `${intra.swabCount}` });
     if (intra.fluidCount) intraItems.push({ key: "Fluids", value: `${intra.fluidCount} ml` });
     if (intra.sutureType) intraItems.push({ key: "Suture", value: intra.sutureType });
-    if (intraItems.length) content.push({ type: "keyvalue", items: intraItems });
+    if (intraItems.length) {
+      content.push({ type: "text", variant: "heading", body: "Intra-operative" });
+      content.push({ type: "keyvalue", items: intraItems });
+    }
 
+    // Post-operative
     const postInstructions = slateToText(postOp.additionalInstructions);
-    if (postInstructions) content.push({ type: "text", body: `**Post-op:** ${postInstructions.length > 200 ? postInstructions.substring(0, 197) + "..." : postInstructions}` });
+    if (postInstructions) {
+      content.push({ type: "text", variant: "heading", body: "Post-operative" });
+      content.push({ type: "deflist", items: [{ key: "Instructions", value: postInstructions }] });
+    }
   });
 
   return {

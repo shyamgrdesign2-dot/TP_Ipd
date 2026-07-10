@@ -46,7 +46,6 @@ const LIST = {
     { label: "Today's referrals", message: "Show today's referrals" },
     { label: "Flagged labs", message: "Show flagged labs across ward" },
     { label: "OT schedule", message: "Show OT schedule" },
-    { label: "Nurse SOS", message: "Show pending nurse SOS" },
   ],
   cannedCards: [
     { title: "Ward tasks", subtitle: "Ranked by urgency across your patients", message: "Show ward tasks" },
