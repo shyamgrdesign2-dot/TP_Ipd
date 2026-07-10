@@ -13,6 +13,7 @@ import tutorial from "../../../assets/images/tutorial-icon.svg";
 import playIcons from "../../../assets/images/tube-icon.svg";
 import tpLogo from "../../../assets/images/logo-tatva-emr.svg";
 import tpTextLogo from "../../../assets/images/text-logo.svg";
+import tpWordmark from "../../../assets/images/icons/tatvapractice-wordmark.svg";
 
 import { changeHospital } from "../../../redux/doctorsSlice";
 import { useLocalStorage } from "../../../utils/localStorage";
@@ -212,7 +213,7 @@ function IPDHeader({ locationPath }) {
         <Container fluid className="d-flex align-items-center justify-content-between">
           <div className="d-flex align-items-center" style={{ gap: 12 }}>
             <img src={tpLogo} alt="TatvaPractice" style={{ height: 36 }} />
-            <img src={tpTextLogo} alt="TatvaPractice" style={{ height: 22 }} />
+            <img src={tpWordmark} alt="tatvaPractice" style={{ height: 20 }} />
             <span
               style={{
                 background: "linear-gradient(91deg, #D565EA 3%, #673AAC 67%, #1A1994 130%)",

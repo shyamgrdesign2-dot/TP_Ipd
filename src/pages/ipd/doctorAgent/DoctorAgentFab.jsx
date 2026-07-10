@@ -41,7 +41,7 @@ function BrandSparkIcon({ size = 42 }) {
         </defs>
         <path
           d="M290.387 195.649C240.198 200.476 200.481 240.165 195.649 290.32L187.497 375L179.351 290.326C174.521 240.179 134.803 200.478 84.6131 195.642L0 187.503L84.6199 179.358C134.807 174.53 174.519 134.834 179.351 84.6805L187.503 0L195.649 84.6737C200.479 134.821 240.197 174.522 290.387 179.358L375 187.497L290.387 195.649Z"
-          fill="url(#da-fab-spark-grad)"
+          fill="#FFFFFF"
         />
       </svg>
     </span>
@@ -101,9 +101,9 @@ export function DoctorAgentFab({ hidden }) {
               <feBlend in="SourceGraphic" in2="effect1_dropShadow" mode="normal" result="shape" />
             </filter>
             <linearGradient id={GRADIENT_ID} x1="28.43" x2="401.32" y1="53" y2="53" gradientUnits="userSpaceOnUse">
-              <stop offset="0" stopColor="#FFFFFF" />
-              <stop offset="0.5" stopColor="#FBFBFD" />
-              <stop offset="1" stopColor="#F3F3F8" />
+              <stop offset="0" stopColor="#D565EA" />
+              <stop offset="0.5" stopColor="#673AAC" />
+              <stop offset="1" stopColor="#1A1994" />
             </linearGradient>
           </defs>
           <g filter={`url(#${SHADOW_ID})`}>
@@ -117,7 +117,7 @@ export function DoctorAgentFab({ hidden }) {
         >
           <div style={{ width: 430, height: 115, display: "flex", alignItems: "center", justifyContent: "center", gap: 14, padding: "17px 60px 26px" }}>
             <BrandSparkIcon size={42} />
-            <span className="da-fab-label" style={{ color: "#673AAC", fontSize: 28, fontWeight: 700, letterSpacing: "0.3px", whiteSpace: "nowrap", lineHeight: 1 }}>
+            <span className="da-fab-label" style={{ color: "#FFFFFF", fontSize: 28, fontWeight: 700, letterSpacing: "0.3px", whiteSpace: "nowrap", lineHeight: 1 }}>
               Dr. Agent
             </span>
           </div>
