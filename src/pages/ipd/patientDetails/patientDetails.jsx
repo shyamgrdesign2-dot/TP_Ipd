@@ -1246,6 +1246,10 @@ const IPDPatientDetails = () => {
     return null;
   };
 
+  if (!patientDetails || !admissionId) {
+    return null;
+  }
+
   return (
     <div>
       <Suspense
