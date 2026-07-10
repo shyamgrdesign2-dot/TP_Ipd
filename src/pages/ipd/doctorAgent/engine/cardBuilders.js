@@ -36,6 +36,7 @@ function buildVitalsCard(e, pt) {
     intro: v ? `**Latest vitals**${forPt(pt)}${v.recordedBy ? `, charted by **${v.recordedBy}**` : ", from the nursing chart"}.` : "No vitals recorded yet.",
     config: {
       kind: "vitals_trend",
+      sources: [{ label: "Nursing vitals chart", description: "Recorded by nursing staff during ward rounds" }],
       header: {
         icon: "activity",
         title: "Latest vitals",
@@ -108,6 +109,7 @@ function buildVitalTrendsCard(e, pt) {
     intro: `**Vital trends**${pt ? ` for **${pt}**` : ""}, showing ${sorted.length} reading${sorted.length === 1 ? "" : "s"} over time.`,
     config: {
       kind: "vital_trends",
+      sources: [{ label: "Nursing vitals chart", description: "Recorded by nursing staff across shifts" }],
       header: {
         icon: "chart",
         title: "Vital trends",
@@ -134,6 +136,7 @@ function buildMarCard(e, pt) {
     intro: orders.length ? `**${orders.length} active medication order${orders.length === 1 ? "" : "s"}**${forPt(pt)} on the MAR.` : "No active medications on the MAR.",
     config: {
       kind: "mar_grid",
+      sources: [{ label: "Medication administration record", description: "MAR charted by nursing during drug rounds" }],
       header: { icon: "capsule", title: "Active medications", badge: orders.length ? { label: `${orders.length}`, tone: "info" } : undefined },
       content: meds.length ? [{ type: "medlist", meds }] : [{ type: "text", body: "No active medication orders." }],
     },
@@ -144,7 +147,7 @@ function buildMarCard(e, pt) {
 function buildFluidCard(e, pt) {
   const f = e?.fluid;
   if (!f) {
-    return { intro: "No fluid balance recorded yet.", config: { kind: "fluid_balance", header: { icon: "drop", title: "Fluid balance (24h)" }, content: [{ type: "text", body: "No fluid balance recorded." }] } };
+    return { intro: "No fluid balance recorded yet.", config: { kind: "fluid_balance", sources: [{ label: "Nursing fluid balance", description: "Intake/output charted by nursing on shift" }], header: { icon: "drop", title: "Fluid balance (24h)" }, content: [{ type: "text", body: "No fluid balance recorded." }] } };
   }
   const net = f.balance != null ? f.balance : (f.totalIntake || 0) - (f.totalOutput || 0);
   const tier = fluidTier(net);
@@ -152,6 +155,7 @@ function buildFluidCard(e, pt) {
     intro: `**24-hour fluid balance**${forPt(pt)}, from the nursing chart.`,
     config: {
       kind: "fluid_balance",
+      sources: [{ label: "Nursing fluid balance", description: "Intake/output charted by nursing on shift" }],
       header: {
         icon: "drop",
         title: "Fluid balance (24h)",
@@ -182,6 +186,7 @@ function buildLabsCard(e, pt) {
     intro: labs.length ? `**${labs.length} flagged lab result${labs.length === 1 ? "" : "s"}**${forPt(pt)} in the last 24h.` : "No flagged lab results.",
     config: {
       kind: "lab_panel",
+      sources: [{ label: "Lab results", description: "Flagged values from the lab/investigation module" }],
       header: {
         icon: "ai-flask",
         title: "Flagged labs",
@@ -207,6 +212,7 @@ function buildRiskCard(e, pt) {
     intro: scores.length ? `Current **nursing risk scores**${forPt(pt)}.` : "No risk scores recorded yet.",
     config: {
       kind: "risk_strip",
+      sources: [{ label: "Nursing risk assessment", description: "Braden, fall risk and other scores charted by nursing" }],
       header: {
         icon: "shield",
         title: "Risk scores",
@@ -227,6 +233,7 @@ function buildNotesCard(e, pt) {
     intro: notes.length ? `The most recent **nursing notes**${forPt(pt)}.` : "No nursing notes recorded yet.",
     config: {
       kind: "nursing_notes",
+      sources: [{ label: "Nursing daily notes", description: "Daily nursing progress notes charted on shift" }],
       header: { icon: "note-2", title: "Nursing notes", badge: notes.length ? { label: `${notes.length}`, tone: "info" } : undefined },
       content: notes.length
         ? notes.flatMap((n, i) => {
@@ -363,9 +370,11 @@ function buildSummaryCard(e, patient, timeline) {
     config: {
       kind: "patient_summary",
       sources: [
-        { label: "Latest progress note", description: "The single most-recent note (nursing or MO) charted since your last consultant visit - the one thing that changed since you saw the patient." },
-        { label: "Red flags", description: "Only values that cross a fixed clinical threshold (critical vital, critical lab, held/missed dose, high fluid net, critical risk) - what should change a rounds decision." },
-        { label: "Nursing chart", description: "Vitals, MAR, fluid balance, flagged labs and risk scores compiled from the ward nursing modules." },
+        { label: "Nursing vitals chart", description: "BP, HR, SpO2, Temp, RR recorded by nursing on ward rounds" },
+        { label: "Medication administration record", description: "MAR status charted by nursing during drug rounds" },
+        { label: "Nursing progress notes", description: "Latest note charted since your last consultant visit" },
+        { label: "Lab results", description: "Flagged values from the investigation module" },
+        { label: "Nursing risk assessment", description: "Braden, fall risk and other scores from the nursing module" },
       ],
       header: {
         icon: "activity",
@@ -722,6 +731,7 @@ function buildTaskListCard(tasks) {
     intro: list.length ? `${list.length} item${list.length === 1 ? "" : "s"} need your attention${urgent ? `, ${urgent} urgent` : ""}.` : "Nothing needs your attention right now.",
     config: {
       kind: "task_list",
+      sources: [{ label: "Ward task queue", description: "Pending items flagged by nursing and MO across your patients" }],
       header: { icon: "clipboard-text", title: "Ward tasks", date: "Ranked by urgency", badge: list.length ? { label: `${list.length}`, tone: "info" } : undefined },
       content: list.length ? [{ type: "tasklist", tasks: list }] : [{ type: "text", body: "No pending items across your in-patients." }],
     },
