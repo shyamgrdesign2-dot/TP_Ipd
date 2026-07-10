@@ -105,6 +105,7 @@ import IPDUploadRx from "./pages/ipd/snapRx/uploadRx";
 import WardAndBedManagement from "./pages/ipd/wardAndBedManagement/WardAndBedManagement";
 import IpdBillingHistory from "./pages/ipd/billing/IpdBillingHistory";
 
+const IS_DEMO = process.env.REACT_APP_DEMO === "true";
 
 const growthbook = new GrowthBook({
   apiHost: "https://cdn.growthbook.io",
@@ -195,6 +196,7 @@ function App() {
     }
   }, []);
   useEffect(() => {
+    if (IS_DEMO) return;
     const checkUserStatus = async () => {
       const token = getToken();
       if (token && !isLoginPage && !isReceptionist) {
@@ -228,6 +230,7 @@ function App() {
   }, [location.pathname]);
 
   useEffect(() => {
+    if (IS_DEMO) return;
     const isUserLocked = async () => {
       try {
         const decoded = jwtDecode(authToken);
@@ -256,8 +259,7 @@ function App() {
   }, [location.pathname, navigate, authToken, isReceptionist]);
 
   useEffect(() => {
-    if (isReceptionist) return;
-    // Load features asynchronously when the app renders
+    if (IS_DEMO || isReceptionist) return;
     growthbook?.init({ streaming: true });
     const token = authToken || getToken();
     if (token) {
@@ -278,6 +280,7 @@ function App() {
   }, []);
 
   useEffect(() => {
+    if (IS_DEMO) return;
     const logoutZydusUserFromNormalProd = async () => {
       if (!isProdEnv() || isLoginPage || isReceptionist) return;
 

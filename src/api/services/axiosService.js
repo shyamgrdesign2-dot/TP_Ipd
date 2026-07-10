@@ -21,7 +21,7 @@ instance.interceptors.request.use(
         if (config.customBaseUrl) {
             config.baseURL = config.customBaseUrl;
         }
-        const token = config.customBaseUrl.startsWith(main_config.zydus_proxy_url) && !config.url.startsWith('/ictAuthProxy') ?
+        const token = (config.customBaseUrl && config.customBaseUrl.startsWith(main_config.zydus_proxy_url)) && !config.url.startsWith('/ictAuthProxy') ?
             localStorage.getItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN) == null ? localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN) == null ? null : JSON.parse(localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN)) : JSON.parse(localStorage.getItem(PERSISTANT_STORAGE_KEY_ZYDUS_TOKEN))
             : localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN) == null ? null : JSON.parse(localStorage.getItem(PERSISTANT_STORAGE_KEY_AUTH_TOKEN));
         if (token && !config.headers['api_key'] && (!config.snapRxFileUpload && !config.ipdSnapRxGetFiles)) {
