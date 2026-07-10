@@ -22,6 +22,8 @@ const PATIENT = {
     { label: "Fluid balance", message: "Show fluid balance" },
     { label: "Flagged labs", message: "Show flagged labs" },
     { label: "Risk scores", message: "Show risk scores" },
+    { label: "Cross-referrals", message: "Show cross-referrals" },
+    { label: "OT notes", message: "Show OT notes" },
     { label: "Patient info", message: "Show patient info" },
   ],
   cannedCards: [
@@ -41,6 +43,9 @@ const LIST = {
   pills: [
     { label: "What needs my attention?", message: "Show ward tasks" },
     { label: "Critical patients", message: "Show critical patients" },
+    { label: "Today's referrals", message: "Show today's referrals" },
+    { label: "Flagged labs", message: "Show flagged labs across ward" },
+    { label: "OT schedule", message: "Show OT schedule" },
     { label: "Nurse SOS", message: "Show pending nurse SOS" },
   ],
   cannedCards: [

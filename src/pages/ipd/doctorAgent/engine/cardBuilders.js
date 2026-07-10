@@ -308,6 +308,23 @@ function buildSummaryCard(e, patient, timeline) {
     const lastNote = (e?.notes || [])[0];
     if (lastNote) content.push({ type: "text", body: `Overnight: ${lastNote.nursingPlan || lastNote.generalCondition}` });
   }
+  // Cross-referrals: surface pending referrals in the snapshot
+  const refs = (e?.crossReferrals || []).filter((r) => !r.cancel);
+  const pendingRefs = refs.filter((r) => !(r.crossReferral?.consultantNotes || []).length);
+  if (pendingRefs.length) {
+    const refNames = pendingRefs.map((r) => r.crossReferral?.referralInformation?.referringTo?.name).filter(Boolean);
+    content.push({ type: "text", variant: "alert", body: `Pending referral${pendingRefs.length > 1 ? "s" : ""}: ${refNames.join(", ") || "awaiting review"}` });
+  } else if (refs.length) {
+    content.push({ type: "text", body: `${refs.length} referral${refs.length > 1 ? "s" : ""} - all reviewed.` });
+  }
+
+  // OT notes: show post-op status if any
+  const ot = e?.otNotes || [];
+  if (ot.length) {
+    const proc = ot.map((n) => { const sd = n.otNotes?.surgeryDetails || {}; return Array.isArray(sd.procedureName) ? sd.procedureName[0] : sd.procedureName; }).filter(Boolean);
+    content.push({ type: "text", body: `Post-op: ${proc.join(", ") || "surgical record on file"}${ot[0]?.otNotes?.surgeryDetails?.surgeryDate ? ` (${ot[0].otNotes.surgeryDetails.surgeryDate})` : ""}` });
+  }
+
   if (!content.length) content.push({ type: "text", body: "No nursing data recorded for this patient yet." });
 
   const sexAge = [p.gender, p.age ? `${p.age}y` : null].filter(Boolean).join(", ");
@@ -514,6 +531,133 @@ function buildPatientInfoCard(e, patient) {
   };
 }
 
+/* ── Cross-referrals ────────────────────────────────────────────────────────── */
+function slateToText(slate) {
+  if (!slate) return "";
+  if (typeof slate === "string") return slate;
+  if (Array.isArray(slate)) return slate.map((n) => (n.children || []).map((c) => c.text || "").join("")).join(" ").trim();
+  return "";
+}
+
+function buildCrossReferralCard(e, pt) {
+  const refs = e?.crossReferrals || [];
+  if (!refs.length) {
+    return {
+      intro: `No cross-referrals recorded${pt ? ` for **${pt}**` : ""}.`,
+      config: {
+        kind: "cross_referral",
+        header: { icon: "arrow-swap-horizontal", title: "Cross-referrals" },
+        content: [{ type: "text", body: "No cross-referrals found for this patient." }],
+      },
+    };
+  }
+
+  const active = refs.filter((r) => !r.cancel);
+  const content = [];
+
+  active.forEach((r) => {
+    const info = r.crossReferral?.referralInformation || {};
+    const to = info.referringTo || {};
+    const items = [];
+    if (to.name) items.push({ key: "Referred to", value: `${to.name}${to.speciality ? ` (${to.speciality})` : ""}` });
+    if (info.referringDepartment) items.push({ key: "From", value: info.referringDepartment });
+    if (info.referralDate) items.push({ key: "Date", value: info.referralDate });
+    const reason = slateToText(info.reasonForReferral);
+    if (reason) items.push({ key: "Reason", value: reason.length > 150 ? reason.substring(0, 147) + "..." : reason });
+
+    const consNotes = r.crossReferral?.consultantNotes || [];
+    const status = consNotes.length ? "Reviewed" : "Pending";
+    items.push({ key: "Status", value: status, tone: consNotes.length ? "success" : "warning" });
+
+    if (consNotes.length) {
+      const latest = consNotes[consNotes.length - 1];
+      const impression = slateToText(latest.impression);
+      if (impression) items.push({ key: "Impression", value: impression.length > 120 ? impression.substring(0, 117) + "..." : impression });
+      if (latest.followUp) items.push({ key: "Follow-up", value: latest.followUp });
+    }
+
+    content.push({ type: "keyvalue", items });
+  });
+
+  const pending = active.filter((r) => !(r.crossReferral?.consultantNotes || []).length);
+  const badge = pending.length ? { label: `${pending.length} pending`, tone: "warning" } : { label: `${active.length} total`, tone: "info" };
+
+  return {
+    intro: `**${active.length} cross-referral${active.length === 1 ? "" : "s"}**${pt ? ` for **${pt}**` : ""}${pending.length ? `, ${pending.length} pending review` : ", all reviewed"}.`,
+    config: {
+      kind: "cross_referral",
+      sources: [{ label: "Cross-referral records", description: "IPD cross-referral module" }],
+      header: { icon: "arrow-swap-horizontal", title: "Cross-referrals", badge, accent: pending.length ? "warning" : null },
+      content,
+    },
+  };
+}
+
+/* ── OT Notes ───────────────────────────────────────────────────────────────── */
+function buildOtNotesCard(e, pt) {
+  const notes = e?.otNotes || [];
+  if (!notes.length) {
+    return {
+      intro: `No OT notes recorded${pt ? ` for **${pt}**` : ""}.`,
+      config: {
+        kind: "ot_notes",
+        header: { icon: "scissor", title: "OT Notes" },
+        content: [{ type: "text", body: "No OT notes or surgical records for this patient." }],
+      },
+    };
+  }
+
+  const content = [];
+  notes.forEach((n) => {
+    const sd = n.otNotes?.surgeryDetails || {};
+    const team = n.otNotes?.surgeryTeam || {};
+    const intra = n.otNotes?.intraOperativeNotes || {};
+    const postOp = n.otNotes?.postOperativeNotes || {};
+    const opNotes = n.otNotes?.operativeNotes || {};
+
+    const items = [];
+    const proc = Array.isArray(sd.procedureName) ? sd.procedureName.join(", ") : sd.procedureName;
+    if (proc) items.push({ key: "Procedure", value: proc });
+    if (sd.anaesthesiaType) items.push({ key: "Anaesthesia", value: sd.anaesthesiaType });
+    if (sd.surgeryDate) items.push({ key: "Date", value: sd.surgeryDate });
+    if (sd.surgeryStartTime && sd.surgeryEndTime) items.push({ key: "Duration", value: `${sd.surgeryStartTime} - ${sd.surgeryEndTime}` });
+    const diag = slateToText(sd.diagnosis);
+    if (diag) items.push({ key: "Diagnosis", value: diag });
+    if (content.length) content.push({ type: "text", variant: "heading", body: "Surgery Details" });
+    content.push({ type: "keyvalue", items });
+
+    const teamItems = [];
+    if (team.primarySurgeon?.length) teamItems.push({ key: "Primary Surgeon", value: team.primarySurgeon.map((s) => s.name).join(", ") });
+    if (team.secondarySurgeon?.length) teamItems.push({ key: "Secondary", value: team.secondarySurgeon.map((s) => s.name).join(", ") });
+    if (team.anaesthesiologist) teamItems.push({ key: "Anaesthesiologist", value: team.anaesthesiologist });
+    if (team.scrubNurse?.length) teamItems.push({ key: "Scrub Nurse", value: team.scrubNurse.map((s) => s.name).join(", ") });
+    if (teamItems.length) content.push({ type: "keyvalue", items: teamItems });
+
+    const findings = slateToText(opNotes.operativeFindings);
+    if (findings) content.push({ type: "text", body: `**Findings:** ${findings}` });
+
+    const intraItems = [];
+    if (intra.estimatedBloodLoss) intraItems.push({ key: "Blood Loss", value: `${intra.estimatedBloodLoss} ml` });
+    if (intra.swabCount) intraItems.push({ key: "Swab Count", value: `${intra.swabCount}` });
+    if (intra.fluidCount) intraItems.push({ key: "Fluids", value: `${intra.fluidCount} ml` });
+    if (intra.sutureType) intraItems.push({ key: "Suture", value: intra.sutureType });
+    if (intraItems.length) content.push({ type: "keyvalue", items: intraItems });
+
+    const postInstructions = slateToText(postOp.additionalInstructions);
+    if (postInstructions) content.push({ type: "text", body: `**Post-op:** ${postInstructions.length > 200 ? postInstructions.substring(0, 197) + "..." : postInstructions}` });
+  });
+
+  return {
+    intro: `**${notes.length} OT record${notes.length === 1 ? "" : "s"}**${pt ? ` for **${pt}**` : ""}.`,
+    config: {
+      kind: "ot_notes",
+      sources: [{ label: "OT notes", description: "IPD OT notes module - surgical records" }],
+      header: { icon: "scissor", title: "OT Notes", badge: { label: `${notes.length}`, tone: "info" } },
+      content,
+    },
+  };
+}
+
 /* ── Ward task list (list view) ──────────────────────────────────────────────── */
 function buildTaskListCard(tasks) {
   const list = Array.isArray(tasks) ? tasks : [];
@@ -539,6 +683,9 @@ export function buildCardForMessage(message, ctx = {}) {
 
   if (ctx.view === "list" || !ctx.patient) {
     if (/critical/.test(m)) return buildTaskListCard((ctx.tasks || []).filter((t) => t.priority === "Urgent"));
+    if (/referral/.test(m)) return buildTaskListCard((ctx.tasks || []).filter((t) => t.kind === "Referral"));
+    if (/flag.*lab|lab.*flag|concerning/.test(m)) return buildTaskListCard((ctx.tasks || []).filter((t) => t.kind === "Labs"));
+    if (/\bot\b|schedule|surgery/.test(m)) return buildTaskListCard((ctx.tasks || []).filter((t) => t.kind === "OT"));
     return buildTaskListCard(ctx.tasks);
   }
 
@@ -553,6 +700,8 @@ export function buildCardForMessage(message, ctx = {}) {
   if (/fluid|intake|output|balance/.test(m)) return buildFluidCard(e, pt);
   if (/lab|investigation|result/.test(m)) return buildLabsCard(e, pt);
   if (/risk|braden|fall|sepsis|qsofa|pain/.test(m)) return buildRiskCard(e, pt);
+  if (/referral|cross.?ref|consult.?request/.test(m)) return buildCrossReferralCard(e, pt);
+  if (/\bot\b|surgery|surgical|operat|pre.?op|post.?op|ot note/.test(m)) return buildOtNotesCard(e, pt);
   if (/note|progress|handover/.test(m)) return buildNotesCard(e, pt);
 
   // Generic phrasing in a patient context defaults to the summary.

@@ -14,6 +14,8 @@ import {
   MOCK_NURSING_NOTES,
   MOCK_WARD_TASKS,
   MOCK_PROGRESS_TIMELINE,
+  MOCK_CROSS_REFERRALS,
+  MOCK_OT_NOTES_IPD,
 } from "../../../../demo/demoData";
 
 var IS_DEMO = process.env.REACT_APP_DEMO === "true";
@@ -63,6 +65,8 @@ export async function fetchDoctorEntries(patient) {
       labs: MOCK_LABS[patientId] || [],
       risk: MOCK_RISK_SCORES[patientId] || [],
       notes: MOCK_NURSING_NOTES[patientId] || [],
+      crossReferrals: admissionId && MOCK_CROSS_REFERRALS[admissionId] ? MOCK_CROSS_REFERRALS[admissionId] : [],
+      otNotes: admissionId && MOCK_OT_NOTES_IPD[admissionId] ? MOCK_OT_NOTES_IPD[admissionId] : [],
     };
   }
 

@@ -302,15 +302,24 @@ var MOCK_NURSING_NOTES = {
 // ─── Ward tasks (for Dr. Agent list view) ────────────────────────────────────
 // Shape: { patientId, patientName, bed, title, summary, priority, kind }
 var MOCK_WARD_TASKS = [
+  // Urgent
   { patientId: "PAT-002", patientName: "Sunita Deshmukh", bed: "ICU-04", title: "DKA protocol review", summary: "Blood sugar 428, pH 7.18, K+ 3.1. Insulin drip at 6u/hr. Review electrolytes and adjust.", priority: "Urgent", kind: "Labs" },
   { patientId: "PAT-002", patientName: "Sunita Deshmukh", bed: "ICU-04", title: "Potassium replacement", summary: "K+ 3.1 mEq/L (critical low). 20 mEq KCl started. Repeat levels in 2 hours.", priority: "Urgent", kind: "Labs" },
   { patientId: "PAT-003", patientName: "Ramesh Patel", bed: "GW-B-08", title: "Missed dose: Hydrocortisone", summary: "100mg IV TDS - morning dose missed. Nurse reports patient was in radiology.", priority: "Urgent", kind: "Meds" },
-  { patientId: "PAT-001", patientName: "Anil Kapoor", bed: "GW-A-12", title: "Elevated inflammatory markers", summary: "CRP 86, Procalcitonin 2.8. Consider blood culture and antibiotic escalation.", priority: "Today", kind: "Labs" },
-  { patientId: "PAT-003", patientName: "Ramesh Patel", bed: "GW-B-08", title: "Hypoxia on room air", summary: "SpO2 89% on room air. Currently on 2L O2. ABG shows pO2 58, pCO2 52. Review O2 requirements.", priority: "Today", kind: "Labs" },
-  { patientId: "PAT-005", patientName: "Vikram Singh", bed: "SW-06", title: "Held dose: Tramadol", summary: "50mg IV TDS held by nurse due to nausea. Review pain management plan.", priority: "Today", kind: "Meds" },
-  { patientId: "PAT-005", patientName: "Vikram Singh", bed: "SW-06", title: "Drain output review", summary: "Post-op Day 4, drain output 15ml. Consider removal.", priority: "Today", kind: "Wound" },
+  // Referrals today
+  { patientId: "PAT-001", patientName: "Anil Kapoor", bed: "GW-A-12", title: "Referral: Pulmonology consult pending", summary: "Referred to Dr. Anand Kulkarni (Pulmonology) today. Pneumonia not responding to Ceftriaxone after 5 days. Awaiting pulmonology review.", priority: "Today", kind: "Referral" },
+  { patientId: "PAT-003", patientName: "Ramesh Patel", bed: "GW-B-08", title: "Referral: Pulmonology consult pending", summary: "Referred to Dr. Anand Kulkarni (Pulmonology) today. COPD exacerbation with Type 2 respiratory failure. BiPAP consideration pending.", priority: "Today", kind: "Referral" },
+  // Flagged labs
+  { patientId: "PAT-001", patientName: "Anil Kapoor", bed: "GW-A-12", title: "Flagged labs: CRP 86, PCT 2.8", summary: "CRP 86 mg/L (critical high), Procalcitonin 2.8 ng/mL (high). Inflammatory markers not improving. Consider blood culture and antibiotic escalation.", priority: "Today", kind: "Labs" },
+  { patientId: "PAT-003", patientName: "Ramesh Patel", bed: "GW-B-08", title: "Flagged labs: ABG concerning", summary: "SpO2 89% on room air. ABG: pO2 58 (low), pCO2 52 (high). Type 2 respiratory failure. Review O2 and BiPAP.", priority: "Today", kind: "Labs" },
+  // OT schedule
+  { patientId: "PAT-005", patientName: "Vikram Singh", bed: "SW-06", title: "Post-op Day 4: Drain removal due", summary: "Lap Chole (6 Jul). Drain output 15ml (minimal). Pre-op checklist complete, vitals stable. Consider drain removal today.", priority: "Today", kind: "OT" },
+  // Meds
+  { patientId: "PAT-005", patientName: "Vikram Singh", bed: "SW-06", title: "Held dose: Tramadol", summary: "50mg IV TDS held by nurse due to nausea. Switching to oral Paracetamol + Aceclofenac per consultant note.", priority: "Today", kind: "Meds" },
+  // Info
   { patientId: "PAT-001", patientName: "Anil Kapoor", bed: "GW-A-12", title: "Repeat blood culture", summary: "Day 5 of antibiotics, fever persisting. Consider repeat cultures before escalation.", priority: "Today", kind: "Labs" },
   { patientId: "PAT-004", patientName: "Priya Nair", bed: "MW-02", title: "Anemia correction", summary: "Hb 9.8 g/dL, Ferritin 8. Iron sucrose infusion scheduled today. Check for transfusion need.", priority: "Info", kind: "Labs" },
+  { patientId: "PAT-002", patientName: "Sunita Deshmukh", bed: "ICU-04", title: "Referral: Endocrinology reviewed", summary: "Dr. Sanjay Mehta (Endocrinology) reviewed yesterday. DKA resolving, pH 7.28. Plan transition to SC insulin. Follow-up in OPD 18 Jul.", priority: "Info", kind: "Referral" },
 ];
 
 // ─── Progress timeline (for Dr. Agent patient view) ──────────────────────────
@@ -760,14 +769,17 @@ var MOCK_OT_NOTES_IPD = {
   "ADM-2026-005": [
     {
       _id: "ot-005-a",
+      createdByName: "Dr. Rajesh Sharma",
+      createdByRole: "Consultant Surgeon",
+      updates: [],
       otNotes: {
         surgeryDetails: {
-          procedureName: "Laparoscopic Cholecystectomy",
-          anaesthesiaType: "General Anaesthesia",
-          surgeryDate: "2026-07-06",
-          surgeryStartTime: "10:00",
-          surgeryEndTime: "11:30",
-          diagnosis: { id: "diag-9", name: "Cholelithiasis with Chronic Cholecystitis" },
+          procedureName: ["Laparoscopic Cholecystectomy"],
+          anaesthesiaType: "General",
+          surgeryDate: "6 Jul 2026",
+          surgeryStartTime: "10:00 AM",
+          surgeryEndTime: "11:30 AM",
+          diagnosis: SLATE_TEXT("Cholelithiasis with Chronic Cholecystitis"),
         },
         surgeryTeam: {
           primarySurgeon: [{ id: 9001, name: "Dr. Rajesh Sharma" }],
@@ -778,25 +790,115 @@ var MOCK_OT_NOTES_IPD = {
           floorCirculatingNurse: [{ name: "Nurse Priya" }],
         },
         operativeNotes: {
-          findings: "Gallbladder thick-walled, distended, with multiple stones (largest 12mm). Adhesions to omentum. Calot's triangle clearly identified. CBD normal caliber. No bile leak.",
-          procedure: "Standard 4-port laparoscopic cholecystectomy. Calot's triangle dissected, cystic artery and duct clipped and divided. GB dissected from liver bed using electrocautery. Retrieved via epigastric port in endobag. Hemostasis confirmed. Subhepatic drain placed.",
+          operativeFindings: SLATE_TEXT("Gallbladder thick-walled, distended, with multiple stones (largest 12mm). Adhesions to omentum. Calot's triangle clearly identified. CBD normal caliber. No bile leak."),
+          operativeProcedure: SLATE_TEXT("Standard 4-port laparoscopic cholecystectomy. Calot's triangle dissected, cystic artery and duct clipped and divided. GB dissected from liver bed using electrocautery. Retrieved via epigastric port in endobag. Hemostasis confirmed. Subhepatic drain placed."),
+          operativeAdditionalNotes: SLATE_TEXT("No intra-operative complications. Drain placed in Morrison's pouch."),
         },
         intraOperativeNotes: {
           estimatedBloodLoss: 50,
           swabCount: 5,
           fluidCount: 1500,
           sutureType: "Absorbable (Vicryl 2-0)",
-          complicationsSeverity: [],
-          specimensSent: [{ name: "Gallbladder", lab: "Histopathology" }],
-          implantsUsed: [],
+          complicationsSeverity: SLATE_TEXT("None. Uneventful procedure."),
+          specimensSent: SLATE_TEXT("Gallbladder sent for histopathology."),
+          implantsUsed: SLATE_TEXT("None."),
         },
         postOperativeNotes: {
           postOpDestination: "Surgical Ward",
-          additionalInstructions: "Monitor vitals q2h for 6 hours. Start oral sips after 6 hours. DVT prophylaxis with Enoxaparin. Check drain output.",
+          additionalInstructions: SLATE_TEXT("Monitor vitals q2h for 6 hours. Start oral sips after 6 hours. DVT prophylaxis with Enoxaparin 40mg SC OD. Check drain output q4h. Pain management with IV Tramadol 50mg TDS PRN."),
         },
       },
       filledByDetails: { doctorName: "Dr. Rajesh Sharma", designation: "Consultant Surgeon" },
       createdAt: "2026-07-06T11:30:00Z", updatedAt: "2026-07-06T11:30:00Z",
+    },
+  ],
+};
+
+// ─── Cross Referrals ────────────────────────────────────────────────────────
+var MOCK_CROSS_REFERRALS = {
+  "ADM-2026-001": [
+    {
+      _id: "cr-001-a",
+      createdByName: "Dr. Rajesh Sharma",
+      createdByRole: "Consultant",
+      cancel: false,
+      crossReferral: {
+        referralInformation: {
+          referringDepartment: "Internal Medicine",
+          referringTo: { id: "9003", name: "Dr. Anand Kulkarni", role: "Consultant", speciality: "Pulmonology" },
+          referralDate: "10 Jul 2026",
+          reasonForReferral: SLATE_TEXT("Community-acquired pneumonia not responding to Ceftriaxone after 5 days. Persistent fever, elevated CRP (86), Procalcitonin 2.8. SpO2 93% on 4L O2. Request pulmonology opinion for antibiotic escalation and possible bronchoscopy."),
+          relativesInformed: {
+            informedByDoctor: { id: "9001", name: "Dr. Rajesh Sharma", role: "Consultant", speciality: "Internal Medicine" },
+            informedTo: "Son",
+            informedOnDate: "10 Jul 2026",
+            informedOnTime: "9:30 AM",
+          },
+        },
+        consultantNotes: [],
+        customModules: [],
+      },
+      filledByDetails: { doctorName: "Dr. Rajesh Sharma", designation: "Consultant - Internal Medicine" },
+      createdAt: "2026-07-10T09:30:00Z", updatedAt: "2026-07-10T09:30:00Z",
+    },
+  ],
+  "ADM-2026-002": [
+    {
+      _id: "cr-002-a",
+      createdByName: "Dr. Rajesh Sharma",
+      createdByRole: "Consultant",
+      cancel: false,
+      crossReferral: {
+        referralInformation: {
+          referringDepartment: "Internal Medicine",
+          referringTo: { id: "9004", name: "Dr. Sanjay Mehta", role: "Consultant", speciality: "Endocrinology" },
+          referralDate: "9 Jul 2026",
+          reasonForReferral: SLATE_TEXT("DKA in Type 1 DM. Blood sugar 428 (down from 520), pH 7.18. On insulin drip protocol. Potassium 3.1. Request endocrinology review for insulin regimen optimization and transition to subcutaneous insulin once DKA resolved."),
+          relativesInformed: {
+            informedByDoctor: { id: "9001", name: "Dr. Rajesh Sharma", role: "Consultant", speciality: "Internal Medicine" },
+            informedTo: "Father",
+            informedOnDate: "9 Jul 2026",
+            informedOnTime: "3:00 PM",
+          },
+        },
+        consultantNotes: [
+          {
+            clinicalAssessment: SLATE_TEXT("DKA resolving. pH improved to 7.28. Blood sugar trending down. Insulin drip reduced to 4u/hr. Anion gap closing. Plan transition to SC insulin once eating."),
+            impression: SLATE_TEXT("Diabetic Ketoacidosis - resolving. Will need basal-bolus insulin regimen. Consider CGM trial."),
+            additionalRemarks: SLATE_TEXT("Follow up in OPD 1 week post-discharge for insulin dose titration. Diabetes education team consulted."),
+            followUp: "18 Jul 2026",
+          },
+        ],
+        customModules: [],
+      },
+      filledByDetails: { doctorName: "Dr. Sanjay Mehta", designation: "Consultant - Endocrinology" },
+      createdAt: "2026-07-09T15:00:00Z", updatedAt: "2026-07-09T18:00:00Z",
+    },
+  ],
+  "ADM-2026-003": [
+    {
+      _id: "cr-003-a",
+      createdByName: "Dr. Rajesh Sharma",
+      createdByRole: "Consultant",
+      cancel: false,
+      crossReferral: {
+        referralInformation: {
+          referringDepartment: "Internal Medicine",
+          referringTo: { id: "9003", name: "Dr. Anand Kulkarni", role: "Consultant", speciality: "Pulmonology" },
+          referralDate: "10 Jul 2026",
+          reasonForReferral: SLATE_TEXT("Acute exacerbation of COPD with Type 2 respiratory failure. ABG: pO2 58, pCO2 52, pH 7.32. On 2L O2, SpO2 89% on room air. Bilateral wheeze. Not responding adequately to nebulization. Request pulmonology review for BiPAP consideration and steroid optimization."),
+          relativesInformed: {
+            informedByDoctor: { id: "9001", name: "Dr. Rajesh Sharma", role: "Consultant", speciality: "Internal Medicine" },
+            informedTo: "Wife",
+            informedOnDate: "10 Jul 2026",
+            informedOnTime: "7:00 AM",
+          },
+        },
+        consultantNotes: [],
+        customModules: [],
+      },
+      filledByDetails: { doctorName: "Dr. Rajesh Sharma", designation: "Consultant - Internal Medicine" },
+      createdAt: "2026-07-10T07:00:00Z", updatedAt: "2026-07-10T07:00:00Z",
     },
   ],
 };
@@ -823,5 +925,6 @@ export {
   MOCK_PROGRESS_NOTES_IPD,
   MOCK_CONSULTANT_NOTES_IPD,
   MOCK_OT_NOTES_IPD,
+  MOCK_CROSS_REFERRALS,
   findAdmissionId,
 };

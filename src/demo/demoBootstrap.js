@@ -16,6 +16,7 @@ import {
   MOCK_PROGRESS_NOTES_IPD,
   MOCK_CONSULTANT_NOTES_IPD,
   MOCK_OT_NOTES_IPD,
+  MOCK_CROSS_REFERRALS,
   findAdmissionId,
 } from "./demoData";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
@@ -206,15 +207,17 @@ function demoRequestInterceptor(config) {
     }
 
     if (url.includes("/ot-notes") || full.includes("/ot-notes")) {
+      var admIdOt = findAdmissionId(full);
       config.adapter = function () {
-        return mockResponse([]);
+        return mockResponse(admIdOt && MOCK_OT_NOTES_IPD[admIdOt] ? MOCK_OT_NOTES_IPD[admIdOt] : []);
       };
       return config;
     }
 
     if (url.includes("/cross-referral") || full.includes("/cross-referral")) {
+      var admIdCr = findAdmissionId(full);
       config.adapter = function () {
-        return mockResponse([]);
+        return mockResponse(admIdCr && MOCK_CROSS_REFERRALS[admIdCr] ? MOCK_CROSS_REFERRALS[admIdCr] : []);
       };
       return config;
     }
