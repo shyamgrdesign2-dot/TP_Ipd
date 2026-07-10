@@ -66,6 +66,11 @@ export function DoctorAgentPanel() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [patientKey]);
 
+  useEffect(() => {
+    setMessages([]);
+    setInput("");
+  }, [patientKey]);
+
   const meta = sectionMeta(view, section);
   const patientName =
     patient?.name && patient.name !== "Unknown Patient" ? patient.name : null;
@@ -334,7 +339,7 @@ function FeedbackRow({ hasCard, sources, print }) {
               <path d="M8 12h8M8 16h5M9 2v3M15 2v3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
               <path d="M20 8v9c0 3-1.5 4.5-4.5 4.5h-7C5.5 21.5 4 20 4 17V8c0-3 1.5-4.5 4.5-4.5h7C18.5 3.5 20 5 20 8Z" stroke="currentColor" strokeWidth="1.5" />
             </svg>
-            <span style={{ fontSize: 12, fontWeight: 500, lineHeight: 1 }}>Source</span>
+            <span ref={el => { if (el) el.style.setProperty("color", srcOpen ? "#3C3BB5" : "#717179", "important"); }} style={{ fontSize: 12, fontWeight: 500, lineHeight: 1 }}>Source</span>
           </button>
           {srcOpen && (
             <div style={{ position: "absolute", top: "100%", left: 44, marginTop: 4, zIndex: 60, width: 240, borderRadius: 8, background: "#fff", boxShadow: "0 4px 20px rgba(0,0,0,0.12), 0 0 0 1px rgba(148,163,184,0.12)", overflow: "hidden" }}>

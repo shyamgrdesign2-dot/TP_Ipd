@@ -277,7 +277,7 @@ const ConsultantNotesPreview = ({ entry }) => {
           ))}
 
         <FilledByCards
-          updates={!!updates.length ? [updates[updates.length - 1]] : []}
+          updates={updates?.length ? [updates[updates.length - 1]] : []}
           createdByRole={entry?.createdByRole}
           createdByName={entry?.createdByName}
           createdAt={entry?.createdAt}

@@ -1,17 +1,17 @@
 .ipd-toolbar-edit-custom-print-download {
   position: fixed;
   bottom: 7px;
-  left: calc(50dvw - 95px);
-  &:not(.no-edit) {
-    left: calc(50dvw - 209px);
-  }
-  right: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  right: auto;
   z-index: 100;
   width: fit-content;
+  max-width: calc(100vw - 24px);
 }
 .ipd-toolbar-edit-custom-print-download-discharge {
   &:not(.no-edit) {
-    left: calc(60dvw) !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
   }
 }
 .ipd-adm-assess-container-readable {

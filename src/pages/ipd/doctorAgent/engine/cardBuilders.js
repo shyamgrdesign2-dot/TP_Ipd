@@ -50,6 +50,75 @@ function buildVitalsCard(e, pt) {
   };
 }
 
+/* ── Vital Trends ───────────────────────────────────────────────────────────── */
+function buildVitalTrendsCard(e, pt) {
+  const trend = e?.vitals?.trend || [];
+  if (!trend.length) {
+    return {
+      intro: `No vital trend data available${pt ? ` for **${pt}**` : ""}.`,
+      config: {
+        kind: "vital_trends",
+        header: { icon: "chart", title: "Vital trends" },
+        content: [{ type: "text", body: "No vitals trend data recorded yet." }],
+      },
+    };
+  }
+
+  const sorted = trend.slice().sort((a, b) => new Date(a.recordedAt || 0) - new Date(b.recordedAt || 0));
+
+  const bpRows = sorted.map((r) => [
+    r.recordedAt ? toDateTimeLabel(r.recordedAt) : "-",
+    r.systolicBP != null && r.diastolicBP != null ? `${r.systolicBP}/${r.diastolicBP}` : "-",
+    r.recordedBy || "-",
+  ]);
+  const hrRows = sorted.map((r) => [
+    r.recordedAt ? toDateTimeLabel(r.recordedAt) : "-",
+    r.heartRate != null ? `${r.heartRate}` : "-",
+    r.recordedBy || "-",
+  ]);
+  const spo2Rows = sorted.map((r) => [
+    r.recordedAt ? toDateTimeLabel(r.recordedAt) : "-",
+    r.spo2 != null ? `${r.spo2}%` : "-",
+    r.recordedBy || "-",
+  ]);
+  const tempRows = sorted.map((r) => [
+    r.recordedAt ? toDateTimeLabel(r.recordedAt) : "-",
+    r.temperature != null ? `${r.temperature} C` : "-",
+    r.recordedBy || "-",
+  ]);
+  const rrRows = sorted.map((r) => [
+    r.recordedAt ? toDateTimeLabel(r.recordedAt) : "-",
+    r.respiratoryRate != null ? `${r.respiratoryRate}` : "-",
+    r.recordedBy || "-",
+  ]);
+
+  const content = [];
+  content.push({ type: "text", variant: "heading", body: "BP Trend (mmHg)" });
+  content.push({ type: "table", columns: ["Time", "BP", "By"], rows: bpRows });
+  content.push({ type: "text", variant: "heading", body: "Heart Rate Trend (bpm)" });
+  content.push({ type: "table", columns: ["Time", "HR", "By"], rows: hrRows });
+  content.push({ type: "text", variant: "heading", body: "SpO2 Trend (%)" });
+  content.push({ type: "table", columns: ["Time", "SpO2", "By"], rows: spo2Rows });
+  content.push({ type: "text", variant: "heading", body: "Temperature Trend (C)" });
+  content.push({ type: "table", columns: ["Time", "Temp", "By"], rows: tempRows });
+  content.push({ type: "text", variant: "heading", body: "Respiratory Rate Trend (/min)" });
+  content.push({ type: "table", columns: ["Time", "RR", "By"], rows: rrRows });
+
+  return {
+    intro: `**Vital trends**${pt ? ` for **${pt}**` : ""}, showing ${sorted.length} reading${sorted.length === 1 ? "" : "s"} over time.`,
+    config: {
+      kind: "vital_trends",
+      header: {
+        icon: "chart",
+        title: "Vital trends",
+        date: `${sorted.length} readings`,
+        badge: { label: `${sorted.length}`, tone: "info" },
+      },
+      content,
+    },
+  };
+}
+
 /* ── MAR ─────────────────────────────────────────────────────────────────────── */
 const MAR_STATUS = { ADMINISTERED: "Given", DUE: "Pending", PENDING: "Pending", MISSED: "Missed", HELD: "Held" };
 
@@ -478,6 +547,7 @@ export function buildCardForMessage(message, ctx = {}) {
   if (/\b(mo|medical officer)\b.*(progress|note)|progress.*\b(mo|medical officer)\b/.test(m)) return buildProgressNotesCards(ctx.timeline, ctx.patient, "mo");
   if (/(nursing|nurse).*(progress|note)|progress.*(nursing|nurse)/.test(m)) return buildProgressNotesCards(ctx.timeline, ctx.patient, "nursing");
   if (/patient (info|detail|profile)|about (this|the) patient/.test(m)) return buildPatientInfoCard(e, ctx.patient);
+  if (/vital\s*trend|trend/.test(m)) return buildVitalTrendsCard(e, pt);
   if (/vital|bp|spo2|sat|temp|pulse|heart/.test(m)) return buildVitalsCard(e, pt);
   if (/med|mar|drug/.test(m)) return buildMarCard(e, pt);
   if (/fluid|intake|output|balance/.test(m)) return buildFluidCard(e, pt);
