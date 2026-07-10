@@ -363,13 +363,17 @@ function buildSummaryCard(e, patient, timeline) {
     intro: `Rounds snapshot for **${p.name || "the patient"}** - ${status}.`,
     config: {
       kind: "patient_summary",
-      sources: [
-        { label: "Nursing vitals chart", description: "BP, HR, SpO2, Temp, RR recorded by nursing on ward rounds" },
-        { label: "Medication administration record", description: "MAR status charted by nursing during drug rounds" },
-        { label: "Nursing progress notes", description: "Latest note charted since your last consultant visit" },
-        { label: "Lab results", description: "Flagged values from the investigation module" },
-        { label: "Nursing risk assessment", description: "Braden, fall risk and other scores from the nursing module" },
-      ],
+      sources: (function () {
+        var s = [];
+        var nCount = (timeline?.nursing || []).length;
+        var mCount = (timeline?.mo || []).length;
+        var latestN = (timeline?.nursing || [])[0];
+        var latestM = (timeline?.mo || [])[0];
+        if (nCount) s.push({ label: "Nursing progress note" + (nCount > 1 ? "s" : ""), description: nCount + " note" + (nCount > 1 ? "s" : "") + (latestN?.recordedAt ? ", latest " + toDateTimeLabel(latestN.recordedAt) : "") });
+        if (mCount) s.push({ label: "MO progress note" + (mCount > 1 ? "s" : ""), description: mCount + " note" + (mCount > 1 ? "s" : "") + (latestM?.recordedAt ? ", latest " + toDateTimeLabel(latestM.recordedAt) : "") });
+        if (!s.length) s.push({ label: "IPD clinical record", description: "Charted in the IPD modules by clinical staff" });
+        return s;
+      })(),
       header: {
         icon: "activity",
         title: "Rounds snapshot",
@@ -476,7 +480,6 @@ function noteCardConfig(n, i, meta, kindKey) {
   const content = [];
   const by = [author, role].filter(Boolean).join(", ");
   if (by) content.push({ type: "keyvalue", items: [{ key: "By", value: by }] });
-  if (n.summary) content.push({ type: "text", body: n.summary });
   // Each charted cluster becomes a full-width section: vitals first (as chips),
   // then every documented field as its own heading + body.
   const sections = [];

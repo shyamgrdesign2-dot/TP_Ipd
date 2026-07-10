@@ -330,34 +330,41 @@ var MOCK_PROGRESS_TIMELINE = {
     nursing: [
       {
         recordedAt: "2026-07-10T06:30:00Z", author: "Nurse Meena", role: "Nurse", shiftType: "Morning",
-        summary: "Fever trending down. SpO2 93% on O2. Cough productive, yellowish sputum. Oral intake improving.",
         vitals: { bp: "128/82", hr: 98, rr: 24, spo2: 93, temp: 101.2 },
         fields: [
-          { label: "General Condition", value: "Conscious, oriented, febrile. Resting comfortably." },
-          { label: "Respiratory", value: "O2 via nasal cannula 4L/min. Bilateral creps in lower zones. Productive cough." },
+          { label: "General Condition", value: "Conscious, oriented, febrile. Resting comfortably. Oral intake improving." },
+          { label: "Respiratory", value: "O2 via nasal cannula 4L/min. Bilateral creps in lower zones. Productive cough, yellowish sputum." },
           { label: "IV Lines", value: "Right forearm IV patent, no signs of phlebitis. Due for change tomorrow." },
+          { label: "Diet", value: "Tolerating soft diet. Oral intake improved since yesterday." },
         ],
       },
       {
         recordedAt: "2026-07-09T22:00:00Z", author: "Nurse Sunita", role: "Nurse", shiftType: "Night",
-        summary: "High-grade fever spike to 102.4F at 18:00. Paracetamol given, came down to 101.8. SpO2 dipped to 91%, O2 increased to 4L.",
         vitals: { bp: "130/85", hr: 105, rr: 26, spo2: 92, temp: 101.8 },
         fields: [
           { label: "General Condition", value: "Restless due to fever. Sponging done. Took oral fluids." },
-          { label: "Respiratory", value: "Increased work of breathing during fever spike. Settled after antipyretic." },
+          { label: "Respiratory", value: "Increased work of breathing during fever spike. Settled after antipyretic. SpO2 dipped to 91%, O2 increased to 4L." },
+          { label: "Monitoring", value: "Fever spike to 102.4F at 18:00. Paracetamol given, came down to 101.8. Hourly SpO2 monitoring." },
         ],
       },
     ],
     mo: [
       {
         recordedAt: "2026-07-10T08:30:00Z", author: "Dr. Priya Mehta", role: "MO", authorRole: "Medical Officer",
-        summary: "Day 5 of Ceftriaxone. Fever persisting but trending down. Inflammatory markers still elevated (CRP 86, PCT 2.8). Consider blood culture and possible antibiotic escalation if no improvement by tomorrow.",
         vitals: { bp: "128/82", hr: 98, rr: 24, spo2: 93, temp: 101.2 },
         fields: [
-          { label: "Subjective", value: "Patient reports feeling slightly better. Cough persisting but less frequent. Appetite improving." },
-          { label: "Objective", value: "Febrile 101.2F. Bilateral basal creps, reduced compared to admission. No new findings." },
-          { label: "Assessment", value: "Community-acquired pneumonia, Day 5. Slow response to Ceftriaxone. Rule out atypical organisms." },
-          { label: "Plan", value: "1. Send repeat blood culture. 2. Add Azithromycin 500mg IV OD if no improvement by evening. 3. Continue supportive care. 4. Repeat CRP tomorrow." },
+          { label: "Chief Complaint", value: "Persistent fever Day 5. Cough improving but still productive. Appetite better." },
+          { label: "Findings", value: "Febrile 101.2F. Bilateral basal creps, reduced compared to admission. SpO2 93% on 4L O2. No new findings on examination." },
+          { label: "Additional Remarks", value: "CAP Day 5, slow response to Ceftriaxone. CRP 86, PCT 2.8 still elevated. Send repeat blood culture. Add Azithromycin 500mg IV OD if no improvement by evening. Repeat CRP tomorrow." },
+        ],
+      },
+      {
+        recordedAt: "2026-07-09T20:00:00Z", author: "Dr. Priya Mehta", role: "MO", authorRole: "Medical Officer",
+        vitals: { bp: "130/85", hr: 105, rr: 26, spo2: 92, temp: 101.8 },
+        fields: [
+          { label: "Chief Complaint", value: "High-grade fever spike to 102.4F at 18:00. Breathlessness increased." },
+          { label: "Findings", value: "Febrile, tachycardic. Bilateral creps in lower zones, no change. SpO2 dipped to 91%, increased O2 to 4L." },
+          { label: "Additional Remarks", value: "Fever spike likely disease progression. Paracetamol given. Increase O2 to 4L. Monitor SpO2 hourly. Consider escalation if no response to current antibiotics by morning round." },
         ],
       },
     ],
@@ -368,32 +375,42 @@ var MOCK_PROGRESS_TIMELINE = {
     nursing: [
       {
         recordedAt: "2026-07-10T07:00:00Z", author: "Nurse Anitha", role: "Nurse", shiftType: "Morning",
-        summary: "DKA protocol ongoing. Blood sugar trending down 520 -> 428. pH improving slowly. K+ 3.1, replacement started. Strict I/O.",
         vitals: { bp: "88/54", hr: 118, rr: 30, spo2: 88, temp: 99.1 },
         fields: [
           { label: "General Condition", value: "Drowsy but arousable, GCS 14/15 (E4V4M6). Kussmaul breathing present." },
           { label: "IV Lines", value: "Central line right subclavian - patent. Insulin infusion via syringe pump at 6u/hr. NS running at 200ml/hr." },
           { label: "Monitoring", value: "Hourly blood sugar. 2-hourly ABG. Continuous SpO2 and ECG monitoring. Strict I/O charting." },
+          { label: "Fluid Balance", value: "Intake 2800ml (IV). Output 1200ml (urine). Net +1600ml in 24 hours." },
         ],
       },
       {
         recordedAt: "2026-07-10T04:00:00Z", author: "Nurse Priya", role: "Nurse", shiftType: "Night",
-        summary: "Blood sugar 480 at midnight. Insulin rate increased to 6u/hr from 4u/hr. Patient confused intermittently. K+ 3.3 at 02:00.",
         vitals: { bp: "85/50", hr: 125, rr: 32, spo2: 87, temp: 99.4 },
         fields: [
-          { label: "General Condition", value: "Intermittently confused. GCS fluctuating 13-14. Dehydrated - poor skin turgor." },
+          { label: "General Condition", value: "Intermittently confused. GCS fluctuating 13-14. Dehydrated, poor skin turgor." },
+          { label: "IV Lines", value: "Central line patent. Insulin infusion rate increased to 6u/hr from 4u/hr per MO order." },
           { label: "Fluid Balance", value: "Intake 2100ml (IV). Output 900ml (urine). Net +1200ml in 12 hours." },
+          { label: "Monitoring", value: "Blood sugar 480 at midnight. K+ 3.3 at 02:00. Continuous ECG monitoring, no arrhythmia." },
         ],
       },
     ],
     mo: [
       {
         recordedAt: "2026-07-10T07:30:00Z", author: "Dr. Amit Shah", role: "MO", authorRole: "Medical Officer",
-        summary: "DKA Day 3, improving but slow. Anion gap closing. Transition to SC insulin when pH > 7.3 and patient tolerating orals.",
         vitals: { bp: "88/54", hr: 118, rr: 30, spo2: 88, temp: 99.1 },
         fields: [
-          { label: "Assessment", value: "Diabetic Ketoacidosis - resolving. Precipitant likely UTI (urine culture pending). Hypokalemia on replacement." },
-          { label: "Plan", value: "1. Continue DKA protocol. 2. Repeat ABG at 10:00. 3. Repeat K+ at 09:00. 4. Start oral sips if alert. 5. Endocrine consult for insulin regimen planning." },
+          { label: "Chief Complaint", value: "DKA Day 3. Blood sugar trending down but still elevated. Patient drowsy." },
+          { label: "Findings", value: "GCS 14/15. Kussmaul breathing present. Dehydrated, poor skin turgor. pH 7.18 (improving from 7.12). K+ 3.1, on replacement." },
+          { label: "Additional Remarks", value: "DKA resolving slowly. Anion gap closing. Continue DKA protocol. Repeat ABG at 10:00, repeat K+ at 09:00. Start oral sips if alert. Endocrine consult for insulin regimen planning. Transition to SC insulin when pH > 7.3." },
+        ],
+      },
+      {
+        recordedAt: "2026-07-09T20:00:00Z", author: "Dr. Amit Shah", role: "MO", authorRole: "Medical Officer",
+        vitals: { bp: "85/50", hr: 125, rr: 32, spo2: 87, temp: 99.4 },
+        fields: [
+          { label: "Chief Complaint", value: "DKA Day 2. Blood sugar 480 at 18:00. Confused intermittently." },
+          { label: "Findings", value: "GCS fluctuating 13-14. Tachycardic, hypotensive. Kussmaul breathing. K+ 3.3 at 18:00. Urine output 40ml/hr." },
+          { label: "Additional Remarks", value: "Increase insulin rate to 6u/hr from 4u/hr. Bolus 500ml NS over 1 hour. KCl 40mEq in next NS bag. Hourly blood sugar. 2-hourly ABG. Strict I/O. Call if GCS drops below 13." },
         ],
       },
     ],
@@ -404,21 +421,40 @@ var MOCK_PROGRESS_TIMELINE = {
     nursing: [
       {
         recordedAt: "2026-07-10T05:45:00Z", author: "Nurse Rekha", role: "Nurse", shiftType: "Night",
-        summary: "Acute exacerbation of COPD. SpO2 89% on room air, 93% on 2L O2. Bilateral wheezing. Nebulization given with partial response.",
         vitals: { bp: "145/92", hr: 82, rr: 22, spo2: 89, temp: 98.6 },
         fields: [
-          { label: "Respiratory", value: "Using accessory muscles. Bilateral expiratory wheeze. Air entry reduced in bases. Nebulization given x3 overnight." },
           { label: "General Condition", value: "Anxious, unable to lie flat. Propped up on 3 pillows. Sleeping in intervals." },
+          { label: "Respiratory", value: "Using accessory muscles. Bilateral expiratory wheeze. Air entry reduced in bases. Nebulization given x3 overnight." },
+          { label: "IV Lines", value: "Left hand peripheral IV patent, no signs of phlebitis. IV Deriphylline running." },
+        ],
+      },
+      {
+        recordedAt: "2026-07-09T18:30:00Z", author: "Nurse Fatima", role: "Nurse", shiftType: "Evening",
+        vitals: { bp: "148/95", hr: 88, rr: 24, spo2: 91, temp: 98.8 },
+        fields: [
+          { label: "General Condition", value: "Conscious, oriented. Dyspneic at rest. Sitting upright, reluctant to lie down." },
+          { label: "Respiratory", value: "SpO2 91% on 2L O2. Bilateral wheeze present. Nebulization with Salbutamol + Ipratropium given, partial relief." },
+          { label: "Monitoring", value: "Continuous SpO2 monitoring. O2 via nasal cannula 2L/min. ABG sent at 18:00." },
         ],
       },
     ],
     mo: [
       {
-        recordedAt: "2026-07-09T22:00:00Z", author: "Dr. Kavita Rao", role: "MO", authorRole: "Medical Officer",
-        summary: "AECOPD with type 2 respiratory failure (pCO2 52). Not improving adequately on current bronchodilators. Consider NIV if further deterioration.",
+        recordedAt: "2026-07-10T07:00:00Z", author: "Dr. Kavita Rao", role: "MO", authorRole: "Medical Officer",
+        vitals: { bp: "145/92", hr: 82, rr: 22, spo2: 89, temp: 98.6 },
         fields: [
-          { label: "Assessment", value: "Acute exacerbation of COPD on background of GOLD Stage III. Type 2 respiratory failure. Hypertension uncontrolled." },
-          { label: "Plan", value: "1. Increase O2 to 2L (careful - CO2 retainer). 2. Add IV Hydrocortisone 100mg TDS. 3. Continue nebulization QID. 4. Repeat ABG in morning. 5. Keep NIV on standby. 6. Chest physiotherapy." },
+          { label: "Chief Complaint", value: "Worsening breathlessness overnight. Unable to sleep supine." },
+          { label: "Findings", value: "Bilateral expiratory wheeze. Accessory muscle use. Air entry reduced bilaterally in lower zones. No pedal edema." },
+          { label: "Additional Remarks", value: "AECOPD with type 2 respiratory failure (pCO2 52). Not improving adequately. Consider NIV if further deterioration. Increase O2 to 2L, add IV Hydrocortisone 100mg TDS, continue nebulization QID, repeat ABG in morning, keep NIV on standby." },
+        ],
+      },
+      {
+        recordedAt: "2026-07-09T22:00:00Z", author: "Dr. Kavita Rao", role: "MO", authorRole: "Medical Officer",
+        vitals: { bp: "148/95", hr: 88, rr: 24, spo2: 91, temp: 98.8 },
+        fields: [
+          { label: "Chief Complaint", value: "Acute worsening of dyspnea since afternoon. SpO2 dropping on room air." },
+          { label: "Findings", value: "Tachypneic, using accessory muscles. Bilateral rhonchi. No crepitations. JVP not raised." },
+          { label: "Additional Remarks", value: "Acute exacerbation of COPD on GOLD Stage III. Type 2 respiratory failure. Start O2 2L via NC, nebulization QID, IV Deriphylline. Chest physiotherapy. Repeat ABG at 22:00." },
         ],
       },
     ],
@@ -429,16 +465,43 @@ var MOCK_PROGRESS_TIMELINE = {
     nursing: [
       {
         recordedAt: "2026-07-10T06:00:00Z", author: "Nurse Lakshmi", role: "Nurse", shiftType: "Morning",
-        summary: "Post-delivery Day 1. Vitals stable. Lochia normal, moderate amount. Breastfeeding initiated, baby latching well.",
         vitals: { bp: "118/72", hr: 78, rr: 18, spo2: 98, temp: 98.4 },
         fields: [
-          { label: "Obstetric Assessment", value: "Uterus well contracted, fundal height at umbilicus. Lochia rubra, moderate, no clots. Perineum intact." },
-          { label: "Baby Status", value: "Full term male baby, 3.2kg. Breastfeeding well, latching properly. Passed urine and meconium." },
-          { label: "General", value: "Ambulant, tolerating diet. Mild perineal discomfort managed with ice pack." },
+          { label: "General Condition", value: "Conscious, oriented. Post-delivery Day 1. Ambulant, tolerating diet. Mild discomfort managed with ice pack." },
+          { label: "IV Lines", value: "Left hand IV removed. Oral medications started." },
+          { label: "Pain", value: "Pain score 3/10 at rest. Paracetamol given at 06:00." },
+        ],
+      },
+      {
+        recordedAt: "2026-07-09T22:30:00Z", author: "Nurse Deepa", role: "Nurse", shiftType: "Night",
+        vitals: { bp: "120/76", hr: 80, rr: 17, spo2: 99, temp: 98.6 },
+        fields: [
+          { label: "General Condition", value: "Comfortable, resting well. Tolerating oral fluids and soft diet. Voiding normally." },
+          { label: "Monitoring", value: "Vitals stable throughout shift. Urine output adequate. No complaints." },
+          { label: "Wound Care", value: "Perineum clean, no swelling or discharge. Ice pack applied for comfort." },
         ],
       },
     ],
-    mo: [],
+    mo: [
+      {
+        recordedAt: "2026-07-10T09:00:00Z", author: "Dr. Neha Gupta", role: "MO", authorRole: "Medical Officer",
+        vitals: { bp: "118/72", hr: 78, rr: 18, spo2: 98, temp: 98.4 },
+        fields: [
+          { label: "Chief Complaint", value: "Post normal vaginal delivery Day 1. Mild perineal discomfort." },
+          { label: "Findings", value: "Vitals stable. Abdomen soft, non-tender. Uterus well-contracted. No pallor. Hemoglobin 9.8 g/dL noted." },
+          { label: "Additional Remarks", value: "Uncomplicated post-delivery Day 1. Start oral Iron + Folic acid. Continue Paracetamol PRN. Plan discharge tomorrow if stable. Advise follow-up in OPD after 1 week." },
+        ],
+      },
+      {
+        recordedAt: "2026-07-09T20:00:00Z", author: "Dr. Neha Gupta", role: "MO", authorRole: "Medical Officer",
+        vitals: { bp: "120/76", hr: 80, rr: 17, spo2: 99, temp: 98.6 },
+        fields: [
+          { label: "Chief Complaint", value: "Post normal delivery. Evening round review." },
+          { label: "Findings", value: "Afebrile. Ambulant. Tolerating orals. Urine output adequate. No bleeding concerns." },
+          { label: "Additional Remarks", value: "Stable post-delivery. Remove IV cannula. Start oral medications. Continue monitoring vitals 4-hourly." },
+        ],
+      },
+    ],
   },
   "ADM-2026-005": {
     consultant: "Dr. Rajesh Sharma",
@@ -446,32 +509,41 @@ var MOCK_PROGRESS_TIMELINE = {
     nursing: [
       {
         recordedAt: "2026-07-10T06:15:00Z", author: "Nurse Divya", role: "Nurse", shiftType: "Morning",
-        summary: "Post-op Day 4 (Lap Cholecystectomy). Drain output 15ml serosanguinous. Wound clean. Pain on IV Tramadol - held due to nausea.",
         vitals: { bp: "134/86", hr: 92, rr: 20, spo2: 96, temp: 99.8 },
         fields: [
-          { label: "Surgical Site", value: "All 4 port sites clean and dry. No erythema or discharge. Dressing intact." },
-          { label: "Drain", value: "Subhepatic drain in situ. Output last 24h: 15ml serosanguinous. No bile staining." },
+          { label: "General Condition", value: "Post-op Day 4 (Lap Cholecystectomy). Ambulant independently. Low-grade fever persisting." },
+          { label: "Wound Care", value: "All 4 port sites clean and dry. No erythema or discharge. Dressing intact." },
+          { label: "IV Lines", value: "Subhepatic drain in situ. Output last 24h: 15ml serosanguinous. No bile staining. Right hand IV patent." },
           { label: "Diet", value: "Tolerating soft diet. Mild nausea after meals, anti-emetic given. Passing flatus, no bowel movement yet." },
         ],
       },
       {
         recordedAt: "2026-07-09T18:00:00Z", author: "Nurse Priya", role: "Nurse", shiftType: "Evening",
-        summary: "Post-op Day 3. Low-grade fever 100.2F. Drain output 30ml. Wound sites checked - all clean. Started on soft diet.",
         vitals: { bp: "136/87", hr: 94, rr: 21, spo2: 95, temp: 100.0 },
         fields: [
-          { label: "General Condition", value: "Ambulant with support. Tolerating sips of water, started soft diet at dinner. Passed flatus." },
+          { label: "General Condition", value: "Post-op Day 3. Ambulant with support. Started soft diet at dinner. Passed flatus." },
           { label: "Pain", value: "Pain score 5/10 at rest, 7/10 on movement. Tramadol given, nausea developed 30 mins later." },
+          { label: "Wound Care", value: "Port sites checked, all clean and dry. Drain output 30ml serosanguinous since morning." },
         ],
       },
     ],
     mo: [
       {
         recordedAt: "2026-07-10T08:00:00Z", author: "Dr. Suresh Kumar", role: "MO", authorRole: "Medical Officer",
-        summary: "Post-op Day 4 Lap Chole. Low-grade fever persisting - likely post-operative. Drain output minimal, consider removal. Switch to oral analgesics.",
         vitals: { bp: "134/86", hr: 92, rr: 20, spo2: 96, temp: 99.8 },
         fields: [
-          { label: "Assessment", value: "Post Laparoscopic Cholecystectomy Day 4. Uncomplicated recovery. Low-grade fever - most likely post-op inflammatory response. Drain output minimal." },
-          { label: "Plan", value: "1. Remove drain today if output < 20ml. 2. Switch Tramadol to Paracetamol + Aceclofenac PO. 3. Upgrade to regular diet. 4. Plan discharge tomorrow if afebrile. 5. Continue DVT prophylaxis till discharge." },
+          { label: "Chief Complaint", value: "Post-op Day 4 Lap Cholecystectomy. Low-grade fever persisting. Nausea with IV Tramadol." },
+          { label: "Findings", value: "Afebrile at morning check (99.8F). Abdomen soft, port sites clean. Drain output 15ml serosanguinous. Bowel sounds present. No tenderness." },
+          { label: "Additional Remarks", value: "Uncomplicated recovery. Remove drain today (output < 20ml). Switch Tramadol to Paracetamol + Aceclofenac PO. Upgrade to regular diet. Plan discharge tomorrow if afebrile. Continue DVT prophylaxis till discharge." },
+        ],
+      },
+      {
+        recordedAt: "2026-07-09T20:00:00Z", author: "Dr. Suresh Kumar", role: "MO", authorRole: "Medical Officer",
+        vitals: { bp: "136/87", hr: 94, rr: 21, spo2: 95, temp: 100.0 },
+        fields: [
+          { label: "Chief Complaint", value: "Post-op Day 3. Low-grade fever 100.2F. Nausea after Tramadol administration." },
+          { label: "Findings", value: "Low-grade fever, likely post-op inflammatory response. Port sites clean. Drain output 30ml. Started tolerating soft diet." },
+          { label: "Additional Remarks", value: "Fever likely post-op, no signs of surgical site infection. Continue current antibiotics for 24 more hours. Anti-emetic before Tramadol dose. Start soft diet. Monitor drain output." },
         ],
       },
     ],
