@@ -44,14 +44,24 @@ function demoRequestInterceptor(config) {
     var full = base + url;
 
     if (full.includes("/patients/filters")) {
+      var fieldMatch = full.match(/field=(\w+)/);
+      var field = fieldMatch ? fieldMatch[1] : "";
       config.adapter = function () {
-        return mockResponse({
-          status: true,
-          data: {
-            wards: ["General Ward A", "General Ward B", "ICU", "Maternity Ward", "Surgical Ward"],
-            doctors: [{ id: 9001, name: "Dr. Rajesh Sharma" }],
-          },
-        });
+        if (field === "doctor") {
+          return mockResponse([
+            { id: 9001, name: "Dr. Rajesh Sharma" },
+          ]);
+        }
+        if (field === "ward") {
+          return mockResponse([
+            { id: 1, title: "General Ward A" },
+            { id: 2, title: "ICU" },
+            { id: 3, title: "General Ward B" },
+            { id: 4, title: "Maternity Ward" },
+            { id: 5, title: "Surgical Ward" },
+          ]);
+        }
+        return mockResponse([]);
       };
       return config;
     }
@@ -61,10 +71,12 @@ function demoRequestInterceptor(config) {
         return mockResponse({
           status: true,
           patients: MOCK_PATIENTS,
-          totalCount: MOCK_PATIENTS.length,
-          page: 1,
-          limit: 10,
-          hasMore: false,
+          pagination: {
+            page: 1,
+            limit: 10,
+            total: MOCK_PATIENTS.length,
+            totalPages: 1,
+          },
         });
       };
       return config;
