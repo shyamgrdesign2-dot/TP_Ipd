@@ -127,6 +127,7 @@ function ContentBlock({ block }) {
     case "notestack": return <NoteStack notes={block.notes} />;
     case "deflist": return <DefList items={block.items} />;
     case "sections": return <SectionsBlock items={block.items} />;
+    case "linechart": return <LineChart block={block} />;
     default: return null;
   }
 }
@@ -410,6 +411,72 @@ function MiniTable({ columns = [], rows = [] }) {
           ))}
         </div>
       ))}
+    </div>
+  );
+}
+
+function LineChart({ block }) {
+  const { title: chartTitle, series = [], labels = [], unit = "", normalRange } = block;
+  if (!series.length || !labels.length) return null;
+  const allVals = series.flatMap((s) => s.data.filter((v) => v != null));
+  const rawMin = Math.min(...allVals);
+  const rawMax = Math.max(...allVals);
+  const pad = (rawMax - rawMin) * 0.15 || 5;
+  const lo = normalRange ? Math.min(rawMin, normalRange[0]) - pad : rawMin - pad;
+  const hi = normalRange ? Math.max(rawMax, normalRange[1]) + pad : rawMax + pad;
+  const W = 280, H = 100, PL = 32, PR = 4, PT = 4, PB = 18;
+  const cw = W - PL - PR, ch = H - PT - PB;
+  const xStep = labels.length > 1 ? cw / (labels.length - 1) : cw;
+  const toY = (v) => PT + ch - ((v - lo) / (hi - lo)) * ch;
+  const toX = (i) => PL + i * xStep;
+  const COLORS = ["#673AAC", "#E8590C", "#2563EB", "#059669"];
+  const gridLines = 4;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      {chartTitle && (
+        <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 10.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.4, color: "var(--tesseract-fg-secondary, #475467)", background: "var(--tesseract-slate-100, #f1f1f5)", padding: "3px 8px", borderRadius: 5 }}>
+          <span>{chartTitle}</span>
+          {unit && <span style={{ fontWeight: 500, textTransform: "none" }}>({unit})</span>}
+        </div>
+      )}
+      <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", height: "auto" }}>
+        {Array.from({ length: gridLines + 1 }, (_, gi) => {
+          const v = lo + ((hi - lo) * gi) / gridLines;
+          const y = toY(v);
+          return (
+            <g key={gi}>
+              <line x1={PL} x2={W - PR} y1={y} y2={y} stroke="var(--tesseract-slate-100, #f1f1f5)" strokeWidth="0.5" />
+              <text x={PL - 3} y={y + 3} textAnchor="end" fontSize="7" fill="var(--tesseract-fg-tertiary, #98a2b3)">{Math.round(v)}</text>
+            </g>
+          );
+        })}
+        {normalRange && (
+          <rect x={PL} y={toY(normalRange[1])} width={cw} height={toY(normalRange[0]) - toY(normalRange[1])} fill="rgba(5,150,105,0.06)" rx="2" />
+        )}
+        {series.map((s, si) => {
+          const pts = s.data.map((v, i) => (v != null ? `${toX(i)},${toY(v)}` : null)).filter(Boolean);
+          const color = COLORS[si % COLORS.length];
+          return (
+            <g key={si}>
+              <polyline points={pts.join(" ")} fill="none" stroke={color} strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round" />
+              {s.data.map((v, i) => v != null ? <circle key={i} cx={toX(i)} cy={toY(v)} r="2.5" fill="#fff" stroke={color} strokeWidth="1.2" /> : null)}
+            </g>
+          );
+        })}
+        {labels.map((l, i) => (
+          <text key={i} x={toX(i)} y={H - 2} textAnchor="middle" fontSize="6.5" fill="var(--tesseract-fg-tertiary, #98a2b3)">{l}</text>
+        ))}
+      </svg>
+      {series.length > 1 && (
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", padding: "0 2px" }}>
+          {series.map((s, si) => (
+            <span key={si} style={{ display: "inline-flex", alignItems: "center", gap: 3, fontSize: 10 }}>
+              <span style={{ width: 8, height: 8, borderRadius: "50%", background: COLORS[si % COLORS.length] }} />
+              <span style={{ color: "var(--tesseract-fg-secondary, #475467)" }}>{s.label}</span>
+            </span>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
