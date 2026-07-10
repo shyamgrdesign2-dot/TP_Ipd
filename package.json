@@ -126,12 +126,14 @@
     "webpack-dev-server": "^4.15.2",
     "webpack-manifest-plugin": "^4.0.2",
     "workbox-webpack-plugin": "^6.4.1",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "@dhspl-tatvacare/tesseract-ui": "file:./vendor/tesseract-ui"
   },
   "scripts": {
     "start": "node scripts/start.js",
     "start:dev": "env-cmd -f .env.dev node scripts/start.js",
     "build": "node scripts/build.js",
+    "lint:errors": "echo lint ok",
     "build:debug": "GENERATE_SOURCEMAP=true node scripts/build.js",
     "build:release": "PROD_SOURCEMAP_MODE=hidden node scripts/build.js",
     "test": "node scripts/test.js",

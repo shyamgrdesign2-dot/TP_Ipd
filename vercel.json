@@ -1,0 +1,17 @@
+{
+  "buildCommand": "node scripts/build.js",
+  "outputDirectory": "build",
+  "framework": null,
+  "rewrites": [
+    { "source": "/((?!shared-ui|static|icons|favicon|manifest|logo|asset-manifest).*)", "destination": "/index.html" }
+  ],
+  "headers": [
+    {
+      "source": "/shared-ui/assets/(.*)",
+      "headers": [
+        { "key": "Content-Type", "value": "application/javascript" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" }
+      ]
+    }
+  ]
+}

@@ -11,6 +11,8 @@ import Slider from "react-slick";
 import playIconutube from "../../../assets/images/play-icon.png";
 import tutorial from "../../../assets/images/tutorial-icon.svg";
 import playIcons from "../../../assets/images/tube-icon.svg";
+import tpLogo from "../../../assets/images/logo-tatva-emr.svg";
+import tpTextLogo from "../../../assets/images/text-logo.svg";
 
 import { changeHospital } from "../../../redux/doctorsSlice";
 import { useLocalStorage } from "../../../utils/localStorage";
@@ -19,6 +21,8 @@ import { getClinicName } from "../../../utils/utils";
 import VideoModal from "../../../common/VideoModal";
 import Header from "../../../common/Header";
 import { env } from "../../../EnvironmentConfig";
+
+var IS_DEMO = process.env.REACT_APP_DEMO === "true";
 
 function IPDHeader({ locationPath }) {
   const [popOverVideo, setPopOverVideo] = useState(false);
@@ -201,6 +205,36 @@ function IPDHeader({ locationPath }) {
     const token = getToken();
     window.location.href = `${env.doctor_portal_url}?authToken=${token}`;
   };
+
+  if (IS_DEMO) {
+    return (
+      <Navbar className="justify-content-between portal-header" style={{ padding: "8px 20px" }}>
+        <Container fluid className="d-flex align-items-center justify-content-between">
+          <div className="d-flex align-items-center" style={{ gap: 12 }}>
+            <img src={tpLogo} alt="TatvaPractice" style={{ height: 36 }} />
+            <img src={tpTextLogo} alt="TatvaPractice" style={{ height: 22 }} />
+            <span
+              style={{
+                background: "linear-gradient(91deg, #D565EA 3%, #673AAC 67%, #1A1994 130%)",
+                color: "#fff",
+                fontSize: 11,
+                fontWeight: 700,
+                padding: "3px 10px",
+                borderRadius: 6,
+                letterSpacing: 1.2,
+                marginLeft: 4,
+              }}
+            >
+              IPD
+            </span>
+          </div>
+          <div style={{ fontSize: 13, color: "#667085" }}>
+            Doctor Agent Prototype
+          </div>
+        </Container>
+      </Navbar>
+    );
+  }
 
   return (
     <>

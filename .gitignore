@@ -23,3 +23,5 @@ yarn-debug.log*
 yarn-error.log*
 # Sentry Config File
 .sentryclirc
+.claude/
+build/

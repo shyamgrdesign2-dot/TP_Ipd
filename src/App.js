@@ -76,6 +76,7 @@ import AssessmentsForm from "./pages/ipd/assessmentForm/AssessmentsForm";
 import InPatients from "./pages/ipd/inPatients/InPatients";
 import OtNotes from "./pages/ipd/otNotes/OtNotes";
 import HomePageLayout from "./pages/ipd/HomePageLayout";
+import { DoctorAgentMount } from "./pages/ipd/doctorAgent";
 import ConsultantNotes from "./pages/ipd/consultantNotes/ConsultantNotes";
 import LabResults from "./pages/ipd/labResults/LabResults";
 import ProgressNotes from "./pages/ipd/progressNotes/progressNotes";
@@ -720,6 +721,7 @@ function App() {
               <Route path="/*" element={<Navigate to="/ipd/inPatients" replace />} />
             </Routes>
             )}
+            <DoctorAgentMount />
           </PersistGate>
         </Provider>
       </ErrorBoundary>

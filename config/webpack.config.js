@@ -785,7 +785,9 @@ module.exports = function (webpackEnv) {
                 ? 'module /shared-ui/assets/remoteEntry.js'
                 : isProdLikeReactAppEnv
                 ? 'module /shared-ui/assets/remoteEntry.js'
-                : 'module http://localhost:3001/assets/remoteEntry.js',
+                : process.env.USE_LOCAL_SHARED_UI === 'true'
+                ? 'module http://localhost:3001/assets/remoteEntry.js'
+                : 'module /shared-ui/assets/remoteEntry.js',
           },
           shared: {
             react: { singleton: true, requiredVersion: false, eager: false },

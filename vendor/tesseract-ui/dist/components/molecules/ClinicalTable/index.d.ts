@@ -1,0 +1,1 @@
+export { ClinicalTable } from "./ClinicalTable";

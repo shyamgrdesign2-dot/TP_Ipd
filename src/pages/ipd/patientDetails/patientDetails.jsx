@@ -15,6 +15,7 @@ import AssessmentsForm from "../assessmentForm/AssessmentsForm";
 import ToolbarActions from "../components/ToolbarActions/ToolbarActions";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { setAgentPatient, clearAgentPatient } from "../doctorAgent";
 import { useDispatch } from "react-redux";
 import {
   getAssessmentsData,
@@ -162,6 +163,12 @@ const IPDPatientDetails = () => {
     if (!patientDetails || !admissionId) {
       navigate("/ipd/inPatients", { replace: true });
     }
+  }, [patientDetails, admissionId]);
+
+  // Broadcast the current patient to the Doctor Agent (root-mounted panel reads this).
+  useEffect(() => {
+    if (patientDetails && admissionId) setAgentPatient(patientDetails);
+    return () => clearAgentPatient();
   }, [patientDetails, admissionId]);
 
   useEffect(() => {
