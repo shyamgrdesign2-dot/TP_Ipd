@@ -1,4 +1,4 @@
-const DEMO_DOCTOR = {
+var DEMO_DOCTOR = {
   id: 9001,
   doctor_unique_id: "DEMO-DR-001",
   first_name: "Dr. Rajesh",
@@ -10,6 +10,9 @@ const DEMO_DOCTOR = {
   clinic_name: "TatvaCare Demo Hospital",
   hospital_id: 1001,
   hospital_name: "TatvaCare Demo Hospital",
+  hospital_data: [
+    { hm_id: 1001, hm_name: "TatvaCare Demo Hospital" },
+  ],
   clinics: [
     { id: 1001, name: "TatvaCare Demo Hospital", is_default: 1 },
   ],
@@ -30,6 +33,7 @@ function makeMockJwt() {
         first_name: DEMO_DOCTOR.first_name,
         last_name: DEMO_DOCTOR.last_name,
         hospital_id: DEMO_DOCTOR.hospital_id,
+        clinic_id: DEMO_DOCTOR.hospital_id,
       },
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(Date.now() / 1000) + 86400 * 365,
@@ -112,128 +116,696 @@ var MOCK_PATIENTS = [
   },
 ];
 
+// ─── Vitals (camelCase for card builders) ────────────────────────────────────
 var MOCK_VITALS = {
   "PAT-001": {
     latest: {
-      temperature: 101.2,
-      heart_rate: 98,
-      spo2: 93,
-      respiratory_rate: 24,
-      systolic_bp: 128,
-      diastolic_bp: 82,
-      blood_sugar: 142,
-      recorded_at: "2026-07-10T06:30:00Z",
+      temperature: 101.2, heartRate: 98, spo2: 93, respiratoryRate: 24,
+      systolicBP: 128, diastolicBP: 82, bloodSugar: 142,
+      recordedAt: "2026-07-10T06:30:00Z", recordedBy: "Nurse Meena",
     },
     trend: [
-      { temperature: 102.4, heart_rate: 110, spo2: 91, respiratory_rate: 28, systolic_bp: 135, diastolic_bp: 88, blood_sugar: 156, recorded_at: "2026-07-09T18:00:00Z" },
-      { temperature: 101.8, heart_rate: 105, spo2: 92, respiratory_rate: 26, systolic_bp: 130, diastolic_bp: 85, blood_sugar: 148, recorded_at: "2026-07-10T00:00:00Z" },
-      { temperature: 101.2, heart_rate: 98, spo2: 93, respiratory_rate: 24, systolic_bp: 128, diastolic_bp: 82, blood_sugar: 142, recorded_at: "2026-07-10T06:30:00Z" },
+      { temperature: 102.4, heartRate: 110, spo2: 91, respiratoryRate: 28, systolicBP: 135, diastolicBP: 88, bloodSugar: 156, recordedAt: "2026-07-09T18:00:00Z" },
+      { temperature: 101.8, heartRate: 105, spo2: 92, respiratoryRate: 26, systolicBP: 130, diastolicBP: 85, bloodSugar: 148, recordedAt: "2026-07-10T00:00:00Z" },
+      { temperature: 101.2, heartRate: 98, spo2: 93, respiratoryRate: 24, systolicBP: 128, diastolicBP: 82, bloodSugar: 142, recordedAt: "2026-07-10T06:30:00Z" },
     ],
   },
   "PAT-002": {
     latest: {
-      temperature: 99.1,
-      heart_rate: 118,
-      spo2: 88,
-      respiratory_rate: 30,
-      systolic_bp: 88,
-      diastolic_bp: 54,
-      blood_sugar: 428,
-      recorded_at: "2026-07-10T07:00:00Z",
+      temperature: 99.1, heartRate: 118, spo2: 88, respiratoryRate: 30,
+      systolicBP: 88, diastolicBP: 54, bloodSugar: 428,
+      recordedAt: "2026-07-10T07:00:00Z", recordedBy: "Nurse Anitha",
     },
     trend: [
-      { temperature: 99.8, heart_rate: 132, spo2: 85, respiratory_rate: 34, systolic_bp: 82, diastolic_bp: 48, blood_sugar: 520, recorded_at: "2026-07-09T14:00:00Z" },
-      { temperature: 99.4, heart_rate: 125, spo2: 87, respiratory_rate: 32, systolic_bp: 85, diastolic_bp: 50, blood_sugar: 480, recorded_at: "2026-07-09T20:00:00Z" },
-      { temperature: 99.1, heart_rate: 118, spo2: 88, respiratory_rate: 30, systolic_bp: 88, diastolic_bp: 54, blood_sugar: 428, recorded_at: "2026-07-10T07:00:00Z" },
+      { temperature: 99.8, heartRate: 132, spo2: 85, respiratoryRate: 34, systolicBP: 82, diastolicBP: 48, bloodSugar: 520, recordedAt: "2026-07-09T14:00:00Z" },
+      { temperature: 99.4, heartRate: 125, spo2: 87, respiratoryRate: 32, systolicBP: 85, diastolicBP: 50, bloodSugar: 480, recordedAt: "2026-07-09T20:00:00Z" },
+      { temperature: 99.1, heartRate: 118, spo2: 88, respiratoryRate: 30, systolicBP: 88, diastolicBP: 54, bloodSugar: 428, recordedAt: "2026-07-10T07:00:00Z" },
     ],
   },
   "PAT-003": {
     latest: {
-      temperature: 98.6,
-      heart_rate: 82,
-      spo2: 89,
-      respiratory_rate: 22,
-      systolic_bp: 145,
-      diastolic_bp: 92,
-      blood_sugar: 108,
-      recorded_at: "2026-07-10T05:45:00Z",
+      temperature: 98.6, heartRate: 82, spo2: 89, respiratoryRate: 22,
+      systolicBP: 145, diastolicBP: 92, bloodSugar: 108,
+      recordedAt: "2026-07-10T05:45:00Z", recordedBy: "Nurse Rekha",
     },
     trend: [
-      { temperature: 99.0, heart_rate: 88, spo2: 87, respiratory_rate: 26, systolic_bp: 152, diastolic_bp: 96, blood_sugar: 115, recorded_at: "2026-07-09T12:00:00Z" },
-      { temperature: 98.8, heart_rate: 85, spo2: 88, respiratory_rate: 24, systolic_bp: 148, diastolic_bp: 94, blood_sugar: 112, recorded_at: "2026-07-09T22:00:00Z" },
-      { temperature: 98.6, heart_rate: 82, spo2: 89, respiratory_rate: 22, systolic_bp: 145, diastolic_bp: 92, blood_sugar: 108, recorded_at: "2026-07-10T05:45:00Z" },
+      { temperature: 99.0, heartRate: 88, spo2: 87, respiratoryRate: 26, systolicBP: 152, diastolicBP: 96, bloodSugar: 115, recordedAt: "2026-07-09T12:00:00Z" },
+      { temperature: 98.8, heartRate: 85, spo2: 88, respiratoryRate: 24, systolicBP: 148, diastolicBP: 94, bloodSugar: 112, recordedAt: "2026-07-09T22:00:00Z" },
+      { temperature: 98.6, heartRate: 82, spo2: 89, respiratoryRate: 22, systolicBP: 145, diastolicBP: 92, bloodSugar: 108, recordedAt: "2026-07-10T05:45:00Z" },
+    ],
+  },
+  "PAT-004": {
+    latest: {
+      temperature: 98.4, heartRate: 78, spo2: 98, respiratoryRate: 18,
+      systolicBP: 118, diastolicBP: 72, bloodSugar: 92,
+      recordedAt: "2026-07-10T06:00:00Z", recordedBy: "Nurse Lakshmi",
+    },
+    trend: [
+      { temperature: 98.6, heartRate: 82, spo2: 97, respiratoryRate: 20, systolicBP: 122, diastolicBP: 76, bloodSugar: 96, recordedAt: "2026-07-09T18:00:00Z" },
+      { temperature: 98.4, heartRate: 78, spo2: 98, respiratoryRate: 18, systolicBP: 118, diastolicBP: 72, bloodSugar: 92, recordedAt: "2026-07-10T06:00:00Z" },
+    ],
+  },
+  "PAT-005": {
+    latest: {
+      temperature: 99.8, heartRate: 92, spo2: 96, respiratoryRate: 20,
+      systolicBP: 134, diastolicBP: 86, bloodSugar: 118,
+      recordedAt: "2026-07-10T06:15:00Z", recordedBy: "Nurse Divya",
+    },
+    trend: [
+      { temperature: 100.2, heartRate: 96, spo2: 95, respiratoryRate: 22, systolicBP: 138, diastolicBP: 88, bloodSugar: 124, recordedAt: "2026-07-09T06:00:00Z" },
+      { temperature: 100.0, heartRate: 94, spo2: 95, respiratoryRate: 21, systolicBP: 136, diastolicBP: 87, bloodSugar: 120, recordedAt: "2026-07-09T18:00:00Z" },
+      { temperature: 99.8, heartRate: 92, spo2: 96, respiratoryRate: 20, systolicBP: 134, diastolicBP: 86, bloodSugar: 118, recordedAt: "2026-07-10T06:15:00Z" },
     ],
   },
 };
 
+// ─── MAR (card builders expect drugName, dose, route, frequency, status) ─────
 var MOCK_MAR = {
   "PAT-001": [
-    { drug: "Ceftriaxone 1g IV", frequency: "BD", lastGiven: "2026-07-10T06:00:00Z", nextDue: "2026-07-10T18:00:00Z", status: "given" },
-    { drug: "Paracetamol 650mg PO", frequency: "TDS", lastGiven: "2026-07-10T06:00:00Z", nextDue: "2026-07-10T14:00:00Z", status: "given" },
-    { drug: "Nebulization (Salbutamol + Ipratropium)", frequency: "QID", lastGiven: "2026-07-10T06:00:00Z", nextDue: "2026-07-10T12:00:00Z", status: "given" },
-    { drug: "Pantoprazole 40mg IV", frequency: "OD", lastGiven: "2026-07-10T06:00:00Z", nextDue: "2026-07-11T06:00:00Z", status: "given" },
+    { drugName: "Ceftriaxone", dose: "1g", route: "IV", frequency: "BD", status: "ADMINISTERED" },
+    { drugName: "Paracetamol", dose: "650mg", route: "PO", frequency: "TDS", status: "ADMINISTERED" },
+    { drugName: "Nebulization (Salbutamol + Ipratropium)", dose: "2.5mg+500mcg", route: "INH", frequency: "QID", status: "ADMINISTERED" },
+    { drugName: "Pantoprazole", dose: "40mg", route: "IV", frequency: "OD", status: "ADMINISTERED" },
   ],
   "PAT-002": [
-    { drug: "Insulin Infusion (Actrapid)", frequency: "Continuous", lastGiven: "2026-07-10T07:00:00Z", nextDue: null, status: "running", rate: "6 units/hr" },
-    { drug: "NS 0.9% IV", frequency: "Continuous", lastGiven: "2026-07-10T04:00:00Z", nextDue: null, status: "running", rate: "200 ml/hr" },
-    { drug: "KCl 20 mEq in 100ml NS", frequency: "Stat", lastGiven: "2026-07-10T05:00:00Z", nextDue: null, status: "given" },
-    { drug: "Enoxaparin 40mg SC", frequency: "OD", lastGiven: "2026-07-10T06:00:00Z", nextDue: "2026-07-11T06:00:00Z", status: "given" },
+    { drugName: "Insulin Infusion (Actrapid)", dose: "6 units/hr", route: "IV", frequency: "Continuous", status: "ADMINISTERED" },
+    { drugName: "Normal Saline 0.9%", dose: "200 ml/hr", route: "IV", frequency: "Continuous", status: "ADMINISTERED" },
+    { drugName: "KCl", dose: "20 mEq in 100ml NS", route: "IV", frequency: "Stat", status: "ADMINISTERED" },
+    { drugName: "Enoxaparin", dose: "40mg", route: "SC", frequency: "OD", status: "ADMINISTERED" },
+  ],
+  "PAT-003": [
+    { drugName: "Deriphylline", dose: "200mg", route: "IV", frequency: "BD", status: "ADMINISTERED" },
+    { drugName: "Budesonide + Formoterol Neb", dose: "0.5mg+20mcg", route: "INH", frequency: "TDS", status: "ADMINISTERED" },
+    { drugName: "Hydrocortisone", dose: "100mg", route: "IV", frequency: "TDS", status: "MISSED" },
+    { drugName: "Amlodipine", dose: "5mg", route: "PO", frequency: "OD", status: "ADMINISTERED" },
+  ],
+  "PAT-004": [
+    { drugName: "Iron Sucrose", dose: "200mg in 100ml NS", route: "IV", frequency: "OD", status: "ADMINISTERED" },
+    { drugName: "Folic Acid", dose: "5mg", route: "PO", frequency: "OD", status: "ADMINISTERED" },
+    { drugName: "Calcium + Vit D3", dose: "500mg+250IU", route: "PO", frequency: "BD", status: "ADMINISTERED" },
+  ],
+  "PAT-005": [
+    { drugName: "Cefuroxime", dose: "1.5g", route: "IV", frequency: "BD", status: "ADMINISTERED" },
+    { drugName: "Metronidazole", dose: "500mg", route: "IV", frequency: "TDS", status: "ADMINISTERED" },
+    { drugName: "Tramadol", dose: "50mg", route: "IV", frequency: "TDS", status: "HELD" },
+    { drugName: "Pantoprazole", dose: "40mg", route: "IV", frequency: "OD", status: "ADMINISTERED" },
+    { drugName: "Enoxaparin", dose: "40mg", route: "SC", frequency: "OD", status: "ADMINISTERED" },
   ],
 };
 
+// ─── Fluid balance (card builders expect totalIntake, totalOutput, balance) ───
 var MOCK_FLUID = {
-  "PAT-001": { intake: 2400, output: 1800, net: 600, period: "24h" },
-  "PAT-002": { intake: 4200, output: 2100, net: 2100, period: "24h" },
-  "PAT-003": { intake: 1800, output: 1600, net: 200, period: "24h" },
+  "PAT-001": { totalIntake: 2400, totalOutput: 1800, balance: 600, balanceDate: "2026-07-10" },
+  "PAT-002": { totalIntake: 4200, totalOutput: 2100, balance: 2100, balanceDate: "2026-07-10" },
+  "PAT-003": { totalIntake: 1800, totalOutput: 1600, balance: 200, balanceDate: "2026-07-10" },
+  "PAT-004": { totalIntake: 2000, totalOutput: 1900, balance: 100, balanceDate: "2026-07-10" },
+  "PAT-005": { totalIntake: 2800, totalOutput: 2200, balance: 600, balanceDate: "2026-07-10" },
 };
 
+// ─── Labs (card builders expect name, value, unit, refRange, flag, critical) ──
 var MOCK_LABS = {
   "PAT-001": [
-    { test: "WBC", value: 14.2, unit: "x10^3/uL", refRange: "4.5-11.0", flag: "H", recordedAt: "2026-07-10T04:00:00Z" },
-    { test: "CRP", value: 86, unit: "mg/L", refRange: "<10", flag: "H", recordedAt: "2026-07-10T04:00:00Z" },
-    { test: "Procalcitonin", value: 2.8, unit: "ng/mL", refRange: "<0.5", flag: "H", recordedAt: "2026-07-10T04:00:00Z" },
+    { name: "WBC", value: 14.2, unit: "x10^3/uL", refRange: "4.5-11.0", flag: "high", critical: false },
+    { name: "CRP", value: 86, unit: "mg/L", refRange: "<10", flag: "high", critical: true },
+    { name: "Procalcitonin", value: 2.8, unit: "ng/mL", refRange: "<0.5", flag: "high", critical: true },
   ],
   "PAT-002": [
-    { test: "Blood Glucose", value: 428, unit: "mg/dL", refRange: "70-110", flag: "H", recordedAt: "2026-07-10T07:00:00Z" },
-    { test: "HbA1c", value: 12.4, unit: "%", refRange: "<6.5", flag: "H", recordedAt: "2026-07-09T10:00:00Z" },
-    { test: "Potassium", value: 3.1, unit: "mEq/L", refRange: "3.5-5.0", flag: "L", recordedAt: "2026-07-10T05:00:00Z" },
-    { test: "Arterial pH", value: 7.18, unit: "", refRange: "7.35-7.45", flag: "L", recordedAt: "2026-07-10T07:00:00Z" },
+    { name: "Blood Glucose", value: 428, unit: "mg/dL", refRange: "70-110", flag: "high", critical: true },
+    { name: "HbA1c", value: 12.4, unit: "%", refRange: "<6.5", flag: "high", critical: false },
+    { name: "Potassium", value: 3.1, unit: "mEq/L", refRange: "3.5-5.0", flag: "low", critical: true },
+    { name: "Arterial pH", value: 7.18, unit: "", refRange: "7.35-7.45", flag: "low", critical: true },
+    { name: "Bicarbonate", value: 8.2, unit: "mEq/L", refRange: "22-26", flag: "low", critical: true },
   ],
   "PAT-003": [
-    { test: "ABG pO2", value: 58, unit: "mmHg", refRange: "80-100", flag: "L", recordedAt: "2026-07-10T05:00:00Z" },
-    { test: "ABG pCO2", value: 52, unit: "mmHg", refRange: "35-45", flag: "H", recordedAt: "2026-07-10T05:00:00Z" },
+    { name: "ABG pO2", value: 58, unit: "mmHg", refRange: "80-100", flag: "low", critical: true },
+    { name: "ABG pCO2", value: 52, unit: "mmHg", refRange: "35-45", flag: "high", critical: false },
+    { name: "D-Dimer", value: 1.8, unit: "mg/L", refRange: "<0.5", flag: "high", critical: false },
+  ],
+  "PAT-004": [
+    { name: "Hemoglobin", value: 9.8, unit: "g/dL", refRange: "12.0-16.0", flag: "low", critical: false },
+    { name: "Serum Ferritin", value: 8, unit: "ng/mL", refRange: "12-150", flag: "low", critical: false },
+  ],
+  "PAT-005": [
+    { name: "WBC", value: 13.8, unit: "x10^3/uL", refRange: "4.5-11.0", flag: "high", critical: false },
+    { name: "CRP", value: 42, unit: "mg/L", refRange: "<10", flag: "high", critical: false },
+    { name: "Creatinine", value: 1.4, unit: "mg/dL", refRange: "0.7-1.3", flag: "high", critical: false },
   ],
 };
 
+// ─── Risk scores (card builders expect key, label, value) ────────────────────
 var MOCK_RISK_SCORES = {
   "PAT-001": [
-    { scale: "Braden", score: 16, maxScore: 23, risk: "Mild", recordedAt: "2026-07-10T06:00:00Z" },
-    { scale: "Fall Risk (Morse)", score: 35, maxScore: 125, risk: "Low", recordedAt: "2026-07-10T06:00:00Z" },
+    { key: "braden", label: "Braden Scale", value: 16 },
+    { key: "fall", label: "Fall Risk (Morse)", value: 35 },
   ],
   "PAT-002": [
-    { scale: "Braden", score: 11, maxScore: 23, risk: "High", recordedAt: "2026-07-10T07:00:00Z" },
-    { scale: "Fall Risk (Morse)", score: 75, maxScore: 125, risk: "High", recordedAt: "2026-07-10T07:00:00Z" },
-    { scale: "qSOFA", score: 2, maxScore: 3, risk: "High", recordedAt: "2026-07-10T07:00:00Z" },
+    { key: "braden", label: "Braden Scale", value: 11 },
+    { key: "fall", label: "Fall Risk (Morse)", value: 75 },
+    { key: "qsofa", label: "qSOFA", value: 2 },
   ],
   "PAT-003": [
-    { scale: "Braden", score: 14, maxScore: 23, risk: "Moderate", recordedAt: "2026-07-10T05:00:00Z" },
-    { scale: "Fall Risk (Morse)", score: 55, maxScore: 125, risk: "Moderate", recordedAt: "2026-07-10T05:00:00Z" },
+    { key: "braden", label: "Braden Scale", value: 14 },
+    { key: "fall", label: "Fall Risk (Morse)", value: 55 },
+  ],
+  "PAT-004": [
+    { key: "braden", label: "Braden Scale", value: 20 },
+    { key: "fall", label: "Fall Risk (Morse)", value: 15 },
+  ],
+  "PAT-005": [
+    { key: "braden", label: "Braden Scale", value: 15 },
+    { key: "fall", label: "Fall Risk (Morse)", value: 45 },
   ],
 };
 
+// ─── Nursing notes (card builders expect nursingPlan, generalCondition, shiftType, recordedBy, recordedAt) ──
 var MOCK_NURSING_NOTES = {
   "PAT-001": [
-    { note: "Patient resting comfortably. O2 via nasal cannula at 4L/min. SpO2 maintaining 93%. Fever trending down. Cough productive with yellowish sputum.", author: "Nurse Meena", recordedAt: "2026-07-10T06:30:00Z" },
-    { note: "IV antibiotics administered on time. Patient tolerated well. Oral intake improved, had breakfast.", author: "Nurse Meena", recordedAt: "2026-07-10T08:00:00Z" },
+    { nursingPlan: "Continue IV antibiotics, monitor fever curve. O2 via nasal cannula at 4L/min. SpO2 maintaining 93%. Cough productive with yellowish sputum. Encourage deep breathing exercises.", generalCondition: "Conscious, oriented, febrile", shiftType: "Morning", recordedBy: "Nurse Meena", recordedAt: "2026-07-10T06:30:00Z" },
+    { nursingPlan: "IV antibiotics administered on time. Patient tolerated well. Oral intake improved, had breakfast. Continue monitoring vitals 4-hourly.", generalCondition: "Stable, appetite improving", shiftType: "Morning", recordedBy: "Nurse Meena", recordedAt: "2026-07-10T08:00:00Z" },
   ],
   "PAT-002": [
-    { note: "CRITICAL: Patient on insulin drip, titrating as per DKA protocol. Current rate 6 units/hr. Blood sugar 428 (down from 520). Still acidotic, pH 7.18. Potassium 3.1, replacement started. GCS 14/15 (E4V4M6). Strict I/O charting.", author: "Nurse Anitha", recordedAt: "2026-07-10T07:00:00Z" },
-    { note: "Hourly glucose monitoring in progress. Patient awake, oriented. Complains of mild abdominal pain. NS infusion running at 200ml/hr.", author: "Nurse Anitha", recordedAt: "2026-07-10T08:00:00Z" },
+    { nursingPlan: "CRITICAL: Patient on insulin drip, titrating as per DKA protocol. Current rate 6 units/hr. Blood sugar 428 (down from 520). Still acidotic, pH 7.18. Potassium 3.1, replacement started. Strict I/O charting.", generalCondition: "Drowsy but arousable, GCS 14/15", shiftType: "Morning", recordedBy: "Nurse Anitha", recordedAt: "2026-07-10T07:00:00Z" },
+    { nursingPlan: "Hourly glucose monitoring in progress. Patient awake, oriented. Complains of mild abdominal pain. NS infusion running at 200ml/hr. Continue potassium replacement.", generalCondition: "Improving, more alert", shiftType: "Morning", recordedBy: "Nurse Anitha", recordedAt: "2026-07-10T08:00:00Z" },
   ],
   "PAT-003": [
-    { note: "Patient on 2L O2 via nasal prongs. SpO2 89% on room air, improves to 93% on O2. Wheezing heard bilaterally. Nebulization given, slight improvement noted.", author: "Nurse Rekha", recordedAt: "2026-07-10T05:45:00Z" },
+    { nursingPlan: "Patient on 2L O2 via nasal prongs. SpO2 89% on room air, improves to 93% on O2. Wheezing heard bilaterally. Nebulization given, slight improvement noted. Monitor respiratory status closely.", generalCondition: "Dyspneic at rest, using accessory muscles", shiftType: "Night", recordedBy: "Nurse Rekha", recordedAt: "2026-07-10T05:45:00Z" },
+  ],
+  "PAT-004": [
+    { nursingPlan: "Post-delivery Day 1. Vitals stable. Lochia normal. Breastfeeding initiated, latching well. Iron infusion to be given today. Encourage ambulation.", generalCondition: "Comfortable, bonding with baby", shiftType: "Morning", recordedBy: "Nurse Lakshmi", recordedAt: "2026-07-10T06:00:00Z" },
+  ],
+  "PAT-005": [
+    { nursingPlan: "Post-op Day 4 (Laparoscopic cholecystectomy). Drain output minimal (15ml serosanguinous). Wound site clean, no signs of infection. Pain managed with IV Tramadol - to be reviewed. Tolerating soft diet.", generalCondition: "Stable, ambulant with support", shiftType: "Morning", recordedBy: "Nurse Divya", recordedAt: "2026-07-10T06:15:00Z" },
+    { nursingPlan: "Patient complaining of mild nausea after meals. Anti-emetic given. Drain to be reviewed for removal. Continue antibiotics.", generalCondition: "Stable, mild nausea", shiftType: "Evening", recordedBy: "Nurse Priya", recordedAt: "2026-07-09T18:00:00Z" },
   ],
 };
+
+// ─── Ward tasks (for Dr. Agent list view) ────────────────────────────────────
+// Shape: { patientId, patientName, bed, title, summary, priority, kind }
+var MOCK_WARD_TASKS = [
+  { patientId: "PAT-002", patientName: "Sunita Deshmukh", bed: "ICU-04", title: "DKA protocol review", summary: "Blood sugar 428, pH 7.18, K+ 3.1. Insulin drip at 6u/hr. Review electrolytes and adjust.", priority: "Urgent", kind: "Labs" },
+  { patientId: "PAT-002", patientName: "Sunita Deshmukh", bed: "ICU-04", title: "Potassium replacement", summary: "K+ 3.1 mEq/L (critical low). 20 mEq KCl started. Repeat levels in 2 hours.", priority: "Urgent", kind: "Labs" },
+  { patientId: "PAT-003", patientName: "Ramesh Patel", bed: "GW-B-08", title: "Missed dose: Hydrocortisone", summary: "100mg IV TDS - morning dose missed. Nurse reports patient was in radiology.", priority: "Urgent", kind: "Meds" },
+  { patientId: "PAT-001", patientName: "Anil Kapoor", bed: "GW-A-12", title: "Elevated inflammatory markers", summary: "CRP 86, Procalcitonin 2.8. Consider blood culture and antibiotic escalation.", priority: "Today", kind: "Labs" },
+  { patientId: "PAT-003", patientName: "Ramesh Patel", bed: "GW-B-08", title: "Hypoxia on room air", summary: "SpO2 89% on room air. Currently on 2L O2. ABG shows pO2 58, pCO2 52. Review O2 requirements.", priority: "Today", kind: "Labs" },
+  { patientId: "PAT-005", patientName: "Vikram Singh", bed: "SW-06", title: "Held dose: Tramadol", summary: "50mg IV TDS held by nurse due to nausea. Review pain management plan.", priority: "Today", kind: "Meds" },
+  { patientId: "PAT-005", patientName: "Vikram Singh", bed: "SW-06", title: "Drain output review", summary: "Post-op Day 4, drain output 15ml. Consider removal.", priority: "Today", kind: "Wound" },
+  { patientId: "PAT-001", patientName: "Anil Kapoor", bed: "GW-A-12", title: "Repeat blood culture", summary: "Day 5 of antibiotics, fever persisting. Consider repeat cultures before escalation.", priority: "Today", kind: "Labs" },
+  { patientId: "PAT-004", patientName: "Priya Nair", bed: "MW-02", title: "Anemia correction", summary: "Hb 9.8 g/dL, Ferritin 8. Iron sucrose infusion scheduled today. Check for transfusion need.", priority: "Info", kind: "Labs" },
+];
+
+// ─── Progress timeline (for Dr. Agent patient view) ──────────────────────────
+var MOCK_PROGRESS_TIMELINE = {
+  "ADM-2026-001": {
+    consultant: "Dr. Rajesh Sharma",
+    lastConsultantNoteAt: "2026-07-09T10:00:00Z",
+    nursing: [
+      {
+        recordedAt: "2026-07-10T06:30:00Z", author: "Nurse Meena", role: "Nurse", shiftType: "Morning",
+        summary: "Fever trending down. SpO2 93% on O2. Cough productive, yellowish sputum. Oral intake improving.",
+        vitals: { bp: "128/82", hr: 98, rr: 24, spo2: 93, temp: 101.2 },
+        fields: [
+          { label: "General Condition", value: "Conscious, oriented, febrile. Resting comfortably." },
+          { label: "Respiratory", value: "O2 via nasal cannula 4L/min. Bilateral creps in lower zones. Productive cough." },
+          { label: "IV Lines", value: "Right forearm IV patent, no signs of phlebitis. Due for change tomorrow." },
+        ],
+      },
+      {
+        recordedAt: "2026-07-09T22:00:00Z", author: "Nurse Sunita", role: "Nurse", shiftType: "Night",
+        summary: "High-grade fever spike to 102.4F at 18:00. Paracetamol given, came down to 101.8. SpO2 dipped to 91%, O2 increased to 4L.",
+        vitals: { bp: "130/85", hr: 105, rr: 26, spo2: 92, temp: 101.8 },
+        fields: [
+          { label: "General Condition", value: "Restless due to fever. Sponging done. Took oral fluids." },
+          { label: "Respiratory", value: "Increased work of breathing during fever spike. Settled after antipyretic." },
+        ],
+      },
+    ],
+    mo: [
+      {
+        recordedAt: "2026-07-10T08:30:00Z", author: "Dr. Priya Mehta", role: "MO", authorRole: "Medical Officer",
+        summary: "Day 5 of Ceftriaxone. Fever persisting but trending down. Inflammatory markers still elevated (CRP 86, PCT 2.8). Consider blood culture and possible antibiotic escalation if no improvement by tomorrow.",
+        vitals: { bp: "128/82", hr: 98, rr: 24, spo2: 93, temp: 101.2 },
+        fields: [
+          { label: "Subjective", value: "Patient reports feeling slightly better. Cough persisting but less frequent. Appetite improving." },
+          { label: "Objective", value: "Febrile 101.2F. Bilateral basal creps, reduced compared to admission. No new findings." },
+          { label: "Assessment", value: "Community-acquired pneumonia, Day 5. Slow response to Ceftriaxone. Rule out atypical organisms." },
+          { label: "Plan", value: "1. Send repeat blood culture. 2. Add Azithromycin 500mg IV OD if no improvement by evening. 3. Continue supportive care. 4. Repeat CRP tomorrow." },
+        ],
+      },
+    ],
+  },
+  "ADM-2026-002": {
+    consultant: "Dr. Rajesh Sharma",
+    lastConsultantNoteAt: "2026-07-09T16:00:00Z",
+    nursing: [
+      {
+        recordedAt: "2026-07-10T07:00:00Z", author: "Nurse Anitha", role: "Nurse", shiftType: "Morning",
+        summary: "DKA protocol ongoing. Blood sugar trending down 520 -> 428. pH improving slowly. K+ 3.1, replacement started. Strict I/O.",
+        vitals: { bp: "88/54", hr: 118, rr: 30, spo2: 88, temp: 99.1 },
+        fields: [
+          { label: "General Condition", value: "Drowsy but arousable, GCS 14/15 (E4V4M6). Kussmaul breathing present." },
+          { label: "IV Lines", value: "Central line right subclavian - patent. Insulin infusion via syringe pump at 6u/hr. NS running at 200ml/hr." },
+          { label: "Monitoring", value: "Hourly blood sugar. 2-hourly ABG. Continuous SpO2 and ECG monitoring. Strict I/O charting." },
+        ],
+      },
+      {
+        recordedAt: "2026-07-10T04:00:00Z", author: "Nurse Priya", role: "Nurse", shiftType: "Night",
+        summary: "Blood sugar 480 at midnight. Insulin rate increased to 6u/hr from 4u/hr. Patient confused intermittently. K+ 3.3 at 02:00.",
+        vitals: { bp: "85/50", hr: 125, rr: 32, spo2: 87, temp: 99.4 },
+        fields: [
+          { label: "General Condition", value: "Intermittently confused. GCS fluctuating 13-14. Dehydrated - poor skin turgor." },
+          { label: "Fluid Balance", value: "Intake 2100ml (IV). Output 900ml (urine). Net +1200ml in 12 hours." },
+        ],
+      },
+    ],
+    mo: [
+      {
+        recordedAt: "2026-07-10T07:30:00Z", author: "Dr. Amit Shah", role: "MO", authorRole: "Medical Officer",
+        summary: "DKA Day 3, improving but slow. Anion gap closing. Transition to SC insulin when pH > 7.3 and patient tolerating orals.",
+        vitals: { bp: "88/54", hr: 118, rr: 30, spo2: 88, temp: 99.1 },
+        fields: [
+          { label: "Assessment", value: "Diabetic Ketoacidosis - resolving. Precipitant likely UTI (urine culture pending). Hypokalemia on replacement." },
+          { label: "Plan", value: "1. Continue DKA protocol. 2. Repeat ABG at 10:00. 3. Repeat K+ at 09:00. 4. Start oral sips if alert. 5. Endocrine consult for insulin regimen planning." },
+        ],
+      },
+    ],
+  },
+  "ADM-2026-003": {
+    consultant: "Dr. Rajesh Sharma",
+    lastConsultantNoteAt: "2026-07-09T11:00:00Z",
+    nursing: [
+      {
+        recordedAt: "2026-07-10T05:45:00Z", author: "Nurse Rekha", role: "Nurse", shiftType: "Night",
+        summary: "Acute exacerbation of COPD. SpO2 89% on room air, 93% on 2L O2. Bilateral wheezing. Nebulization given with partial response.",
+        vitals: { bp: "145/92", hr: 82, rr: 22, spo2: 89, temp: 98.6 },
+        fields: [
+          { label: "Respiratory", value: "Using accessory muscles. Bilateral expiratory wheeze. Air entry reduced in bases. Nebulization given x3 overnight." },
+          { label: "General Condition", value: "Anxious, unable to lie flat. Propped up on 3 pillows. Sleeping in intervals." },
+        ],
+      },
+    ],
+    mo: [
+      {
+        recordedAt: "2026-07-09T22:00:00Z", author: "Dr. Kavita Rao", role: "MO", authorRole: "Medical Officer",
+        summary: "AECOPD with type 2 respiratory failure (pCO2 52). Not improving adequately on current bronchodilators. Consider NIV if further deterioration.",
+        fields: [
+          { label: "Assessment", value: "Acute exacerbation of COPD on background of GOLD Stage III. Type 2 respiratory failure. Hypertension uncontrolled." },
+          { label: "Plan", value: "1. Increase O2 to 2L (careful - CO2 retainer). 2. Add IV Hydrocortisone 100mg TDS. 3. Continue nebulization QID. 4. Repeat ABG in morning. 5. Keep NIV on standby. 6. Chest physiotherapy." },
+        ],
+      },
+    ],
+  },
+  "ADM-2026-004": {
+    consultant: "Dr. Rajesh Sharma",
+    lastConsultantNoteAt: "2026-07-09T18:00:00Z",
+    nursing: [
+      {
+        recordedAt: "2026-07-10T06:00:00Z", author: "Nurse Lakshmi", role: "Nurse", shiftType: "Morning",
+        summary: "Post-delivery Day 1. Vitals stable. Lochia normal, moderate amount. Breastfeeding initiated, baby latching well.",
+        vitals: { bp: "118/72", hr: 78, rr: 18, spo2: 98, temp: 98.4 },
+        fields: [
+          { label: "Obstetric Assessment", value: "Uterus well contracted, fundal height at umbilicus. Lochia rubra, moderate, no clots. Perineum intact." },
+          { label: "Baby Status", value: "Full term male baby, 3.2kg. Breastfeeding well, latching properly. Passed urine and meconium." },
+          { label: "General", value: "Ambulant, tolerating diet. Mild perineal discomfort managed with ice pack." },
+        ],
+      },
+    ],
+    mo: [],
+  },
+  "ADM-2026-005": {
+    consultant: "Dr. Rajesh Sharma",
+    lastConsultantNoteAt: "2026-07-09T10:00:00Z",
+    nursing: [
+      {
+        recordedAt: "2026-07-10T06:15:00Z", author: "Nurse Divya", role: "Nurse", shiftType: "Morning",
+        summary: "Post-op Day 4 (Lap Cholecystectomy). Drain output 15ml serosanguinous. Wound clean. Pain on IV Tramadol - held due to nausea.",
+        vitals: { bp: "134/86", hr: 92, rr: 20, spo2: 96, temp: 99.8 },
+        fields: [
+          { label: "Surgical Site", value: "All 4 port sites clean and dry. No erythema or discharge. Dressing intact." },
+          { label: "Drain", value: "Subhepatic drain in situ. Output last 24h: 15ml serosanguinous. No bile staining." },
+          { label: "Diet", value: "Tolerating soft diet. Mild nausea after meals, anti-emetic given. Passing flatus, no bowel movement yet." },
+        ],
+      },
+      {
+        recordedAt: "2026-07-09T18:00:00Z", author: "Nurse Priya", role: "Nurse", shiftType: "Evening",
+        summary: "Post-op Day 3. Low-grade fever 100.2F. Drain output 30ml. Wound sites checked - all clean. Started on soft diet.",
+        vitals: { bp: "136/87", hr: 94, rr: 21, spo2: 95, temp: 100.0 },
+        fields: [
+          { label: "General Condition", value: "Ambulant with support. Tolerating sips of water, started soft diet at dinner. Passed flatus." },
+          { label: "Pain", value: "Pain score 5/10 at rest, 7/10 on movement. Tramadol given, nausea developed 30 mins later." },
+        ],
+      },
+    ],
+    mo: [
+      {
+        recordedAt: "2026-07-10T08:00:00Z", author: "Dr. Suresh Kumar", role: "MO", authorRole: "Medical Officer",
+        summary: "Post-op Day 4 Lap Chole. Low-grade fever persisting - likely post-operative. Drain output minimal, consider removal. Switch to oral analgesics.",
+        vitals: { bp: "134/86", hr: 92, rr: 20, spo2: 96, temp: 99.8 },
+        fields: [
+          { label: "Assessment", value: "Post Laparoscopic Cholecystectomy Day 4. Uncomplicated recovery. Low-grade fever - most likely post-op inflammatory response. Drain output minimal." },
+          { label: "Plan", value: "1. Remove drain today if output < 20ml. 2. Switch Tramadol to Paracetamol + Aceclofenac PO. 3. Upgrade to regular diet. 4. Plan discharge tomorrow if afebrile. 5. Continue DVT prophylaxis till discharge." },
+        ],
+      },
+    ],
+  },
+};
+
+// ─── IPD clinical form data (assessments, progress notes, consultant notes) ──
+
+var SLATE_TEXT = function (text) {
+  return [{ type: "paragraph", children: [{ text: text }] }];
+};
+
+var MOCK_ASSESSMENTS = {
+  "ADM-2026-001": {
+    _id: "assess-001",
+    assessment: {
+      chiefComplaint: SLATE_TEXT("High-grade fever with productive cough and breathlessness for 5 days. Not responding to oral antibiotics given by local physician."),
+      historyOfPresentIllness: SLATE_TEXT("62-year-old male, known diabetic and hypertensive, presents with fever up to 103F for 5 days, productive cough with yellowish sputum, and progressive breathlessness (mMRC Grade 3). Started on oral Amoxicillin-Clavulanate by local physician 3 days ago with no improvement. History of decreased oral intake and generalized weakness."),
+      pastMedicalHistory: SLATE_TEXT("Type 2 Diabetes Mellitus - 8 years (on Metformin + Glimepiride). Hypertension - 5 years (on Telmisartan 40mg). No prior hospitalizations."),
+      allergies: SLATE_TEXT("No known drug allergies."),
+      personalHistory: SLATE_TEXT("Ex-smoker (20 pack-years, quit 5 years ago). Occasional alcohol. Vegetarian diet."),
+      provisionalDiagnosis: [{ id: "diag-1", name: "Community-Acquired Pneumonia" }, { id: "diag-2", name: "Type 2 Diabetes Mellitus" }],
+    },
+    filledByDetails: { doctorName: "Dr. Rajesh Sharma", designation: "Consultant - Internal Medicine", date: "2026-07-05", time: "11:00:00" },
+    createdAt: "2026-07-05T11:00:00Z",
+    updatedAt: "2026-07-05T11:00:00Z",
+  },
+  "ADM-2026-002": {
+    _id: "assess-002",
+    assessment: {
+      chiefComplaint: SLATE_TEXT("Found unresponsive at home by family. Known diabetic, non-compliant with medications for 2 weeks."),
+      historyOfPresentIllness: SLATE_TEXT("45-year-old female, known T1DM on insulin (irregular compliance), brought by family after being found drowsy and breathing heavily. Had complaints of polyuria, polydipsia, and abdominal pain for 2 days. Missed insulin doses for past 2 weeks after running out of supply. Blood sugar in ER: 520 mg/dL. ABG: pH 7.12, pCO2 18, HCO3 6."),
+      pastMedicalHistory: SLATE_TEXT("Type 1 Diabetes Mellitus - 12 years. Previous DKA episode 3 years ago. Hypothyroidism on Levothyroxine."),
+      allergies: SLATE_TEXT("Sulfonamides - rash."),
+      personalHistory: SLATE_TEXT("Non-smoker. No alcohol. Lives alone, limited family support."),
+      provisionalDiagnosis: [{ id: "diag-3", name: "Diabetic Ketoacidosis" }, { id: "diag-4", name: "Type 1 Diabetes Mellitus" }],
+    },
+    filledByDetails: { doctorName: "Dr. Rajesh Sharma", designation: "Consultant - Internal Medicine", date: "2026-07-07", time: "14:30:00" },
+    createdAt: "2026-07-07T14:30:00Z",
+    updatedAt: "2026-07-07T14:30:00Z",
+  },
+  "ADM-2026-003": {
+    _id: "assess-003",
+    assessment: {
+      chiefComplaint: SLATE_TEXT("Acute worsening of breathlessness with wheezing for 2 days. Unable to walk 10 steps without stopping."),
+      historyOfPresentIllness: SLATE_TEXT("71-year-old male, known COPD GOLD Stage III, presents with acute worsening of dyspnea for 2 days. Increased sputum production, greenish in color. Unable to perform activities of daily living. Using 3 inhalers at home (Tiotropium + Formoterol/Budesonide + Salbutamol PRN). Last exacerbation 4 months ago required 5-day hospitalization."),
+      pastMedicalHistory: SLATE_TEXT("COPD GOLD III - 8 years. Hypertension - 15 years. Benign Prostatic Hyperplasia. Ex-smoker (40 pack-years). Cor pulmonale diagnosed 2 years ago."),
+      allergies: SLATE_TEXT("Aspirin - bronchospasm."),
+      personalHistory: SLATE_TEXT("Ex-smoker (40 pack-years, quit 3 years ago). No alcohol. Retired school teacher."),
+      provisionalDiagnosis: [{ id: "diag-5", name: "Acute Exacerbation of COPD" }, { id: "diag-6", name: "Type 2 Respiratory Failure" }],
+    },
+    filledByDetails: { doctorName: "Dr. Rajesh Sharma", designation: "Consultant - Internal Medicine", date: "2026-07-08", time: "09:45:00" },
+    createdAt: "2026-07-08T09:45:00Z",
+    updatedAt: "2026-07-08T09:45:00Z",
+  },
+  "ADM-2026-004": {
+    _id: "assess-004",
+    assessment: {
+      chiefComplaint: SLATE_TEXT("G2P1L1, 38 weeks gestation, admitted for elective induction due to gestational anemia and borderline oligohydramnios."),
+      historyOfPresentIllness: SLATE_TEXT("34-year-old female, G2P1L1, 38 weeks by dates (confirmed by first trimester USG). Gestational anemia (Hb 9.8) not responding to oral iron. AFI 6.2 cm on recent scan. Previous normal vaginal delivery 3 years ago, uncomplicated. Current pregnancy: GDM screening negative, anomaly scan normal, growth appropriate."),
+      pastMedicalHistory: SLATE_TEXT("Previous LSCS - No. Previous vaginal delivery - 1 (uncomplicated). No medical comorbidities. Iron deficiency anemia diagnosed at 28 weeks."),
+      allergies: SLATE_TEXT("No known drug allergies."),
+      personalHistory: SLATE_TEXT("Non-smoker. No alcohol. Vegetarian diet. Takes prenatal vitamins regularly."),
+      provisionalDiagnosis: [{ id: "diag-7", name: "Term Pregnancy for Induction" }, { id: "diag-8", name: "Iron Deficiency Anemia in Pregnancy" }],
+    },
+    filledByDetails: { doctorName: "Dr. Rajesh Sharma", designation: "Consultant - Internal Medicine", date: "2026-07-09", time: "17:00:00" },
+    createdAt: "2026-07-09T17:00:00Z",
+    updatedAt: "2026-07-09T17:00:00Z",
+  },
+  "ADM-2026-005": {
+    _id: "assess-005",
+    assessment: {
+      chiefComplaint: SLATE_TEXT("Recurrent episodes of right upper quadrant pain with nausea for 3 months. USG showing multiple gallstones with thick-walled gallbladder."),
+      historyOfPresentIllness: SLATE_TEXT("55-year-old male presents with recurrent colicky RUQ pain radiating to right shoulder, worse after fatty meals, for 3 months. 4-5 episodes, each lasting 2-3 hours. Associated nausea, occasional vomiting. No jaundice, no fever. USG: Multiple gallstones, largest 12mm, GB wall 4mm, no CBD dilatation. Admitted for elective Laparoscopic Cholecystectomy."),
+      pastMedicalHistory: SLATE_TEXT("Hypertension - 10 years (on Telmisartan 40mg). Dyslipidemia (on Atorvastatin 10mg). No previous surgeries."),
+      allergies: SLATE_TEXT("No known drug allergies."),
+      personalHistory: SLATE_TEXT("Non-smoker. Social drinker (weekends). Non-vegetarian, high-fat diet. BMI 28."),
+      provisionalDiagnosis: [{ id: "diag-9", name: "Cholelithiasis" }, { id: "diag-10", name: "Chronic Cholecystitis" }],
+    },
+    filledByDetails: { doctorName: "Dr. Rajesh Sharma", designation: "Consultant - Internal Medicine", date: "2026-07-06", time: "08:30:00" },
+    createdAt: "2026-07-06T08:30:00Z",
+    updatedAt: "2026-07-06T08:30:00Z",
+  },
+};
+
+var MOCK_PROGRESS_NOTES_IPD = {
+  "ADM-2026-001": [
+    {
+      _id: "pn-001-a",
+      progressNotes: {
+        chiefComplaint: SLATE_TEXT("Fever persisting, cough improving slightly. SpO2 93% on O2."),
+        findings: SLATE_TEXT("Bilateral basal creps, reduced compared to yesterday. No new findings. WBC 14.2, CRP 86."),
+        vitals: { temperature: 101.2, heartRate: 98, spo2: 93, respiratoryRate: 24, systolicBP: 128, diastolicBP: 82 },
+        additionalRemarks: SLATE_TEXT("Continue current antibiotics. If no improvement by tomorrow, escalate to Piperacillin-Tazobactam. Send repeat blood culture."),
+        date: "2026-07-10", time: "09:00:00",
+      },
+      filledByDetails: { doctorName: "Dr. Rajesh Sharma", designation: "Consultant" },
+      createdAt: "2026-07-10T09:00:00Z", updatedAt: "2026-07-10T09:00:00Z",
+    },
+    {
+      _id: "pn-001-b",
+      progressNotes: {
+        chiefComplaint: SLATE_TEXT("High-grade fever spike to 102.4F in evening. Increased breathlessness."),
+        findings: SLATE_TEXT("Bilateral creps more prominent. SpO2 dropped to 91%, O2 increased to 4L. Sputum culture pending."),
+        vitals: { temperature: 102.4, heartRate: 110, spo2: 91, respiratoryRate: 28, systolicBP: 135, diastolicBP: 88 },
+        additionalRemarks: SLATE_TEXT("Fever not responding. Consider adding Azithromycin to cover atypicals. Chest X-ray in morning."),
+        date: "2026-07-09", time: "19:00:00",
+      },
+      filledByDetails: { doctorName: "Dr. Priya Mehta", designation: "Medical Officer" },
+      createdAt: "2026-07-09T19:00:00Z", updatedAt: "2026-07-09T19:00:00Z",
+    },
+  ],
+  "ADM-2026-002": [
+    {
+      _id: "pn-002-a",
+      progressNotes: {
+        chiefComplaint: SLATE_TEXT("DKA - Day 3 of management. Blood sugar trending down but still acidotic."),
+        findings: SLATE_TEXT("Blood sugar 428 (down from 520). pH 7.18 (up from 7.12). K+ 3.1 on replacement. GCS 14/15."),
+        vitals: { temperature: 99.1, heartRate: 118, spo2: 88, respiratoryRate: 30, systolicBP: 88, diastolicBP: 54 },
+        additionalRemarks: SLATE_TEXT("Continue DKA protocol. Repeat ABG at 10:00. Plan endocrine consult for long-term insulin regimen."),
+        date: "2026-07-10", time: "08:00:00",
+      },
+      filledByDetails: { doctorName: "Dr. Rajesh Sharma", designation: "Consultant" },
+      createdAt: "2026-07-10T08:00:00Z", updatedAt: "2026-07-10T08:00:00Z",
+    },
+    {
+      _id: "pn-002-b",
+      progressNotes: {
+        chiefComplaint: SLATE_TEXT("DKA - Day 2. Patient more drowsy. Blood sugar 480 at midnight."),
+        findings: SLATE_TEXT("Kussmaul breathing present. Dehydrated. pH 7.15, K+ 3.3. Insulin rate increased to 6u/hr."),
+        vitals: { temperature: 99.4, heartRate: 125, spo2: 87, respiratoryRate: 32, systolicBP: 85, diastolicBP: 50 },
+        additionalRemarks: SLATE_TEXT("Aggressive fluid resuscitation ongoing. Monitor K+ 2-hourly. Maintain strict I/O. Urine culture sent."),
+        date: "2026-07-09", time: "21:00:00",
+      },
+      filledByDetails: { doctorName: "Dr. Amit Shah", designation: "Medical Officer" },
+      createdAt: "2026-07-09T21:00:00Z", updatedAt: "2026-07-09T21:00:00Z",
+    },
+  ],
+  "ADM-2026-003": [
+    {
+      _id: "pn-003-a",
+      progressNotes: {
+        chiefComplaint: SLATE_TEXT("AECOPD Day 2. Still dyspneic at rest. SpO2 89% on room air."),
+        findings: SLATE_TEXT("Bilateral expiratory wheeze, air entry reduced in bases. ABG: pO2 58, pCO2 52 (Type 2 failure). Using accessory muscles."),
+        vitals: { temperature: 98.6, heartRate: 82, spo2: 89, respiratoryRate: 22, systolicBP: 145, diastolicBP: 92 },
+        additionalRemarks: SLATE_TEXT("Add IV steroids. Continue bronchodilators. Keep NIV on standby. Chest physiotherapy. Review ABG in AM."),
+        date: "2026-07-10", time: "08:30:00",
+      },
+      filledByDetails: { doctorName: "Dr. Rajesh Sharma", designation: "Consultant" },
+      createdAt: "2026-07-10T08:30:00Z", updatedAt: "2026-07-10T08:30:00Z",
+    },
+  ],
+  "ADM-2026-004": [
+    {
+      _id: "pn-004-a",
+      progressNotes: {
+        chiefComplaint: SLATE_TEXT("Post-delivery Day 1. Mother and baby doing well."),
+        findings: SLATE_TEXT("Vitals stable. Uterus well contracted. Lochia normal. Breastfeeding established. Hb 9.8 - iron infusion planned."),
+        vitals: { temperature: 98.4, heartRate: 78, spo2: 98, respiratoryRate: 18, systolicBP: 118, diastolicBP: 72 },
+        additionalRemarks: SLATE_TEXT("Start Iron Sucrose infusion today. Encourage early ambulation. Continue calcium and folic acid."),
+        date: "2026-07-10", time: "09:30:00",
+      },
+      filledByDetails: { doctorName: "Dr. Rajesh Sharma", designation: "Consultant" },
+      createdAt: "2026-07-10T09:30:00Z", updatedAt: "2026-07-10T09:30:00Z",
+    },
+  ],
+  "ADM-2026-005": [
+    {
+      _id: "pn-005-a",
+      progressNotes: {
+        chiefComplaint: SLATE_TEXT("Post-op Day 4 (Lap Chole). Low-grade fever. Drain output minimal."),
+        findings: SLATE_TEXT("Afebrile this morning (99.8F, down from 100.2). All port sites clean. Drain 15ml serosanguinous. Tolerating soft diet. Mild nausea."),
+        vitals: { temperature: 99.8, heartRate: 92, spo2: 96, respiratoryRate: 20, systolicBP: 134, diastolicBP: 86 },
+        additionalRemarks: SLATE_TEXT("Remove drain today. Switch to oral analgesics (Paracetamol + Aceclofenac). Upgrade to regular diet. Plan discharge tomorrow if afebrile."),
+        date: "2026-07-10", time: "09:00:00",
+      },
+      filledByDetails: { doctorName: "Dr. Rajesh Sharma", designation: "Consultant" },
+      createdAt: "2026-07-10T09:00:00Z", updatedAt: "2026-07-10T09:00:00Z",
+    },
+    {
+      _id: "pn-005-b",
+      progressNotes: {
+        chiefComplaint: SLATE_TEXT("Post-op Day 3. Low-grade fever 100.2F. Drain output 30ml."),
+        findings: SLATE_TEXT("Port sites clean. No signs of infection. Started soft diet. WBC 13.8, CRP 42 - post-op inflammatory response."),
+        vitals: { temperature: 100.2, heartRate: 96, spo2: 95, respiratoryRate: 22, systolicBP: 138, diastolicBP: 88 },
+        additionalRemarks: SLATE_TEXT("Continue antibiotics. Monitor temperature. If fever persists, get USG abdomen to rule out collection."),
+        date: "2026-07-09", time: "10:00:00",
+      },
+      filledByDetails: { doctorName: "Dr. Suresh Kumar", designation: "Medical Officer" },
+      createdAt: "2026-07-09T10:00:00Z", updatedAt: "2026-07-09T10:00:00Z",
+    },
+  ],
+};
+
+var MOCK_CONSULTANT_NOTES_IPD = {
+  "ADM-2026-001": [
+    {
+      _id: "cn-001-a",
+      consultationNotes: {
+        clinicalAssessmentPlan: SLATE_TEXT("Community-acquired pneumonia, not responding to first-line antibiotics. Day 5 of Ceftriaxone. Inflammatory markers elevated. Plan: Blood culture, consider adding Azithromycin if no response by tomorrow. Continue supportive care."),
+        vitals: { temperature: 101.2, heartRate: 98, spo2: 93, respiratoryRate: 24, systolicBP: 128, diastolicBP: 82 },
+        medication: [
+          { name: "Ceftriaxone 1g IV BD", status: "Continue" },
+          { name: "Paracetamol 650mg PO TDS", status: "Continue" },
+          { name: "Azithromycin 500mg IV OD", status: "Add if no improvement by evening" },
+        ],
+        labInvestigation: [
+          { name: "Blood Culture", status: "Ordered" },
+          { name: "Repeat CRP", status: "Tomorrow" },
+          { name: "Chest X-ray PA", status: "Tomorrow morning" },
+        ],
+        additionalRemarks: SLATE_TEXT("Patient counseled about expected course. Family informed about possibility of antibiotic escalation."),
+        date: "2026-07-10", time: "09:30:00",
+      },
+      updates: [],
+      filledByDetails: { doctorName: "Dr. Rajesh Sharma", designation: "Consultant - Internal Medicine" },
+      createdByName: "Dr. Rajesh Sharma", createdByRole: "Consultant",
+      createdAt: "2026-07-10T09:30:00Z", updatedAt: "2026-07-10T09:30:00Z",
+    },
+  ],
+  "ADM-2026-002": [
+    {
+      _id: "cn-002-a",
+      consultationNotes: {
+        clinicalAssessmentPlan: SLATE_TEXT("DKA Day 3, resolving slowly. Anion gap closing. pH improving from 7.12 to 7.18. K+ 3.1 on replacement. Plan: Continue protocol, transition to SC insulin when pH > 7.3 and tolerating orals. Endocrine consult for long-term management."),
+        vitals: { temperature: 99.1, heartRate: 118, spo2: 88, respiratoryRate: 30, systolicBP: 88, diastolicBP: 54 },
+        medication: [
+          { name: "Insulin Infusion 6u/hr", status: "Continue per protocol" },
+          { name: "NS 0.9% 200ml/hr", status: "Continue" },
+          { name: "KCl 20mEq in 100ml NS", status: "Repeat based on levels" },
+        ],
+        labInvestigation: [
+          { name: "ABG", status: "Repeat at 10:00" },
+          { name: "Serum K+", status: "Repeat at 09:00" },
+          { name: "Urine Culture", status: "Pending" },
+        ],
+        additionalRemarks: SLATE_TEXT("High-risk patient. Family counseled about severity and expected hospital stay (5-7 days). Endocrine consult requested."),
+        date: "2026-07-10", time: "08:30:00",
+      },
+      updates: [],
+      filledByDetails: { doctorName: "Dr. Rajesh Sharma", designation: "Consultant - Internal Medicine" },
+      createdByName: "Dr. Rajesh Sharma", createdByRole: "Consultant",
+      createdAt: "2026-07-10T08:30:00Z", updatedAt: "2026-07-10T08:30:00Z",
+    },
+  ],
+  "ADM-2026-003": [
+    {
+      _id: "cn-003-a",
+      consultationNotes: {
+        clinicalAssessmentPlan: SLATE_TEXT("AECOPD with Type 2 respiratory failure. Not responding adequately to bronchodilators alone. Added IV steroids. Keep NIV on standby. Plan: Repeat ABG in morning, chest physiotherapy, pulmonology consult if no improvement."),
+        vitals: { temperature: 98.6, heartRate: 82, spo2: 89, respiratoryRate: 22, systolicBP: 145, diastolicBP: 92 },
+        medication: [
+          { name: "Deriphylline 200mg IV BD", status: "Continue" },
+          { name: "Budesonide + Formoterol Neb TDS", status: "Continue" },
+          { name: "Hydrocortisone 100mg IV TDS", status: "Added" },
+        ],
+        labInvestigation: [
+          { name: "ABG", status: "Repeat in morning" },
+          { name: "Sputum Culture", status: "Sent" },
+          { name: "2D Echo", status: "To rule out cor pulmonale progression" },
+        ],
+        additionalRemarks: SLATE_TEXT("Elderly patient with multiple comorbidities. Risk of NIV/ventilator explained to family. Code status discussed - Full code."),
+        date: "2026-07-10", time: "09:00:00",
+      },
+      updates: [],
+      filledByDetails: { doctorName: "Dr. Rajesh Sharma", designation: "Consultant - Internal Medicine" },
+      createdByName: "Dr. Rajesh Sharma", createdByRole: "Consultant",
+      createdAt: "2026-07-10T09:00:00Z", updatedAt: "2026-07-10T09:00:00Z",
+    },
+  ],
+  "ADM-2026-005": [
+    {
+      _id: "cn-005-a",
+      consultationNotes: {
+        clinicalAssessmentPlan: SLATE_TEXT("Post Lap Chole Day 4. Uncomplicated recovery. Low-grade fever settling. Drain output minimal. Plan: Remove drain, switch to oral analgesics, discharge tomorrow."),
+        vitals: { temperature: 99.8, heartRate: 92, spo2: 96, respiratoryRate: 20, systolicBP: 134, diastolicBP: 86 },
+        medication: [
+          { name: "Cefuroxime 1.5g IV BD", status: "Last dose today, then stop" },
+          { name: "Metronidazole 500mg IV TDS", status: "Last dose today" },
+          { name: "Paracetamol 650mg + Aceclofenac 100mg PO BD", status: "Start (replacing IV Tramadol)" },
+        ],
+        labInvestigation: [],
+        additionalRemarks: SLATE_TEXT("Patient and family counseled about discharge plan. Follow-up in 1 week for suture removal. Diet instructions given."),
+        date: "2026-07-10", time: "09:15:00",
+      },
+      updates: [],
+      filledByDetails: { doctorName: "Dr. Rajesh Sharma", designation: "Consultant - Internal Medicine" },
+      createdByName: "Dr. Rajesh Sharma", createdByRole: "Consultant",
+      createdAt: "2026-07-10T09:15:00Z", updatedAt: "2026-07-10T09:15:00Z",
+    },
+  ],
+};
+
+var MOCK_OT_NOTES_IPD = {
+  "ADM-2026-005": [
+    {
+      _id: "ot-005-a",
+      otNotes: {
+        surgeryDetails: {
+          procedureName: "Laparoscopic Cholecystectomy",
+          anaesthesiaType: "General Anaesthesia",
+          surgeryDate: "2026-07-06",
+          surgeryStartTime: "10:00",
+          surgeryEndTime: "11:30",
+          diagnosis: { id: "diag-9", name: "Cholelithiasis with Chronic Cholecystitis" },
+        },
+        surgeryTeam: {
+          primarySurgeon: [{ id: 9001, name: "Dr. Rajesh Sharma" }],
+          secondarySurgeon: [{ id: 9002, name: "Dr. Suresh Kumar" }],
+          assistant: [],
+          anaesthesiologist: "Dr. Meera Iyer",
+          scrubNurse: [{ name: "Nurse Divya" }],
+          floorCirculatingNurse: [{ name: "Nurse Priya" }],
+        },
+        operativeNotes: {
+          findings: "Gallbladder thick-walled, distended, with multiple stones (largest 12mm). Adhesions to omentum. Calot's triangle clearly identified. CBD normal caliber. No bile leak.",
+          procedure: "Standard 4-port laparoscopic cholecystectomy. Calot's triangle dissected, cystic artery and duct clipped and divided. GB dissected from liver bed using electrocautery. Retrieved via epigastric port in endobag. Hemostasis confirmed. Subhepatic drain placed.",
+        },
+        intraOperativeNotes: {
+          estimatedBloodLoss: 50,
+          swabCount: 5,
+          fluidCount: 1500,
+          sutureType: "Absorbable (Vicryl 2-0)",
+          complicationsSeverity: [],
+          specimensSent: [{ name: "Gallbladder", lab: "Histopathology" }],
+          implantsUsed: [],
+        },
+        postOperativeNotes: {
+          postOpDestination: "Surgical Ward",
+          additionalInstructions: "Monitor vitals q2h for 6 hours. Start oral sips after 6 hours. DVT prophylaxis with Enoxaparin. Check drain output.",
+        },
+      },
+      filledByDetails: { doctorName: "Dr. Rajesh Sharma", designation: "Consultant Surgeon" },
+      createdAt: "2026-07-06T11:30:00Z", updatedAt: "2026-07-06T11:30:00Z",
+    },
+  ],
+};
+
+// Helper to find admission by patient or admission ID from a URL
+function findAdmissionId(url) {
+  var m = url.match(/admissionId=([A-Z0-9-]+)/i) || url.match(/admission[_-]?[Ii]d[=/]([A-Z0-9-]+)/);
+  return m ? m[1] : null;
+}
 
 export {
   DEMO_DOCTOR,
@@ -245,4 +817,11 @@ export {
   MOCK_LABS,
   MOCK_RISK_SCORES,
   MOCK_NURSING_NOTES,
+  MOCK_WARD_TASKS,
+  MOCK_PROGRESS_TIMELINE,
+  MOCK_ASSESSMENTS,
+  MOCK_PROGRESS_NOTES_IPD,
+  MOCK_CONSULTANT_NOTES_IPD,
+  MOCK_OT_NOTES_IPD,
+  findAdmissionId,
 };

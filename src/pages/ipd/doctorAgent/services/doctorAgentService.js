@@ -12,6 +12,8 @@ import {
   MOCK_LABS,
   MOCK_RISK_SCORES,
   MOCK_NURSING_NOTES,
+  MOCK_WARD_TASKS,
+  MOCK_PROGRESS_TIMELINE,
 } from "../../../../demo/demoData";
 
 var IS_DEMO = process.env.REACT_APP_DEMO === "true";
@@ -110,6 +112,18 @@ export async function fetchProgressTimeline(patient) {
   if (!patient) return null;
   const admissionId = patient.admissionId;
   if (admissionId == null) return null;
+
+  if (IS_DEMO) {
+    var tl = MOCK_PROGRESS_TIMELINE[admissionId];
+    if (!tl) return null;
+    return {
+      consultant: tl.consultant || patient.consultant || null,
+      lastConsultantNoteAt: tl.lastConsultantNoteAt || null,
+      nursing: tl.nursing || [],
+      mo: tl.mo || [],
+    };
+  }
+
   const body = await safe(agentNursingGet(`/progress-timeline/by-admission/${admissionId}`), null);
   const data = payload(body);
   if (!data) return null;
@@ -121,10 +135,9 @@ export async function fetchProgressTimeline(patient) {
   };
 }
 
-/** Aggregated pending items across the ward (list/home view). V0: none yet. */
+/** Aggregated pending items across the ward (list/home view). */
 export async function fetchDoctorTasks() {
-  // The ward task feed (Nurse SOS + flagged items across patients) lands in a later
-  // phase; return an empty list so the list view renders its empty state cleanly.
+  if (IS_DEMO) return MOCK_WARD_TASKS;
   return [];
 }
 

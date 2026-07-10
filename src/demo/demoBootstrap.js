@@ -10,6 +10,13 @@ import {
   MOCK_LABS,
   MOCK_RISK_SCORES,
   MOCK_NURSING_NOTES,
+  MOCK_WARD_TASKS,
+  MOCK_PROGRESS_TIMELINE,
+  MOCK_ASSESSMENTS,
+  MOCK_PROGRESS_NOTES_IPD,
+  MOCK_CONSULTANT_NOTES_IPD,
+  MOCK_OT_NOTES_IPD,
+  findAdmissionId,
 } from "./demoData";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
 
@@ -150,15 +157,7 @@ function demoRequestInterceptor(config) {
     if (url.includes("/fluid-balance") || url.includes("/fluid")) {
       var pid3 = findPatientId(full);
       config.adapter = function () {
-        return mockResponse({ status: true, data: MOCK_FLUID[pid3] || { intake: 0, output: 0, net: 0, period: "24h" } });
-      };
-      return config;
-    }
-
-    if (url.includes("/labs") || url.includes("/lab")) {
-      var pid4 = findPatientId(full);
-      config.adapter = function () {
-        return mockResponse({ status: true, data: MOCK_LABS[pid4] || [] });
+        return mockResponse({ status: true, data: MOCK_FLUID[pid3] || { totalIntake: 0, totalOutput: 0, balance: 0, balanceDate: "" } });
       };
       return config;
     }
@@ -171,6 +170,87 @@ function demoRequestInterceptor(config) {
       return config;
     }
 
+    // ─── IPD-SPECIFIC interceptors BEFORE broad /notes and /labs catches ─────
+
+    if ((url.includes("/assessments") || full.includes("/assessments")) && !url.includes("/prescriptions")) {
+      var admId1 = findAdmissionId(full);
+      config.adapter = function () {
+        var data = admId1 && MOCK_ASSESSMENTS[admId1] ? MOCK_ASSESSMENTS[admId1] : {};
+        return mockResponse(data);
+      };
+      return config;
+    }
+
+    if (url.includes("/progress-notes") || full.includes("/progress-notes")) {
+      var admId2 = findAdmissionId(full);
+      config.adapter = function () {
+        return mockResponse(admId2 && MOCK_PROGRESS_NOTES_IPD[admId2] ? MOCK_PROGRESS_NOTES_IPD[admId2] : []);
+      };
+      return config;
+    }
+
+    if (url.includes("/progress-timeline")) {
+      var admId2b = findAdmissionId(full);
+      config.adapter = function () {
+        return mockResponse(admId2b && MOCK_PROGRESS_TIMELINE[admId2b] ? MOCK_PROGRESS_TIMELINE[admId2b] : {});
+      };
+      return config;
+    }
+
+    if (url.includes("/consultant-notes") || full.includes("/consultant-notes")) {
+      var admId3 = findAdmissionId(full);
+      config.adapter = function () {
+        return mockResponse(admId3 && MOCK_CONSULTANT_NOTES_IPD[admId3] ? MOCK_CONSULTANT_NOTES_IPD[admId3] : []);
+      };
+      return config;
+    }
+
+    if (url.includes("/ot-notes") || full.includes("/ot-notes")) {
+      config.adapter = function () {
+        return mockResponse([]);
+      };
+      return config;
+    }
+
+    if (url.includes("/cross-referral") || full.includes("/cross-referral")) {
+      config.adapter = function () {
+        return mockResponse([]);
+      };
+      return config;
+    }
+
+    if (url.includes("/discharged-summary") || full.includes("/discharged-summary")) {
+      config.adapter = function () {
+        return mockResponse({});
+      };
+      return config;
+    }
+
+    if (url.includes("/lab-results") || full.includes("/lab-results")) {
+      var pid4lr = findPatientId(full);
+      config.adapter = function () {
+        return mockResponse(MOCK_LABS[pid4lr] || []);
+      };
+      return config;
+    }
+
+    if ((url.includes("/docs") || full.includes("/docs")) && (full.includes("category=medical_records") || full.includes("category=scan_results"))) {
+      config.adapter = function () {
+        return mockResponse([]);
+      };
+      return config;
+    }
+
+    // ─── Broad catches (AFTER specific IPD handlers) ─────────────────────────
+
+    if (url.includes("/labs") || url.includes("/lab")) {
+      var pid4 = findPatientId(full);
+      config.adapter = function () {
+        return mockResponse({ status: true, data: MOCK_LABS[pid4] || [] });
+      };
+      return config;
+    }
+
     if (url.includes("/nursing") || url.includes("/notes")) {
       var pid6 = findPatientId(full);
       config.adapter = function () {
@@ -179,9 +259,15 @@ function demoRequestInterceptor(config) {
       return config;
     }
 
+    if (full.includes("/dynamic-modules") || full.includes("/customization") || full.includes("/print-settings") || full.includes("/printSettings")) {
+      config.adapter = function () {
+        return mockResponse({ modules: [] });
+      };
+      return config;
+    }
+
     if (url.includes("/doctor-agent/entries/")) {
       var pid7 = findPatientId(full);
-      var patient = MOCK_PATIENTS.find(function (p) { return p.patientId === pid7; });
       config.adapter = function () {
         return mockResponse({
           status: true,
@@ -190,7 +276,7 @@ function demoRequestInterceptor(config) {
             generatedAt: new Date().toISOString(),
             medications: (MOCK_MAR[pid7] || []),
             labOrders: (MOCK_LABS[pid7] || []),
-            roundNote: (MOCK_NURSING_NOTES[pid7] || [{}])[0]?.note || "",
+            roundNote: (MOCK_NURSING_NOTES[pid7] || [{}])[0]?.nursingPlan || "",
             careTasks: [],
           },
         });
@@ -200,7 +286,7 @@ function demoRequestInterceptor(config) {
 
     if (url.includes("/doctor-agent/tasks")) {
       config.adapter = function () {
-        return mockResponse({ status: true, data: { pending: 3, urgent: 1 } });
+        return mockResponse({ status: true, data: { pending: MOCK_WARD_TASKS.length, urgent: MOCK_WARD_TASKS.filter(function (t) { return t.priority === "Urgent"; }).length } });
       };
       return config;
     }
