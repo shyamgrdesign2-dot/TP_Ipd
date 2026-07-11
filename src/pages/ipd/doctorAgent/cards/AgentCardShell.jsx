@@ -276,7 +276,7 @@ function TaskList({ tasks = [], onTaskClick }) {
         })}
       </div>}
       {/* Rows */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 2, maxHeight: 320, overflowY: "auto" }} className="da-suggestion-scroll">
+      <div style={{ display: "flex", flexDirection: "column", gap: 2, maxHeight: 480, overflowY: "auto" }} className="da-suggestion-scroll">
         {rows.map((t, i) => {
           const tier = ALERT_TIER[PRIORITY_TONE[t.priority] || "neutral"];
           return (
@@ -285,7 +285,7 @@ function TaskList({ tasks = [], onTaskClick }) {
               type="button"
               className="da-task-row"
               onClick={() => onTaskClick?.(t)}
-              style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 8px", background: "transparent", border: "none", cursor: onTaskClick ? "pointer" : "default", textAlign: "left", width: "100%" }}
+              style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "8px 8px", background: "transparent", border: "none", cursor: onTaskClick ? "pointer" : "default", textAlign: "left", width: "100%" }}
             >
               <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 24, height: 24, flexShrink: 0, borderRadius: 7, background: "rgba(103,58,172,0.08)" }}>
                 <TPIcon name={TASK_ICON[t.kind] || "clipboard-text"} variant="bulk" size={13} color="var(--tesseract-fg-brand, #4b4ad5)" />
@@ -295,7 +295,7 @@ function TaskList({ tasks = [], onTaskClick }) {
                   <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{t.patientName}</span>
                   <span style={{ fontSize: 10.5, fontWeight: 500, color: "var(--tesseract-fg-tertiary, #98a2b3)" }}>{t.bed}</span>
                 </span>
-                <span style={{ display: "block", fontSize: 11.5, lineHeight: "15px", color: "var(--tesseract-fg-secondary, #475467)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                <span style={{ display: "block", fontSize: 11.5, lineHeight: "16px", color: "var(--tesseract-fg-secondary, #475467)" }}>
                   <strong style={{ fontWeight: 600 }}>{t.title}</strong>
                   {t.summary ? ` - ${t.summary}` : ""}
                 </span>

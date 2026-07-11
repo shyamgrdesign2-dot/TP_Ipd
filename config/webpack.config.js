@@ -107,6 +107,7 @@ module.exports = function (webpackEnv) {
   // Omit trailing slash as %PUBLIC_URL%/xyz looks better than %PUBLIC_URL%xyz.
   // Get environment variables to inject into our app.
   const env = getClientEnvironment(paths.publicUrlOrPath.slice(0, -1));
+  const isDemo = process.env.REACT_APP_DEMO === 'true';
 
   const shouldUseReactRefresh = env.raw.FAST_REFRESH;
 
@@ -358,6 +359,10 @@ module.exports = function (webpackEnv) {
         'react-dom': path.resolve(__dirname, '../node_modules/react-dom'),
         'react/jsx-runtime': path.resolve(__dirname, '../node_modules/react/jsx-runtime.js'),
         'react/jsx-dev-runtime': path.resolve(__dirname, '../node_modules/react/jsx-dev-runtime.js'),
+        ...(isDemo ? {
+          'shared_ui/components': path.resolve(__dirname, '../src/shared/sharedUiStub.js'),
+          'shared_ui/simple': path.resolve(__dirname, '../src/shared/sharedUiStub.js'),
+        } : {}),
       },
       symlinks: false,
     },
@@ -777,7 +782,7 @@ module.exports = function (webpackEnv) {
             },
           },
         }),
-        new ModuleFederationPlugin({
+        !isDemo && new ModuleFederationPlugin({
           name: 'host',
           remotes: {
             shared_ui:
