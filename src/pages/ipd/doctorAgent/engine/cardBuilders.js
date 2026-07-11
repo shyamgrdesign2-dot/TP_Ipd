@@ -13,14 +13,24 @@ const forPt = (pt) => (pt ? ` for **${pt}**` : "");
 const worstTier = (tiers) => (tiers.includes("critical") ? "critical" : tiers.includes("warning") ? "warning" : null);
 
 /* ── Vitals ──────────────────────────────────────────────────────────────────── */
+const VITAL_NORMS = { sbp: [90, 140], hr: [60, 100], spo2: [95, 100], temp: [36.1, 37.5], rr: [12, 20] };
+function vitalArrow(key, val) {
+  const n = VITAL_NORMS[key];
+  if (!n || val == null) return "";
+  const v = Number(val);
+  if (v > n[1]) return " ↑";
+  if (v < n[0]) return " ↓";
+  return "";
+}
+
 function vitalsItems(v) {
   if (!v) return { items: [], tiers: [] };
   const defs = [
-    { key: "BP", value: `${v.systolicBP}/${v.diastolicBP}`, tier: tierFor("sbp", v.systolicBP) },
-    { key: "HR", value: `${v.heartRate}`, tier: tierFor("hr", v.heartRate) },
-    { key: "SpO2", value: `${v.spo2}%`, tier: tierFor("spo2", v.spo2) },
-    { key: "Temp", value: `${v.temperature} C`, tier: tierFor("temp", v.temperature) },
-    { key: "RR", value: `${v.respiratoryRate}`, tier: tierFor("rr", v.respiratoryRate) },
+    { key: "BP", value: `${v.systolicBP}/${v.diastolicBP}${vitalArrow("sbp", v.systolicBP)}`, tier: tierFor("sbp", v.systolicBP) },
+    { key: "HR", value: `${v.heartRate}${vitalArrow("hr", v.heartRate)}`, tier: tierFor("hr", v.heartRate) },
+    { key: "SpO2", value: `${v.spo2}%${vitalArrow("spo2", v.spo2)}`, tier: tierFor("spo2", v.spo2) },
+    { key: "Temp", value: `${v.temperature} C${vitalArrow("temp", v.temperature)}`, tier: tierFor("temp", v.temperature) },
+    { key: "RR", value: `${v.respiratoryRate}${vitalArrow("rr", v.respiratoryRate)}`, tier: tierFor("rr", v.respiratoryRate) },
   ];
   return {
     items: defs.map((d) => ({ key: d.key, value: d.value, tone: d.tier || undefined })),
@@ -36,6 +46,7 @@ function buildVitalsCard(e, pt) {
     intro: v ? `**Latest vitals**${forPt(pt)}${v.recordedBy ? `, charted by **${v.recordedBy}**` : ", from the nursing chart"}.` : "No vitals recorded yet.",
     config: {
       kind: "vitals_trend",
+      sources: [{ label: "Nursing vitals chart", description: "Recorded by nursing staff during ward rounds" }],
       header: {
         icon: "activity",
         title: "Latest vitals",
@@ -108,6 +119,7 @@ function buildVitalTrendsCard(e, pt) {
     intro: `**Vital trends**${pt ? ` for **${pt}**` : ""}, showing ${sorted.length} reading${sorted.length === 1 ? "" : "s"} over time.`,
     config: {
       kind: "vital_trends",
+      sources: [{ label: "Nursing vitals chart", description: "Recorded by nursing staff across shifts" }],
       header: {
         icon: "chart",
         title: "Vital trends",
@@ -134,6 +146,7 @@ function buildMarCard(e, pt) {
     intro: orders.length ? `**${orders.length} active medication order${orders.length === 1 ? "" : "s"}**${forPt(pt)} on the MAR.` : "No active medications on the MAR.",
     config: {
       kind: "mar_grid",
+      sources: [{ label: "Medication administration record", description: "MAR charted by nursing during drug rounds" }],
       header: { icon: "capsule", title: "Active medications", badge: orders.length ? { label: `${orders.length}`, tone: "info" } : undefined },
       content: meds.length ? [{ type: "medlist", meds }] : [{ type: "text", body: "No active medication orders." }],
     },
@@ -144,7 +157,7 @@ function buildMarCard(e, pt) {
 function buildFluidCard(e, pt) {
   const f = e?.fluid;
   if (!f) {
-    return { intro: "No fluid balance recorded yet.", config: { kind: "fluid_balance", header: { icon: "drop", title: "Fluid balance (24h)" }, content: [{ type: "text", body: "No fluid balance recorded." }] } };
+    return { intro: "No fluid balance recorded yet.", config: { kind: "fluid_balance", sources: [{ label: "Nursing fluid balance", description: "Intake/output charted by nursing on shift" }], header: { icon: "drop", title: "Fluid balance (24h)" }, content: [{ type: "text", body: "No fluid balance recorded." }] } };
   }
   const net = f.balance != null ? f.balance : (f.totalIntake || 0) - (f.totalOutput || 0);
   const tier = fluidTier(net);
@@ -152,6 +165,7 @@ function buildFluidCard(e, pt) {
     intro: `**24-hour fluid balance**${forPt(pt)}, from the nursing chart.`,
     config: {
       kind: "fluid_balance",
+      sources: [{ label: "Nursing fluid balance", description: "Intake/output charted by nursing on shift" }],
       header: {
         icon: "drop",
         title: "Fluid balance (24h)",
@@ -177,11 +191,12 @@ function buildFluidCard(e, pt) {
 function buildLabsCard(e, pt) {
   const labs = e?.labs || [];
   const anyCritical = labs.some((l) => l.critical);
-  const rows = labs.map((l) => [l.name, `${l.flag === "low" ? "v " : l.flag === "high" ? "^ " : ""}${l.value}${l.unit ? ` ${l.unit}` : ""}`, dash(l.refRange)]);
+  const rows = labs.map((l) => [l.name, `${l.value}${l.unit ? " " + l.unit : ""} ${l.flag === "high" ? "↑" : l.flag === "low" ? "↓" : ""}`, dash(l.refRange)]);
   return {
     intro: labs.length ? `**${labs.length} flagged lab result${labs.length === 1 ? "" : "s"}**${forPt(pt)} in the last 24h.` : "No flagged lab results.",
     config: {
       kind: "lab_panel",
+      sources: [{ label: "Lab results", description: "Flagged values from the lab/investigation module" }],
       header: {
         icon: "ai-flask",
         title: "Flagged labs",
@@ -207,6 +222,7 @@ function buildRiskCard(e, pt) {
     intro: scores.length ? `Current **nursing risk scores**${forPt(pt)}.` : "No risk scores recorded yet.",
     config: {
       kind: "risk_strip",
+      sources: [{ label: "Nursing risk assessment", description: "Braden, fall risk and other scores charted by nursing" }],
       header: {
         icon: "shield",
         title: "Risk scores",
@@ -227,6 +243,7 @@ function buildNotesCard(e, pt) {
     intro: notes.length ? `The most recent **nursing notes**${forPt(pt)}.` : "No nursing notes recorded yet.",
     config: {
       kind: "nursing_notes",
+      sources: [{ label: "Nursing daily notes", description: "Daily nursing progress notes charted on shift" }],
       header: { icon: "note-2", title: "Nursing notes", badge: notes.length ? { label: `${notes.length}`, tone: "info" } : undefined },
       content: notes.length
         ? notes.flatMap((n, i) => {
@@ -278,51 +295,64 @@ function buildSummaryCard(e, patient, timeline) {
   if (p.admittedOn) meta.push({ key: "Stay", value: dayOfStay(p.admittedOn) });
 
   const content = [];
-  if (accent) content.push({ type: "banner", tone: accent, icon: accent === "critical" ? "danger" : "info-circle", text: accent === "critical" ? "Deteriorating - critical values present. Review the flags below." : "Some values are outside the normal range." });
-  if (meta.length) content.push({ type: "keyvalue", items: meta });
-  if (vItems.length) content.push({ type: "keyvalue", items: vItems });
-  // At-a-glance row: fluid net · MAR exceptions (what the doctor cares about) · labs
-  const glance = [];
-  if (net != null) glance.push({ key: "Fluid net", value: `${net > 0 ? "+" : ""}${net} ml`, tone: fTier || undefined });
-  glance.push({ key: "MAR", value: marBad.length ? `${marBad.length} held/missed` : `${mar.length} on track`, tone: marBad.length ? "warning" : undefined });
-  glance.push({ key: "Labs", value: `${labs.length} flagged${critLabs.length ? `, ${critLabs.length} crit` : ""}`, tone: critLabs.length ? "critical" : undefined });
-  content.push({ type: "keyvalue", items: glance });
-  if (riskItems.length) content.push({ type: "keyvalue", items: riskItems.map(({ key, value, tone }) => ({ key, value, tone })) });
+  if (accent) content.push({ type: "banner", tone: accent, icon: accent === "critical" ? "danger" : "info-circle", text: accent === "critical" ? "Deteriorating. Critical values present. Review the flags below." : "Some values are outside the normal range." });
   if (flags.length) content.push({ type: "text", variant: "alert", body: `Red flags: ${flags.join("  ·  ")}` });
-  // Latest progress note since the doctor last rounded - whichever of the nursing
-  // vs MO note is the most recent. Only that single note is surfaced (the rest live
-  // behind the progress-notes pills), so the snapshot stays a 5-second read.
-  const anchor = timeline?.lastConsultantNoteAt || null;
-  const sinceNotes = [...(timeline?.nursing || []), ...(timeline?.mo || [])]
-    .filter((n) => !anchor || !n.recordedAt || new Date(n.recordedAt) >= new Date(anchor))
-    .sort((a, b) => new Date(b.recordedAt || 0) - new Date(a.recordedAt || 0));
-  const latest = sinceNotes[0];
-  if (latest) {
-    const kindLabel = latest.role === "MO" ? "MO note" : "Nursing note";
-    const who = latest.author || latest.recordedBy || "";
-    const when = latest.recordedAt ? toDateTimeLabel(latest.recordedAt) : "";
-    const meta = [who, when].filter(Boolean).join(", ");
-    const body = latest.summary || latest.nursingPlan || latest.generalCondition || "";
-    content.push({ type: "text", body: `Latest ${kindLabel}${meta ? ` (${meta})` : ""}: ${body}` });
-  } else {
-    const lastNote = (e?.notes || [])[0];
-    if (lastNote) content.push({ type: "text", body: `Overnight: ${lastNote.nursingPlan || lastNote.generalCondition}` });
-  }
-  // Cross-referrals: surface pending referrals in the snapshot
-  const refs = (e?.crossReferrals || []).filter((r) => !r.cancel);
-  const pendingRefs = refs.filter((r) => !(r.crossReferral?.consultantNotes || []).length);
-  if (pendingRefs.length) {
-    const refNames = pendingRefs.map((r) => r.crossReferral?.referralInformation?.referringTo?.name).filter(Boolean);
-    content.push({ type: "text", variant: "alert", body: `Pending referral${pendingRefs.length > 1 ? "s" : ""}: ${refNames.join(", ") || "awaiting review"}` });
-  } else if (refs.length) {
-    content.push({ type: "text", body: `${refs.length} referral${refs.length > 1 ? "s" : ""} - all reviewed.` });
+
+  if (meta.length) content.push({ type: "keyvalue", items: meta });
+
+  content.push({ type: "text", variant: "heading", body: "Vitals" });
+  if (vItems.length) content.push({ type: "keyvalue", items: vItems });
+
+  content.push({ type: "text", variant: "heading", body: "Orders" });
+  const orderItems = [];
+  if (net != null) orderItems.push({ key: "Fluid net", value: `${net > 0 ? "+" : ""}${net} ml`, tone: fTier || undefined });
+  orderItems.push({ key: "MAR", value: marBad.length ? `${marBad.length} held/missed` : `${mar.length} on track`, tone: marBad.length ? "warning" : undefined });
+  content.push({ type: "keyvalue", items: orderItems });
+
+  if (labs.length) {
+    content.push({ type: "text", variant: "heading", body: "Flagged Labs" });
+    const labItems = labs.slice(0, 4).map((l) => {
+      const arrow = l.flag === "high" ? " ↑" : l.flag === "low" ? " ↓" : "";
+      return { key: l.name, value: `${l.value}${l.unit ? " " + l.unit : ""}${arrow}`, tone: l.critical ? "critical" : "warning" };
+    });
+    content.push({ type: "keyvalue", items: labItems });
   }
 
-  // OT notes: show post-op status if any
+  if (riskItems.length) {
+    content.push({ type: "text", variant: "heading", body: "Risk Scores" });
+    content.push({ type: "keyvalue", items: riskItems.map(({ key, value, tone }) => ({ key, value, tone })) });
+  }
+
+  // Note about data provenance instead of inlining note content
+  const noteCount = [...(timeline?.nursing || []), ...(timeline?.mo || [])].length;
+  if (noteCount) {
+    content.push({ type: "text", body: `Based on ${noteCount} nursing and MO progress note${noteCount === 1 ? "" : "s"} since your last visit.` });
+  }
+  // Cross-referrals
+  const refs = (e?.crossReferrals || []).filter((r) => !r.cancel);
+  if (refs.length) {
+    content.push({ type: "text", variant: "heading", body: "Referrals" });
+    const refItems = [];
+    refs.forEach((r) => {
+      const to = r.crossReferral?.referralInformation?.referringTo || {};
+      const hasNotes = (r.crossReferral?.consultantNotes || []).length > 0;
+      refItems.push({ key: to.speciality || "Referral", value: `${to.name || "Pending"}`, tone: hasNotes ? undefined : "warning" });
+    });
+    content.push({ type: "keyvalue", items: refItems });
+  }
+
+  // OT / Post-op
   const ot = e?.otNotes || [];
   if (ot.length) {
-    const proc = ot.map((n) => { const sd = n.otNotes?.surgeryDetails || {}; return Array.isArray(sd.procedureName) ? sd.procedureName[0] : sd.procedureName; }).filter(Boolean);
-    content.push({ type: "text", body: `Post-op: ${proc.join(", ") || "surgical record on file"}${ot[0]?.otNotes?.surgeryDetails?.surgeryDate ? ` (${ot[0].otNotes.surgeryDetails.surgeryDate})` : ""}` });
+    content.push({ type: "text", variant: "heading", body: "Post-op" });
+    const otItems = [];
+    ot.forEach((n) => {
+      const sd = n.otNotes?.surgeryDetails || {};
+      const proc = Array.isArray(sd.procedureName) ? sd.procedureName[0] : sd.procedureName;
+      if (proc) otItems.push({ key: "Procedure", value: proc });
+      if (sd.surgeryDate) otItems.push({ key: "Date", value: sd.surgeryDate });
+    });
+    if (otItems.length) content.push({ type: "keyvalue", items: otItems });
   }
 
   if (!content.length) content.push({ type: "text", body: "No nursing data recorded for this patient yet." });
@@ -333,11 +363,17 @@ function buildSummaryCard(e, patient, timeline) {
     intro: `Rounds snapshot for **${p.name || "the patient"}** - ${status}.`,
     config: {
       kind: "patient_summary",
-      sources: [
-        { label: "Latest progress note", description: "The single most-recent note (nursing or MO) charted since your last consultant visit - the one thing that changed since you saw the patient." },
-        { label: "Red flags", description: "Only values that cross a fixed clinical threshold (critical vital, critical lab, held/missed dose, high fluid net, critical risk) - what should change a rounds decision." },
-        { label: "Nursing chart", description: "Vitals, MAR, fluid balance, flagged labs and risk scores compiled from the ward nursing modules." },
-      ],
+      sources: (function () {
+        var s = [];
+        var nCount = (timeline?.nursing || []).length;
+        var mCount = (timeline?.mo || []).length;
+        var latestN = (timeline?.nursing || [])[0];
+        var latestM = (timeline?.mo || [])[0];
+        if (nCount) s.push({ label: "Nursing progress note" + (nCount > 1 ? "s" : ""), description: nCount + " note" + (nCount > 1 ? "s" : "") + (latestN?.recordedAt ? ", latest " + toDateTimeLabel(latestN.recordedAt) : "") });
+        if (mCount) s.push({ label: "MO progress note" + (mCount > 1 ? "s" : ""), description: mCount + " note" + (mCount > 1 ? "s" : "") + (latestM?.recordedAt ? ", latest " + toDateTimeLabel(latestM.recordedAt) : "") });
+        if (!s.length) s.push({ label: "IPD clinical record", description: "Charted in the IPD modules by clinical staff" });
+        return s;
+      })(),
       header: {
         icon: "activity",
         title: "Rounds snapshot",
@@ -444,7 +480,6 @@ function noteCardConfig(n, i, meta, kindKey) {
   const content = [];
   const by = [author, role].filter(Boolean).join(", ");
   if (by) content.push({ type: "keyvalue", items: [{ key: "By", value: by }] });
-  if (n.summary) content.push({ type: "text", body: n.summary });
   // Each charted cluster becomes a full-width section: vitals first (as chips),
   // then every documented field as its own heading + body.
   const sections = [];
@@ -555,28 +590,32 @@ function buildCrossReferralCard(e, pt) {
   const active = refs.filter((r) => !r.cancel);
   const content = [];
 
-  active.forEach((r) => {
+  active.forEach((r, idx) => {
     const info = r.crossReferral?.referralInformation || {};
     const to = info.referringTo || {};
-    const items = [];
-    if (to.name) items.push({ key: "Referred to", value: `${to.name}${to.speciality ? ` (${to.speciality})` : ""}` });
-    if (info.referringDepartment) items.push({ key: "From", value: info.referringDepartment });
-    if (info.referralDate) items.push({ key: "Date", value: info.referralDate });
-    const reason = slateToText(info.reasonForReferral);
-    if (reason) items.push({ key: "Reason", value: reason.length > 150 ? reason.substring(0, 147) + "..." : reason });
-
     const consNotes = r.crossReferral?.consultantNotes || [];
     const status = consNotes.length ? "Reviewed" : "Pending";
-    items.push({ key: "Status", value: status, tone: consNotes.length ? "success" : "warning" });
+
+    if (idx > 0) content.push({ type: "text", variant: "heading", body: `Referral ${idx + 1}` });
+
+    const headerItems = [];
+    if (to.name) headerItems.push({ key: "Referred to", value: `${to.name}${to.speciality ? ` (${to.speciality})` : ""}` });
+    if (info.referringDepartment) headerItems.push({ key: "From", value: info.referringDepartment });
+    if (info.referralDate) headerItems.push({ key: "Date", value: info.referralDate });
+    headerItems.push({ key: "Status", value: status, tone: consNotes.length ? "success" : "warning" });
+    content.push({ type: "keyvalue", items: headerItems });
+
+    const reason = slateToText(info.reasonForReferral);
+    if (reason) content.push({ type: "deflist", items: [{ key: "Reason", value: reason }] });
 
     if (consNotes.length) {
       const latest = consNotes[consNotes.length - 1];
+      const noteItems = [];
       const impression = slateToText(latest.impression);
-      if (impression) items.push({ key: "Impression", value: impression.length > 120 ? impression.substring(0, 117) + "..." : impression });
-      if (latest.followUp) items.push({ key: "Follow-up", value: latest.followUp });
+      if (impression) noteItems.push({ key: "Impression", value: impression });
+      if (latest.followUp) noteItems.push({ key: "Follow-up", value: latest.followUp });
+      if (noteItems.length) content.push({ type: "deflist", items: noteItems });
     }
-
-    content.push({ type: "keyvalue", items });
   });
 
   const pending = active.filter((r) => !(r.crossReferral?.consultantNotes || []).length);
@@ -608,43 +647,66 @@ function buildOtNotesCard(e, pt) {
   }
 
   const content = [];
-  notes.forEach((n) => {
+  notes.forEach((n, idx) => {
     const sd = n.otNotes?.surgeryDetails || {};
     const team = n.otNotes?.surgeryTeam || {};
     const intra = n.otNotes?.intraOperativeNotes || {};
     const postOp = n.otNotes?.postOperativeNotes || {};
     const opNotes = n.otNotes?.operativeNotes || {};
 
-    const items = [];
-    const proc = Array.isArray(sd.procedureName) ? sd.procedureName.join(", ") : sd.procedureName;
-    if (proc) items.push({ key: "Procedure", value: proc });
-    if (sd.anaesthesiaType) items.push({ key: "Anaesthesia", value: sd.anaesthesiaType });
-    if (sd.surgeryDate) items.push({ key: "Date", value: sd.surgeryDate });
-    if (sd.surgeryStartTime && sd.surgeryEndTime) items.push({ key: "Duration", value: `${sd.surgeryStartTime} - ${sd.surgeryEndTime}` });
-    const diag = slateToText(sd.diagnosis);
-    if (diag) items.push({ key: "Diagnosis", value: diag });
-    if (content.length) content.push({ type: "text", variant: "heading", body: "Surgery Details" });
-    content.push({ type: "keyvalue", items });
+    if (idx > 0) content.push({ type: "text", variant: "heading", body: `Record ${idx + 1}` });
 
+    // Surgery details
+    content.push({ type: "text", variant: "heading", body: "Surgery Details" });
+    const detailItems = [];
+    const proc = Array.isArray(sd.procedureName) ? sd.procedureName.join(", ") : sd.procedureName;
+    if (proc) detailItems.push({ key: "Procedure", value: proc });
+    if (sd.anaesthesiaType) detailItems.push({ key: "Anaesthesia", value: sd.anaesthesiaType });
+    if (sd.surgeryDate) detailItems.push({ key: "Date", value: sd.surgeryDate });
+    if (sd.surgeryStartTime && sd.surgeryEndTime) detailItems.push({ key: "Duration", value: `${sd.surgeryStartTime} - ${sd.surgeryEndTime}` });
+    if (detailItems.length) content.push({ type: "keyvalue", items: detailItems });
+    const diag = slateToText(sd.diagnosis);
+    if (diag) content.push({ type: "deflist", items: [{ key: "Diagnosis", value: diag }] });
+
+    // Surgical team
     const teamItems = [];
     if (team.primarySurgeon?.length) teamItems.push({ key: "Primary Surgeon", value: team.primarySurgeon.map((s) => s.name).join(", ") });
     if (team.secondarySurgeon?.length) teamItems.push({ key: "Secondary", value: team.secondarySurgeon.map((s) => s.name).join(", ") });
     if (team.anaesthesiologist) teamItems.push({ key: "Anaesthesiologist", value: team.anaesthesiologist });
     if (team.scrubNurse?.length) teamItems.push({ key: "Scrub Nurse", value: team.scrubNurse.map((s) => s.name).join(", ") });
-    if (teamItems.length) content.push({ type: "keyvalue", items: teamItems });
+    if (teamItems.length) {
+      content.push({ type: "text", variant: "heading", body: "Surgical Team" });
+      content.push({ type: "keyvalue", items: teamItems });
+    }
 
+    // Operative findings
     const findings = slateToText(opNotes.operativeFindings);
-    if (findings) content.push({ type: "text", body: `**Findings:** ${findings}` });
+    const procedure = slateToText(opNotes.operativeProcedure);
+    if (findings || procedure) {
+      content.push({ type: "text", variant: "heading", body: "Operative Notes" });
+      const opItems = [];
+      if (findings) opItems.push({ key: "Findings", value: findings });
+      if (procedure) opItems.push({ key: "Procedure", value: procedure });
+      content.push({ type: "deflist", items: opItems });
+    }
 
+    // Intra-operative
     const intraItems = [];
     if (intra.estimatedBloodLoss) intraItems.push({ key: "Blood Loss", value: `${intra.estimatedBloodLoss} ml` });
     if (intra.swabCount) intraItems.push({ key: "Swab Count", value: `${intra.swabCount}` });
     if (intra.fluidCount) intraItems.push({ key: "Fluids", value: `${intra.fluidCount} ml` });
     if (intra.sutureType) intraItems.push({ key: "Suture", value: intra.sutureType });
-    if (intraItems.length) content.push({ type: "keyvalue", items: intraItems });
+    if (intraItems.length) {
+      content.push({ type: "text", variant: "heading", body: "Intra-operative" });
+      content.push({ type: "keyvalue", items: intraItems });
+    }
 
+    // Post-operative
     const postInstructions = slateToText(postOp.additionalInstructions);
-    if (postInstructions) content.push({ type: "text", body: `**Post-op:** ${postInstructions.length > 200 ? postInstructions.substring(0, 197) + "..." : postInstructions}` });
+    if (postInstructions) {
+      content.push({ type: "text", variant: "heading", body: "Post-operative" });
+      content.push({ type: "deflist", items: [{ key: "Instructions", value: postInstructions }] });
+    }
   });
 
   return {
@@ -666,6 +728,7 @@ function buildTaskListCard(tasks) {
     intro: list.length ? `${list.length} item${list.length === 1 ? "" : "s"} need your attention${urgent ? `, ${urgent} urgent` : ""}.` : "Nothing needs your attention right now.",
     config: {
       kind: "task_list",
+      sources: [{ label: "Ward task queue", description: "Pending items flagged by nursing and MO across your patients" }],
       header: { icon: "clipboard-text", title: "Ward tasks", date: "Ranked by urgency", badge: list.length ? { label: `${list.length}`, tone: "info" } : undefined },
       content: list.length ? [{ type: "tasklist", tasks: list }] : [{ type: "text", body: "No pending items across your in-patients." }],
     },

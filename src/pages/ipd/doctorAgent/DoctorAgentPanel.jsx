@@ -4,7 +4,6 @@ import { TPIcon } from "@dhspl-tatvacare/tesseract-ui";
 import { useAgentPatient } from "./stores/patientContext.js";
 import { useAgentOpen, closePanel } from "./stores/panelStore.js";
 import { useWorkspaceContext } from "./stores/workspaceStore.js";
-import { openPrintView } from "./stores/printViewStore.js";
 import { openProgressPrint } from "./stores/progressPrintStore.js";
 import { AiBrandSpark } from "./panel/AiBrandSpark.jsx";
 import { welcomeIcon } from "./panel/WelcomeIcons.jsx";
@@ -358,16 +357,16 @@ function FeedbackRow({ hasCard, sources, print }) {
                   </div>
                 ))}
               </div>
-              {/* Hand-off: progress-notes cards open all their notes as a scrollable
-                  print sheet; every other card opens the full nursing record. */}
-              <button
-                type="button"
-                onClick={() => { setSrcOpen(false); if (isProgress) openProgressPrint(print.noteKind); else openPrintView(); }}
-                style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, width: "100%", padding: "8px 12px", border: "none", borderTop: "1px solid rgba(148,163,184,0.12)", background: "var(--tp-blue-50, #EEEEFF)", color: "var(--tp-blue-600, #3C3BB5)", fontSize: 12.5, fontWeight: 600, cursor: "pointer" }}
-              >
-                <TPIcon name={isProgress ? "document-text" : "note-2"} variant="bulk" size={14} color="var(--tp-blue-600, #3C3BB5)" />
-                {isProgress ? print.label : "View nursing record"}
-              </button>
+              {isProgress && print.label && (
+                <button
+                  type="button"
+                  onClick={() => { setSrcOpen(false); openProgressPrint(print.noteKind); }}
+                  style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6, width: "100%", padding: "8px 12px", border: "none", borderTop: "1px solid rgba(148,163,184,0.12)", background: "var(--tp-blue-50, #EEEEFF)", color: "var(--tp-blue-600, #3C3BB5)", fontSize: 12.5, fontWeight: 600, cursor: "pointer" }}
+                >
+                  <TPIcon name="document-text" variant="bulk" size={14} color="var(--tp-blue-600, #3C3BB5)" />
+                  {print.label}
+                </button>
+              )}
             </div>
           )}
         </>
@@ -376,7 +375,7 @@ function FeedbackRow({ hasCard, sources, print }) {
   );
 }
 
-const DEFAULT_SOURCES = [{ label: "Nursing chart", description: "Recorded by nursing on the ward" }];
+const DEFAULT_SOURCES = [{ label: "IPD clinical record", description: "Charted in the IPD modules by clinical staff" }];
 
 function IconBtn({ children, active, activeColor, onClick, label }) {
   return (

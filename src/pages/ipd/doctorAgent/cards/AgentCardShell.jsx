@@ -240,13 +240,14 @@ function NoteCard({ note }) {
 }
 
 /* Filterable ward task list (the aggregated home view). */
-const TASK_ICON = { medication: "capsule", wound: "band-aids", lab: "ai-flask", transfusion: "blood", round: "clipboard-text", preop: "clipboard-tick" };
+const TASK_ICON = { medication: "capsule", wound: "band-aids", lab: "ai-flask", transfusion: "blood", round: "clipboard-text", preop: "clipboard-tick", Meds: "capsule", Labs: "ai-flask", Wound: "band-aids", Referral: "arrow-swap-horizontal", OT: "scissor" };
 const TASK_FILTERS = [
   { key: "all", label: "All" },
-  { key: "medication", label: "Meds" },
-  { key: "lab", label: "Labs" },
-  { key: "wound", label: "Wound" },
-  { key: "transfusion", label: "Transfusion" },
+  { key: "Labs", label: "Labs" },
+  { key: "Meds", label: "Meds" },
+  { key: "Referral", label: "Referrals" },
+  { key: "OT", label: "OT" },
+  { key: "Wound", label: "Wound" },
 ];
 const PRIORITY_TONE = { Urgent: "critical", Today: "info", Info: "neutral" };
 
@@ -254,11 +255,11 @@ function TaskList({ tasks = [], onTaskClick }) {
   const [filter, setFilter] = useState("all");
   const present = new Set(tasks.map((t) => t.kind));
   const filters = TASK_FILTERS.filter((f) => f.key === "all" || present.has(f.key));
+  const showFilters = filters.length > 2;
   const rows = filter === "all" ? tasks : tasks.filter((t) => t.kind === filter);
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-      {/* Filter chips */}
-      <div className="da-suggestion-scroll" style={{ display: "flex", gap: 6, overflowX: "auto" }}>
+      {showFilters && <div className="da-suggestion-scroll" style={{ display: "flex", gap: 6, overflowX: "auto" }}>
         {filters.map((f) => {
           const active = filter === f.key;
           return (
@@ -272,7 +273,7 @@ function TaskList({ tasks = [], onTaskClick }) {
             </button>
           );
         })}
-      </div>
+      </div>}
       {/* Rows */}
       <div style={{ display: "flex", flexDirection: "column", gap: 2, maxHeight: 320, overflowY: "auto" }} className="da-suggestion-scroll">
         {rows.map((t, i) => {
@@ -313,6 +314,13 @@ function TaskList({ tasks = [], onTaskClick }) {
 }
 
 function TextBlock({ block }) {
+  if (block.variant === "heading") {
+    return (
+      <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 10.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.4, color: "var(--tesseract-fg-secondary, #475467)", background: "var(--tesseract-slate-100, #f1f1f5)", padding: "3px 8px", borderRadius: 5, marginTop: 4 }}>
+        <span>{block.body}</span>
+      </div>
+    );
+  }
   const color = block.variant === "alert" ? "var(--tesseract-fg-error, #c8102e)" : "var(--tesseract-fg-secondary, #475467)";
   return <p style={{ margin: 0, fontSize: 12, lineHeight: "17px", color }}>{block.body}</p>;
 }
