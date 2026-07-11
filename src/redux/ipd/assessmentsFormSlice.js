@@ -177,6 +177,24 @@ const assessmentSlice = createSlice({
           assessment: undefined,
         };
         state.assessmentId = action.payload._id;
+        var a = action.payload.assessment;
+        if (a) {
+          state.chiefComplaint = a.basicInfo?.presentingComplaints || [];
+          state.topInformant = a.basicInfo?.topInformant || null;
+          state.historyOfPresentIllness = a.basicInfo?.historyOfPresentIllness || [];
+          state.labResults = a.basicInfo?.labResults || [];
+          state.vitalsData = a.physicalExamination?.vitals || {};
+          state.physicalExaminationOthersData = a.physicalExamination?.others || [];
+          state.physicalExaminationBasicData = a.physicalExamination?.examination || {};
+          state.physicalExaminationProvisionalDiagnosisData = a.provisionalDiagnosis || [];
+          state.treatmentPlanData = a.treatmentPlan || {};
+          state.additionalNotesData = a.additionalNotes || {};
+          if (a.functionalAssessment) {
+            var fa = { ...a.functionalAssessment };
+            delete fa.referredToPhysiotherapyForReview;
+            state.functionalAssessmentData = fa;
+          }
+        }
       })
       .addCase(getAssessmentsData.rejected, (state, action) => {
         state.assessmentsData = {};

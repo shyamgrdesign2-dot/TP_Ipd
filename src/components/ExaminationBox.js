@@ -108,7 +108,7 @@ function ExaminationBox() {
 
   useEffect(() => {
     const data = [];
-    parentOptionsList.map((e) => {
+    (Array.isArray(parentOptionsList) ? parentOptionsList : []).map((e) => {
       return data.push({
         key: JSON.stringify({ ...e, unique_id: uuidv4() }),
         value: e.examination_name,

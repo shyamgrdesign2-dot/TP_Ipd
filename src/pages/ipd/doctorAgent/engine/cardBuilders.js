@@ -77,43 +77,33 @@ function buildVitalTrendsCard(e, pt) {
 
   const sorted = trend.slice().sort((a, b) => new Date(a.recordedAt || 0) - new Date(b.recordedAt || 0));
 
-  const bpRows = sorted.map((r) => [
-    r.recordedAt ? toDateTimeLabel(r.recordedAt) : "-",
-    r.systolicBP != null && r.diastolicBP != null ? `${r.systolicBP}/${r.diastolicBP}` : "-",
-    r.recordedBy || "-",
-  ]);
-  const hrRows = sorted.map((r) => [
-    r.recordedAt ? toDateTimeLabel(r.recordedAt) : "-",
-    r.heartRate != null ? `${r.heartRate}` : "-",
-    r.recordedBy || "-",
-  ]);
-  const spo2Rows = sorted.map((r) => [
-    r.recordedAt ? toDateTimeLabel(r.recordedAt) : "-",
-    r.spo2 != null ? `${r.spo2}%` : "-",
-    r.recordedBy || "-",
-  ]);
-  const tempRows = sorted.map((r) => [
-    r.recordedAt ? toDateTimeLabel(r.recordedAt) : "-",
-    r.temperature != null ? `${r.temperature} C` : "-",
-    r.recordedBy || "-",
-  ]);
-  const rrRows = sorted.map((r) => [
-    r.recordedAt ? toDateTimeLabel(r.recordedAt) : "-",
-    r.respiratoryRate != null ? `${r.respiratoryRate}` : "-",
-    r.recordedBy || "-",
-  ]);
+  var timeLabels = sorted.map(function (r) {
+    if (!r.recordedAt) return "-";
+    var d = new Date(r.recordedAt);
+    var h = d.getHours(), m = d.getMinutes();
+    var dd = d.getDate(), mon = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getMonth()];
+    return dd + " " + mon + " " + (h % 12 || 12) + ":" + (m < 10 ? "0" : "") + m + (h >= 12 ? "p" : "a");
+  });
 
-  const content = [];
-  content.push({ type: "text", variant: "heading", body: "BP Trend (mmHg)" });
-  content.push({ type: "table", columns: ["Time", "BP", "By"], rows: bpRows });
-  content.push({ type: "text", variant: "heading", body: "Heart Rate Trend (bpm)" });
-  content.push({ type: "table", columns: ["Time", "HR", "By"], rows: hrRows });
-  content.push({ type: "text", variant: "heading", body: "SpO2 Trend (%)" });
-  content.push({ type: "table", columns: ["Time", "SpO2", "By"], rows: spo2Rows });
-  content.push({ type: "text", variant: "heading", body: "Temperature Trend (C)" });
-  content.push({ type: "table", columns: ["Time", "Temp", "By"], rows: tempRows });
-  content.push({ type: "text", variant: "heading", body: "Respiratory Rate Trend (/min)" });
-  content.push({ type: "table", columns: ["Time", "RR", "By"], rows: rrRows });
+  var content = [];
+  content.push({ type: "linechart", title: "Blood Pressure", unit: "mmHg", labels: timeLabels, normalRange: [90, 140],
+    series: [
+      { label: "Systolic", data: sorted.map(function (r) { return r.systolicBP != null ? r.systolicBP : null; }) },
+      { label: "Diastolic", data: sorted.map(function (r) { return r.diastolicBP != null ? r.diastolicBP : null; }) },
+    ],
+  });
+  content.push({ type: "linechart", title: "Heart Rate", unit: "bpm", labels: timeLabels, normalRange: [60, 100],
+    series: [{ label: "HR", data: sorted.map(function (r) { return r.heartRate != null ? r.heartRate : null; }) }],
+  });
+  content.push({ type: "linechart", title: "SpO2", unit: "%", labels: timeLabels, normalRange: [95, 100],
+    series: [{ label: "SpO2", data: sorted.map(function (r) { return r.spo2 != null ? r.spo2 : null; }) }],
+  });
+  content.push({ type: "linechart", title: "Temperature", unit: "°C", labels: timeLabels, normalRange: [36.1, 37.5],
+    series: [{ label: "Temp", data: sorted.map(function (r) { return r.temperature != null ? r.temperature : null; }) }],
+  });
+  content.push({ type: "linechart", title: "Respiratory Rate", unit: "/min", labels: timeLabels, normalRange: [12, 20],
+    series: [{ label: "RR", data: sorted.map(function (r) { return r.respiratoryRate != null ? r.respiratoryRate : null; }) }],
+  });
 
   return {
     intro: `**Vital trends**${pt ? ` for **${pt}**` : ""}, showing ${sorted.length} reading${sorted.length === 1 ? "" : "s"} over time.`,

@@ -212,12 +212,11 @@ function IPDHeader({ locationPath }) {
       <Navbar className="justify-content-between portal-header" style={{ padding: "8px 20px" }}>
         <Container fluid className="d-flex align-items-center justify-content-between">
           <div className="d-flex align-items-center" style={{ gap: 12 }}>
-            <img src={tpLogo} alt="TatvaPractice" style={{ height: 36 }} />
-            <img src={tpWordmark} alt="tatvaPractice" style={{ height: 20 }} />
+            <img src={tpWordmark} alt="tatvaPractice" style={{ height: 24 }} />
             <span
+              ref={el => { if (el) el.style.setProperty("color", "#fff", "important"); }}
               style={{
                 background: "linear-gradient(91deg, #D565EA 3%, #673AAC 67%, #1A1994 130%)",
-                color: "#fff",
                 fontSize: 11,
                 fontWeight: 700,
                 padding: "3px 10px",

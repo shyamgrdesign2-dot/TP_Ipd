@@ -3,6 +3,7 @@
   "outputDirectory": "build",
   "framework": null,
   "rewrites": [
+    { "source": "/shared-ui/:path*", "destination": "https://pm-storybook-ui-prod.tatvacare.in/:path*" },
     { "source": "/((?!shared-ui|static|icons|favicon|manifest|logo|asset-manifest).*)", "destination": "/index.html" }
   ],
   "headers": [

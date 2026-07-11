@@ -20,6 +20,22 @@ import {
   findAdmissionId,
 } from "./demoData";
 import { PERSISTANT_STORAGE_KEY_AUTH_TOKEN } from "../utils/constants";
+import { store } from "../redux/store";
+import {
+  setChiefComplaint,
+  setTopInformant,
+  setHistoryOfPresentIllness,
+  setLabResults,
+  setPhysicalExaminationOthersData,
+  setPhysicalExaminationBasicData,
+  setFunctionalAssessmentData,
+  setTreatmentPlanData,
+  setAdditionalNotesData,
+  setVitalsData,
+  setPhysicalExaminationProvisionalDiagnosisData,
+} from "../redux/ipd/assessmentsFormSlice";
+import { setMedicalHistoryData } from "../redux/prescriptionSlice";
+import { IPD } from "../utils/locale";
 
 var IS_DEMO = process.env.REACT_APP_DEMO === "true";
 
@@ -177,6 +193,24 @@ function demoRequestInterceptor(config) {
       var admId1 = findAdmissionId(full);
       config.adapter = function () {
         var data = admId1 && MOCK_ASSESSMENTS[admId1] ? MOCK_ASSESSMENTS[admId1] : {};
+        if (data && data.assessment) {
+          var a = data.assessment;
+          setTimeout(function () {
+            store.dispatch(setChiefComplaint(a.basicInfo?.presentingComplaints || []));
+            store.dispatch(setTopInformant(a.basicInfo?.topInformant || null));
+            store.dispatch(setHistoryOfPresentIllness(a.basicInfo?.historyOfPresentIllness || []));
+            store.dispatch(setLabResults(a.basicInfo?.labResults || []));
+            store.dispatch(setMedicalHistoryData(a.basicInfo?.pastMedicalHistory || []));
+            store.dispatch(setVitalsData(a.physicalExamination?.vitals || {}));
+            store.dispatch(setPhysicalExaminationOthersData(a.physicalExamination?.others || []));
+            store.dispatch(setPhysicalExaminationBasicData(a.physicalExamination?.examination || {}));
+            store.dispatch(setPhysicalExaminationProvisionalDiagnosisData(a.provisionalDiagnosis || []));
+            var fa = { ...a.functionalAssessment }; delete fa.referredToPhysiotherapyForReview;
+            store.dispatch(setFunctionalAssessmentData(fa));
+            store.dispatch(setTreatmentPlanData(a.treatmentPlan || {}));
+            store.dispatch(setAdditionalNotesData(a.additionalNotes || {}));
+          }, 50);
+        }
         return mockResponse(data);
       };
       return config;
@@ -262,9 +296,23 @@ function demoRequestInterceptor(config) {
       return config;
     }
 
-    if (full.includes("/dynamic-modules") || full.includes("/customization") || full.includes("/print-settings") || full.includes("/printSettings")) {
+    if (full.includes("/dynamic-modules")) {
       config.adapter = function () {
         return mockResponse({ modules: [] });
+      };
+      return config;
+    }
+
+    if (full.includes("/customization")) {
+      config.adapter = function () {
+        return mockResponse({ settings: { assessments: IPD.DEFAULT_ASSESSMENTS_FORM_STRUCTURE } });
+      };
+      return config;
+    }
+
+    if (full.includes("/print-settings") || full.includes("/printSettings")) {
+      config.adapter = function () {
+        return mockResponse({});
       };
       return config;
     }
@@ -312,10 +360,23 @@ function setupAxiosInterceptors() {
   apiInstance.interceptors.request.use(demoRequestInterceptor);
 }
 
+function setupStoreSubscriber() {
+  var lastAssessmentsData = null;
+  store.subscribe(function () {
+    var state = store.getState();
+    var current = state.assessment?.assessmentsData;
+    if (current && current !== lastAssessmentsData && current.basicInfo?.pastMedicalHistory) {
+      lastAssessmentsData = current;
+      store.dispatch(setMedicalHistoryData(current.basicInfo.pastMedicalHistory));
+    }
+  });
+}
+
 export function initDemo() {
   if (!IS_DEMO) return false;
   setupDemoAuth();
   setupAxiosInterceptors();
+  setupStoreSubscriber();
   return true;
 }
 
