@@ -777,25 +777,7 @@ module.exports = function (webpackEnv) {
             },
           },
         }),
-        new ModuleFederationPlugin({
-          name: 'host',
-          remotes: {
-            shared_ui:
-              process.env.REACT_APP_ENV === 'ipd'
-                ? 'module /shared-ui-adapter.js'
-                : isProdLikeReactAppEnv
-                ? 'module /shared-ui/assets/remoteEntry.js'
-                : process.env.USE_LOCAL_SHARED_UI === 'true'
-                ? 'module http://localhost:3001/assets/remoteEntry.js'
-                : 'module /shared-ui/assets/remoteEntry.js',
-          },
-          shared: {
-            react: { singleton: true, requiredVersion: false, eager: false },
-            'react-dom': { singleton: true, requiredVersion: false, eager: false },
-            'react/jsx-runtime': { singleton: true, requiredVersion: false, eager: false },
-            'react/jsx-dev-runtime': { singleton: true, requiredVersion: false, eager: false },
-          },
-        })
+        // Module Federation disabled — remote components are stubbed locally
         
     ].filter(Boolean),
     // Turn off performance processing because we utilize
