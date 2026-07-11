@@ -6,8 +6,14 @@ function get(module) {
   const result = originalGet(module);
   if (result && typeof result.then === "function") {
     return result.then(function (m) {
+      if (typeof m === "function") {
+        return m;
+      }
       return function () { return m; };
     });
+  }
+  if (typeof result === "function") {
+    return result;
   }
   return function () { return result; };
 }

@@ -777,7 +777,18 @@ module.exports = function (webpackEnv) {
             },
           },
         }),
-        // Module Federation disabled — remote components are stubbed locally
+        new ModuleFederationPlugin({
+          name: 'host',
+          remotes: {
+            shared_ui: 'module /shared-ui-adapter.js',
+          },
+          shared: {
+            react: { singleton: true, requiredVersion: false, eager: false },
+            'react-dom': { singleton: true, requiredVersion: false, eager: false },
+            'react/jsx-runtime': { singleton: true, requiredVersion: false, eager: false },
+            'react/jsx-dev-runtime': { singleton: true, requiredVersion: false, eager: false },
+          },
+        })
         
     ].filter(Boolean),
     // Turn off performance processing because we utilize
