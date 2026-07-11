@@ -341,7 +341,7 @@ function FeedbackRow({ hasCard, sources, print }) {
             <span ref={el => { if (el) el.style.setProperty("color", srcOpen ? "#3C3BB5" : "#717179", "important"); }} style={{ fontSize: 12, fontWeight: 500, lineHeight: 1 }}>Source</span>
           </button>
           {srcOpen && (
-            <div style={{ position: "absolute", top: "100%", left: 44, marginTop: 4, zIndex: 60, width: 240, borderRadius: 8, background: "#fff", boxShadow: "0 4px 20px rgba(0,0,0,0.12), 0 0 0 1px rgba(148,163,184,0.12)", overflow: "hidden" }}>
+            <div style={{ position: "absolute", bottom: "100%", left: 44, marginBottom: 6, zIndex: 60, width: 240, borderRadius: 8, background: "#fff", boxShadow: "0 8px 30px rgba(0,0,0,0.14), 0 0 0 1px rgba(148,163,184,0.12)" }}>
               <div style={{ padding: "7px 12px", borderBottom: "1px solid rgba(148,163,184,0.10)", fontSize: 12, fontWeight: 600, color: "var(--tp-slate-500, #717179)" }}>
                 Compiled from {list.length} source{list.length > 1 ? "s" : ""}
               </div>
