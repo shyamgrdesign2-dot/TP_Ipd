@@ -782,7 +782,7 @@ module.exports = function (webpackEnv) {
           remotes: {
             shared_ui:
               process.env.REACT_APP_ENV === 'ipd'
-                ? 'module /shared-ui/assets/remoteEntry.js'
+                ? 'module /shared-ui-adapter.js'
                 : isProdLikeReactAppEnv
                 ? 'module /shared-ui/assets/remoteEntry.js'
                 : process.env.USE_LOCAL_SHARED_UI === 'true'
