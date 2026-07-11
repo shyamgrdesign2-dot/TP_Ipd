@@ -522,17 +522,6 @@ const AssessmentsForm = (props) => {
               );
             })
           : null}
-        <FilledByCards
-          updates={
-            normalizedUpdates.length
-              ? [normalizedUpdates[normalizedUpdates.length - 1]]
-              : []
-          }
-          createdByRole={createdByRole}
-          createdByName={createdByName}
-          createdAt={createdAt}
-          containerClassName={"assessment-form-filled-by-cards-container"}
-        />
       </div>
     );
   };
